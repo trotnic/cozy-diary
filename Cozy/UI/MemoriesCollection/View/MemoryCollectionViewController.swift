@@ -54,7 +54,8 @@ class MemoryCollectionViewController: BaseViewController {
     
     private func bindData() {
         viewModel.memories.bind(to:
-        collectionView.rx.items(cellIdentifier: MemoryCollectionViewCell.reuseIdentifier, cellType: MemoryCollectionViewCell.self)) { item, element, cell in
+        collectionView.rx.items(cellIdentifier: MemoryCollectionViewCell.reuseIdentifier, cellType: MemoryCollectionViewCell.self))
+        { item, element, cell in
             cell.textLabel.text = "\(element.date)"
         }
         .disposed(by: disposeBag)

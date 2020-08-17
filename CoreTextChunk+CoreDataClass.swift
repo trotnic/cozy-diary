@@ -13,4 +13,11 @@ import CoreData
 @objc(CoreTextChunk)
 public class CoreTextChunk: NSManagedObject {
 
+    var selfChunk: TextChunk {
+        get {
+            
+            TextChunk(text: text ?? "", index: Int(index))
+        }
+    }
+    
 }

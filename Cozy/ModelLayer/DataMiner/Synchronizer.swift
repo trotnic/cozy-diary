@@ -14,7 +14,7 @@ class CoreDataManager {
     
     static let shared = CoreDataManager()
     
-    lazy var persistenceContainer: NSPersistentContainer = {
+    let persistenceContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "Cozy")
         container.loadPersistentStores { (description, error) in
             if let error = error {
@@ -34,6 +34,16 @@ class CoreDataManager {
     
 }
 
+class UserDefaultsManager {
+    
+    static let shared = UserDefaultsManager()
+    
+    var isTodayRemembered: Bool {
+        UserDefaults.standard.bool(forKey: "")
+    }
+    
+}
+
 class CoreDataModeller {
     
     let manager: CoreDataManager
@@ -42,28 +52,75 @@ class CoreDataModeller {
         self.manager = manager
     }
     
-    var memories: BehaviorSubject<[Memory]> {
-        let fetchRequest = NSFetchRequest<CoreMemory>(entityName: "CoreMemory")
-        fetchRequest.sortDescriptors = []
-        
-        do {
-            let object = try! self.manager.viewContext.fetch(fetchRequest)
-            return .init(value:object.map { cm -> Memory in
-                
-                return .init(date: cm.date!)
-            })
-        } catch {
-            
+    func fetchRelevantOrCreate() -> Memory {
+        guard let memory = relevantMemory() else {
+            return createNewOne()
         }
-        
+        return memory
     }
     
+    func relevantMemory() -> Memory? {
+        let context = CoreDataManager.shared.viewContext
+        let fetchRequest = NSFetchRequest<CoreMemory>(entityName: "CoreMemory")
+        fetchRequest.returnsObjectsAsFaults = false
+        fetchRequest.predicate = NSPredicate(format: "(date >= %@) AND (date < %@)", PerfectCalendar.shared.today as NSDate, PerfectCalendar.shared.tomorrow as NSDate)
+        let result = try? context.fetch(fetchRequest)
+        return result?.first?.selfChunk
+    }
+    
+    func createNewOne() -> Memory {
+        let context = CoreDataManager.shared.viewContext
+        let entity = CoreMemory(context: context)
+        entity.date = PerfectCalendar.shared.today
+        do {
+            try context.save()
+        } catch {
+            fatalError("Oh sh*t")
+        }
+        return entity.selfChunk
+    }
+    
+    
+}
+
+class PerfectCalendar {
+    
+    static let shared = PerfectCalendar()
+    
+    var today: Date {
+        var calendar = Calendar.current
+        calendar.timeZone = TimeZone(abbreviation: "UTC")!
+        return calendar.startOfDay(for: Date())
+    }
+    
+    var tomorrow: Date {
+        var calendar = Calendar.current
+        calendar.timeZone = TimeZone(abbreviation: "UTC")!
+        var components = DateComponents()
+        components.day = 1
+        return calendar.date(byAdding: components, to: calendar.startOfDay(for: Date()))!
+    }
     
 }
 
 class Synchronizer {
     
     static let shared = Synchronizer()
+    let relevantMemory: BehaviorSubject<Memory>
+    
+    private let disposeBag = DisposeBag()
+    
+    init() {
+        let memory = CoreDataModeller(manager: CoreDataManager.shared).fetchRelevantOrCreate()
+        relevantMemory = .init(value: memory)
+        
+        NotificationCenter.default
+            .rx.notification(UIApplication.willResignActiveNotification)
+            .subscribe(onNext: { notificaiton in
+                
+        })
+        .disposed(by: disposeBag)
+    }
     
     
     

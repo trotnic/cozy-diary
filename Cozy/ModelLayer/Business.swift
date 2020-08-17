@@ -7,10 +7,10 @@
 //
 
 import Foundation
+//import RxSwift
 
-// protocols
 
-protocol Chunkable {
+protocol Chunkable: Hashable {
     var index: Int { get set }
 }
 
@@ -20,12 +20,42 @@ protocol TextChunkable: Chunkable {
 
 // structs
 
-struct TextChunk: TextChunkable {
+class Memory {
+    let date: Date
+    var texts: Set<TextChunk>
+
+    
+    init(date: Date, texts: Set<TextChunk>) {
+        self.date = date
+        
+        self.texts = texts
+    }
+//    func observableTexts() -> Array<Observable<TextChunk>> {
+//        texts.map { chunk -> Observable<TextChunk> in
+//            .just(chunk)
+//        }
+//    }
+}
+
+class TextChunk: TextChunkable {
+    static func == (lhs: TextChunk, rhs: TextChunk) -> Bool {
+        lhs.text == rhs.text && lhs.index == rhs.index
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(text.hashValue | index)
+    }
+    
+    
     var text: String
     var index: Int
+    
+    init(text: String, index: Int) {
+        self.text = text
+        self.index = index
+    }
+    
+    
+    
 }
 
-
-struct Memory {
-    let date: Date
-}

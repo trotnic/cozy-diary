@@ -12,10 +12,12 @@ import CoreData
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-
-
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        
+//        Synchronizer.shared.relevantMemory = CoreDataModeller(manager: CoreDataManager()).fetchRelevantOrCreate()
+//        Synchronizer.shared.relevantMemory.texts.insert(TextChunk(text: "LOLKEK", index: 0))
+//        CoreMemory.update(Synchronizer.shared.relevantMemory)
+        
         return true
     }
 

@@ -15,21 +15,23 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         
-        if let scene = scene as? UIWindowScene {
-            
-//            let context = CoreDataManager.shared.viewContext
-//            let entity = CoreMemory(context: context)
-//            entity.date = Date()
-//            try! context.save()
-            
-            
+        if let scene = scene as? UIWindowScene {    
+            let vc = MemoryCreateViewController(MemoryCreateViewModel(memory: Synchronizer.shared.relevantMemory))
             window = UIWindow(windowScene: scene)
-            window?.rootViewController = MemoryCollectionViewController(viewModel: MemoryCollectionViewModel())
+            window?.rootViewController = UINavigationController(rootViewController: vc)
             
             window?.makeKeyAndVisible()
         }
         
         guard let _ = (scene as? UIWindowScene) else { return }
+    }
+    
+    func sceneDidBecomeActive(_ scene: UIScene) {
+        
+    }
+    
+    func sceneWillResignActive(_ scene: UIScene) {
+        
     }
 
     func sceneDidEnterBackground(_ scene: UIScene) {

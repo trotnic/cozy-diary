@@ -14,7 +14,8 @@ import CoreData
 class MemoryCollectionViewModel: MemoryCollectionViewModelProtocol {
     
     var memories: BehaviorSubject<[Memory]> {
-        return CoreDataModeller(manager: CoreDataManager.shared).memories
+//        return CoreDataModeller(manager: CoreDataManager.shared).memories
+        .init(value: [])
     }
     
 }

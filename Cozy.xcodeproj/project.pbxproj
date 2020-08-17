@@ -16,7 +16,6 @@
 		2B574CAC24E7D3F00071D97C /* BaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B574CAB24E7D3F00071D97C /* BaseViewController.swift */; };
 		2B574CAE24E7D4190071D97C /* MemoryCreateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B574CAD24E7D4190071D97C /* MemoryCreateViewController.swift */; };
 		2B574CB024E7E2300071D97C /* MemoryCreateViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B574CAF24E7E2300071D97C /* MemoryCreateViewModel.swift */; };
-		2B574CB324E7FE0A0071D97C /* MemorizableTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B574CB224E7FE0A0071D97C /* MemorizableTextView.swift */; };
 		2B574CB624E83B940071D97C /* Business.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B574CB524E83B940071D97C /* Business.swift */; };
 		2B574CB924E83DC10071D97C /* MemoryCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B574CB824E83DC10071D97C /* MemoryCollectionViewController.swift */; };
 		2B574CBB24E842160071D97C /* MemoryCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B574CBA24E842160071D97C /* MemoryCollectionViewCell.swift */; };
@@ -24,6 +23,8 @@
 		2B574CC024E84A060071D97C /* Synchronizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B574CBF24E84A060071D97C /* Synchronizer.swift */; };
 		2B574CD624E850DA0071D97C /* CoreTextChunk+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B574CD224E850DA0071D97C /* CoreTextChunk+CoreDataClass.swift */; };
 		2B574CD824E850DA0071D97C /* CoreMemory+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B574CD424E850DA0071D97C /* CoreMemory+CoreDataClass.swift */; };
+		2B59E31A24E933F80084F118 /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B59E31924E933F80084F118 /* Helpers.swift */; };
+		2B59E31C24E9342A0084F118 /* TextChunkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B59E31B24E9342A0084F118 /* TextChunkView.swift */; };
 		B3B88CF141F8D6A579ECA1EE /* Pods_Cozy.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0FC798F2920457D08D7A46D4 /* Pods_Cozy.framework */; };
 /* End PBXBuildFile section */
 
@@ -40,7 +41,6 @@
 		2B574CAB24E7D3F00071D97C /* BaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseViewController.swift; sourceTree = "<group>"; };
 		2B574CAD24E7D4190071D97C /* MemoryCreateViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryCreateViewController.swift; sourceTree = "<group>"; };
 		2B574CAF24E7E2300071D97C /* MemoryCreateViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryCreateViewModel.swift; sourceTree = "<group>"; };
-		2B574CB224E7FE0A0071D97C /* MemorizableTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemorizableTextView.swift; sourceTree = "<group>"; };
 		2B574CB524E83B940071D97C /* Business.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Business.swift; sourceTree = "<group>"; };
 		2B574CB824E83DC10071D97C /* MemoryCollectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryCollectionViewController.swift; sourceTree = "<group>"; };
 		2B574CBA24E842160071D97C /* MemoryCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryCollectionViewCell.swift; sourceTree = "<group>"; };
@@ -48,6 +48,8 @@
 		2B574CBF24E84A060071D97C /* Synchronizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Synchronizer.swift; sourceTree = "<group>"; };
 		2B574CD224E850DA0071D97C /* CoreTextChunk+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CoreTextChunk+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
 		2B574CD424E850DA0071D97C /* CoreMemory+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CoreMemory+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
+		2B59E31924E933F80084F118 /* Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
+		2B59E31B24E9342A0084F118 /* TextChunkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextChunkView.swift; sourceTree = "<group>"; };
 		392D86B353E56D3881C36505 /* Pods-Cozy.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Cozy.release.xcconfig"; path = "Target Support Files/Pods-Cozy/Pods-Cozy.release.xcconfig"; sourceTree = "<group>"; };
 		9EA38423ED02106646ABD875 /* Pods-Cozy.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Cozy.debug.xcconfig"; path = "Target Support Files/Pods-Cozy/Pods-Cozy.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -195,7 +197,8 @@
 		2B574CB124E7FDB80071D97C /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				2B574CB224E7FE0A0071D97C /* MemorizableTextView.swift */,
+				2B59E31924E933F80084F118 /* Helpers.swift */,
+				2B59E31B24E9342A0084F118 /* TextChunkView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -372,14 +375,15 @@
 				2B574CB024E7E2300071D97C /* MemoryCreateViewModel.swift in Sources */,
 				2B574CBB24E842160071D97C /* MemoryCollectionViewCell.swift in Sources */,
 				2B574CC024E84A060071D97C /* Synchronizer.swift in Sources */,
-				2B574CB324E7FE0A0071D97C /* MemorizableTextView.swift in Sources */,
 				2B0748B024E5E3FA0031D203 /* ViewController.swift in Sources */,
 				2B574CBD24E849180071D97C /* MemoryCollectionViewModel.swift in Sources */,
+				2B59E31C24E9342A0084F118 /* TextChunkView.swift in Sources */,
 				2B0748AC24E5E3FA0031D203 /* AppDelegate.swift in Sources */,
 				2B574CB624E83B940071D97C /* Business.swift in Sources */,
 				2B574CD624E850DA0071D97C /* CoreTextChunk+CoreDataClass.swift in Sources */,
 				2B0748B624E5E3FA0031D203 /* Cozy.xcdatamodeld in Sources */,
 				2B0748AE24E5E3FA0031D203 /* SceneDelegate.swift in Sources */,
+				2B59E31A24E933F80084F118 /* Helpers.swift in Sources */,
 				2B574CD824E850DA0071D97C /* CoreMemory+CoreDataClass.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
