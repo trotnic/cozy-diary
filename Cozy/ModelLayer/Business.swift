@@ -51,7 +51,7 @@ class Memory {
     }
     
     var sortedChunks: Array<Chunkable> {
-        texts.sorted { (t1, t2) -> Bool in
+        (texts + photos).sorted { (t1, t2) -> Bool in
             t1.index < t2.index
         }
     }

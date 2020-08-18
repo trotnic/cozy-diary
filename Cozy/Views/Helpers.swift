@@ -11,7 +11,47 @@ import UIKit
 
 
 protocol MemorizableView: UIView {
-    
     func becomeFirstResponder()
+}
+
+
+struct ImageMeta {
+    let imageUrl: URL?
+    let originalImage: Data?
+    let editedImage: Data?
+}
+
+class ImagePicker: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
+    private var completion: ((ImageMeta) -> ())?
+    
+    lazy var imagePickerController: UIImagePickerController = {
+        let controller = UIImagePickerController()
+        controller.delegate = self
+        return controller
+    }()
+    
+    func prepareRollback(_ presenting: @escaping (UIImagePickerController) -> (), completion: @escaping (ImageMeta) -> ()) {
+        imagePickerController.sourceType = .savedPhotosAlbum
+        imagePickerController.allowsEditing = true
+        presenting(imagePickerController)
+        self.completion = completion
+    }
+    
+    func prepareGallery(_ presenting: @escaping (UIImagePickerController) -> (), completion: @escaping (ImageMeta) -> ()) {
+        imagePickerController.sourceType = .photoLibrary
+        imagePickerController.allowsEditing = true
+        presenting(imagePickerController)
+        self.completion = completion
+    }
+    
+    
+    // TODO: try to avoid type cast
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        let originalImage = (info[UIImagePickerController.InfoKey.originalImage] as? UIImage)?.jpegData(compressionQuality: 1)
+        let editedImage = (info[UIImagePickerController.InfoKey.editedImage] as? UIImage)?.jpegData(compressionQuality: 1)
+        let imageUrl = info[UIImagePickerController.InfoKey.imageURL] as? URL
+        let imageMeta = ImageMeta(imageUrl: imageUrl, originalImage: originalImage, editedImage: editedImage)
+        completion?(imageMeta)
+    }
 }
