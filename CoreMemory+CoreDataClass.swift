@@ -14,39 +14,53 @@ import CoreData
 public class CoreMemory: NSManagedObject {
 
     var selfChunk: Memory {
+        Memory(date: date!, index: Int(increment), texts: textChunks, photos: photoChunks)
+    }
+    
+    var textChunks: Array<TextChunk> {
         get {
-            
-            Memory(date: date!, texts: textChunks)
+            (texts?.allObjects as? Array<CoreTextChunk>)?.map { $0.selfChunk } ?? []
+        }
+        set {
+            texts = NSSet(array: newValue)
         }
     }
     
-    var textChunks: Set<TextChunk> {
+    var photoChunks: Array<PhotoChunk> {
         get {
-            Set<TextChunk>((texts?.allObjects as? Array<CoreTextChunk>)?.map { $0.selfChunk } ?? [])
+            (photos?.allObjects as? Array<CorePhotoChunk>)?.map { $0.selfChunk } ?? []
         }
         set {
-            texts = NSSet(array: newValue.map { $0 })
+            photos = NSSet(array: newValue)
         }
     }
     
     static func update(_ memory: Memory) {
+        let copy = memory
         let context = CoreDataManager.shared.viewContext
         let fetchRequest = NSFetchRequest<CoreMemory>(entityName: "CoreMemory")
-        fetchRequest.predicate = NSPredicate(format: "date == %@", memory.date as NSDate)
+        fetchRequest.predicate = NSPredicate(format: "date == %@", copy.date as NSDate)
         
         if let fetchResults = try? context.fetch(fetchRequest) {
             if fetchResults.count > 0 {
                 let entity = fetchResults.last
                 
-                
-                entity?.texts = NSSet(array: memory.texts.map {
-                    
+                entity?.texts = NSSet(array: copy.texts.map {
                     let textEntity = CoreTextChunk(context: context)
                     textEntity.index = Int64($0.index)
                     textEntity.text = $0.text
                     return textEntity
-                    
                 })
+                
+                entity?.photos = NSSet(array: copy.photos.map {
+                    let photoEntity = CorePhotoChunk(context: context)
+                    photoEntity.index = Int64($0.index)
+                    photoEntity.photo = $0.photo
+                    return photoEntity
+                })
+                
+                entity?.increment = Int64(copy.index)
+                
                 try! context.save()
             }
         }

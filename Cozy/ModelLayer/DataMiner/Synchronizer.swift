@@ -9,6 +9,7 @@
 import Foundation
 import CoreData
 import RxSwift
+import RxCocoa
 
 class CoreDataManager {
     
@@ -72,6 +73,12 @@ class CoreDataModeller {
         let context = CoreDataManager.shared.viewContext
         let entity = CoreMemory(context: context)
         entity.date = PerfectCalendar.shared.today
+        entity.increment = 1
+        let textEntity = CoreTextChunk(context: context)
+        textEntity.text = ""
+        textEntity.index = 0
+        entity.addToTexts(textEntity)
+        
         do {
             try context.save()
         } catch {
@@ -106,7 +113,7 @@ class PerfectCalendar {
 class Synchronizer {
     
     static let shared = Synchronizer()
-    let relevantMemory: BehaviorSubject<Memory>
+    let relevantMemory: BehaviorRelay<Memory>
     
     private let disposeBag = DisposeBag()
     

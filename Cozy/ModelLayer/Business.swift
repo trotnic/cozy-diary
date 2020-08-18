@@ -10,7 +10,7 @@ import Foundation
 //import RxSwift
 
 
-protocol Chunkable: Hashable {
+protocol Chunkable {
     var index: Int { get set }
 }
 
@@ -18,35 +18,46 @@ protocol TextChunkable: Chunkable {
     var text: String { get set }
 }
 
+protocol PhotoChunkable: Chunkable {
+    var photo: Data { get set }
+}
 // structs
 
 class Memory {
     let date: Date
-    var texts: Set<TextChunk>
+    private(set) var index: Int
+    private(set) var texts: Array<TextChunk>
+    private(set) var photos: Array<PhotoChunk>
 
-    
-    init(date: Date, texts: Set<TextChunk>) {
-        self.date = date
-        
-        self.texts = texts
+    private var total: Int {
+        texts.count + photos.count
     }
-//    func observableTexts() -> Array<Observable<TextChunk>> {
-//        texts.map { chunk -> Observable<TextChunk> in
-//            .just(chunk)
-//        }
-//    }
+    
+    init(date: Date, index: Int, texts: Array<TextChunk>, photos: Array<PhotoChunk>) {
+        self.date = date
+        self.index = index
+        self.texts = texts
+        self.photos = photos
+    }
+    
+    func insertTextChunk(_ text: String) {
+        texts.append(TextChunk(text: text, index: index))
+        index += 1
+    }
+    
+    func insertPhoto(_ photo: Data) {
+        photos.append(PhotoChunk(photo: photo, index: index))
+        index += 1
+    }
+    
+    var sortedChunks: Array<Chunkable> {
+        texts.sorted { (t1, t2) -> Bool in
+            t1.index < t2.index
+        }
+    }
 }
 
 class TextChunk: TextChunkable {
-    static func == (lhs: TextChunk, rhs: TextChunk) -> Bool {
-        lhs.text == rhs.text && lhs.index == rhs.index
-    }
-    
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(text.hashValue | index)
-    }
-    
-    
     var text: String
     var index: Int
     
@@ -54,8 +65,15 @@ class TextChunk: TextChunkable {
         self.text = text
         self.index = index
     }
+}
+
+class PhotoChunk: PhotoChunkable {
+    var photo: Data
+    var index: Int
     
-    
-    
+    init(photo: Data, index: Int) {
+        self.photo = photo
+        self.index = index
+    }
 }
 

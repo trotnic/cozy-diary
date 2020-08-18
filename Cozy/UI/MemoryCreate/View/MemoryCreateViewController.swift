@@ -9,21 +9,52 @@
 import UIKit
 import RxCocoa
 import RxSwift
+import RxDataSources
 
 protocol MemoryCreateViewModelProtocol {
     
     var viewDidLoad: PublishRelay<Void> { get }
     var viewDidAddTextChunk: PublishRelay<Void> { get }
-    var currentMemory: BehaviorSubject<Memory> { get }
-    var chunks: Array<TextChunkViewModel> { get }
-    
+    var currentMemory: BehaviorRelay<Memory> { get }
+    var items: BehaviorRelay<[MemoryCreateCollectionSection]>! { get }
+    var dataSource: RxCollectionViewSectionedReloadDataSource<MemoryCreateCollectionSection> { get }
 }
 
-class MemoryCreateViewController: BaseViewController {
+enum MemoryCreateCollectionItem {
+    case TextItem(viewModel: TextChunkViewModel)
+}
+
+struct MemoryCreateCollectionSection {
+    var items: [MemoryCreateCollectionItem]
+}
+
+extension MemoryCreateCollectionSection: SectionModelType {
+    typealias Item = MemoryCreateCollectionItem
     
-    enum ChunkType {
-        case text, photo
+    init(original: Self, items: [Self.Item]) {
+        self = original
     }
+}
+
+struct MemoryCreateDataSource {
+    typealias DataSource = RxCollectionViewSectionedReloadDataSource
+    
+    static func dataSource() -> DataSource<MemoryCreateCollectionSection> {
+        return .init(configureCell: { (dataSource, collectionView, indexPath, item) -> UICollectionViewCell in
+            switch dataSource[indexPath] {
+            case let .TextItem(viewModel):
+                if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TextChunkMemoryCell.reuseIdentifier, for: indexPath) as? TextChunkMemoryCell {
+                    cell.viewModel = viewModel
+                    return cell
+                }
+                return UICollectionViewCell()
+            }
+        })
+    }
+}
+
+
+class MemoryCreateViewController: BaseViewController {
 
     let viewModel: MemoryCreateViewModelProtocol
     
@@ -42,97 +73,44 @@ class MemoryCreateViewController: BaseViewController {
         return view
     }()
     
-    lazy var scrollView: UIScrollView = {
-        let view = UIScrollView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
-    lazy var contentView: UIStackView = {
-        let view = UIStackView()
-        view.axis = .vertical
-        view.translatesAutoresizingMaskIntoConstraints = false
+    lazy var collectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.itemSize = .init(width: UIScreen.main.bounds.width, height: 150)
+        let view = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        view.register(TextChunkMemoryCell.self, forCellWithReuseIdentifier: TextChunkMemoryCell.reuseIdentifier)
         return view
     }()
     
     private let disposeBag = DisposeBag()
-    private var viewsStack: Array<MemorizableView> = []
     private var currentMemory: MemorizableView!
     
+    override func loadView() {
+        view = collectionView
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         viewModel.viewDidLoad.accept(())
-        
-        setupScrollView()
-        setupChunks()
-        setupAddButton()
+        setupCollectionView()
     }
     
-    func setupAddButton() {
+    func setupCollectionView() {
+        viewModel.items
+            .bind(to: collectionView.rx.items(dataSource: viewModel.dataSource))
+            .disposed(by: disposeBag)
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage.add, style: .plain, target: self, action: #selector(doThings))
         
-    }
-    
-    @objc func doThings() {
-        
-    }
-    
-    func setupChunks() {
-        
-        viewModel.chunks.forEach { [weak self] viewModel in
-            self?.addTextChunk(viewModel: viewModel)
-        }
-        
-    }
-    
-    func addTextChunk(viewModel: TextChunkViewModel) {
-        let view = TextChunkView(viewModel)
-        view.sizeToFit()
-        view.font = .systemFont(ofSize: 25)
-        view.layer.borderColor = UIColor.black.cgColor
-        view.layer.borderWidth = 2
-        view.isScrollEnabled = false
-        view.backgroundColor = .red
-        contentView.addArrangedSubview(view)
-        viewsStack.append(view)
-        currentMemory = view
-        
-    }
-    
-    func setupScrollView() {
-        let safeGuide = view.safeAreaLayoutGuide
-    
-        view.addSubview(scrollView)
-        scrollView.addSubview(contentView)
-        scrollView.leadingAnchor.constraint(equalTo: safeGuide.leadingAnchor).isActive = true
-        scrollView.topAnchor.constraint(equalTo: safeGuide.topAnchor).isActive = true
-        scrollView.trailingAnchor.constraint(equalTo: safeGuide.trailingAnchor).isActive = true
-        scrollView.bottomAnchor.constraint(equalTo: safeGuide.bottomAnchor).isActive = true
-        scrollView.contentInset.bottom = 150
-        
-        contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor).isActive = true
-        contentView.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
-        contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor).isActive = true
-        contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor).isActive = true
-        contentView.widthAnchor.constraint(equalTo: view.safeAreaLayoutGuide.widthAnchor).isActive = true
-        
-        scrollView.contentSize = contentView.bounds.size
-        scrollView.sizeToFit()
-        
-    
         let tapGesture = UITapGestureRecognizer()
         
-        scrollView.addGestureRecognizer(tapGesture)
-        scrollView.backgroundColor = .white
+        collectionView.addGestureRecognizer(tapGesture)
+        collectionView.backgroundColor = .white
         tapGesture
             .rx.event
             .observeOn(MainScheduler.asyncInstance)
             .bind { [weak self] recognizer in
-                print(self?.viewModel.chunks.first?.text.value)
+                self?.viewModel.viewDidAddTextChunk.accept(())
         }
         .disposed(by: disposeBag)
-        
     }
 }
 

@@ -9,30 +9,45 @@
 import Foundation
 import RxSwift
 import RxCocoa
+import RxDataSources
 
 
 class MemoryCreateViewModel: MemoryCreateViewModelProtocol {
+    
+    typealias DataSource = RxCollectionViewSectionedReloadDataSource<MemoryCreateCollectionSection>
+    
+    var dataSource: DataSource
+    
     var viewDidLoad = PublishRelay<Void>()
     var viewDidAddTextChunk = PublishRelay<Void>()
     
-    private let cdModeller: CoreDataModeller
-    var currentMemory: BehaviorSubject<Memory>
+    var currentMemory: BehaviorRelay<Memory>
     
-    var chunks: Array<TextChunkViewModel> = []
+    var items: BehaviorRelay<[MemoryCreateCollectionSection]>!
     
     private let disposeBag = DisposeBag()
     
-    init(memory: BehaviorSubject<Memory>) {
-        
+    init(memory: BehaviorRelay<Memory>) {
+        dataSource = MemoryCreateDataSource.dataSource()
         currentMemory = memory
-        cdModeller = CoreDataModeller(manager: CoreDataManager())
+        items = .init(value: [])
         
-        currentMemory.subscribe(onNext: { [weak self] (memory) in
-            self?.chunks = memory.texts.map { text -> TextChunkViewModel in
-                .init(text)
+        viewDidAddTextChunk.subscribe(onNext: { [weak self] in
+            if let value = self?.currentMemory.value {
+                value.insertTextChunk("")
+                self?.currentMemory.accept(value)
             }
-        })
-        .disposed(by: disposeBag)
+        }).disposed(by: disposeBag)
+        
+        currentMemory.subscribe(onNext: { [weak self] memory in
+            self?.items.accept([
+                .init(items: memory.sortedChunks.map { chunk -> MemoryCreateCollectionItem in
+                    .TextItem(viewModel: TextChunkViewModel(chunk as! TextChunk))
+                })
+            ])
+        }).disposed(by: disposeBag)
+        
+        
     }
     
     
