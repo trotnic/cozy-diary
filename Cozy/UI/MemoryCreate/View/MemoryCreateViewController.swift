@@ -11,58 +11,42 @@ import RxCocoa
 import RxSwift
 import RxDataSources
 
+extension UIStackView {
+    
+    func removeAllArrangedSubviews() {
+        
+        let removedSubviews = arrangedSubviews.reduce([]) { (allSubviews, subview) -> [UIView] in
+            self.removeArrangedSubview(subview)
+            return allSubviews + [subview]
+        }
+        
+        // Deactivate all constraints
+        NSLayoutConstraint.deactivate(removedSubviews.flatMap({ $0.constraints }))
+        
+        // Remove the views from self
+        removedSubviews.forEach({ $0.removeFromSuperview() })
+    }
+}
+
 protocol MemoryCreateViewModelProtocol {
     
+    // inputs
+    
     var viewDidLoad: PublishRelay<Void> { get }
-    var viewDidAddTextChunk: PublishRelay<Void> { get }
     
-    var viewDidAddPhotoChunk: PublishRelay<Data> { get }
+    var textChunkRequest: PublishRelay<Void> { get }
+    var photoChunkRequest: PublishRelay<Data> { get }
     
-    var currentMemory: BehaviorRelay<Memory> { get }
-    var items: BehaviorRelay<[MemoryCreateCollectionSection]>! { get }
-    var dataSource: RxCollectionViewSectionedReloadDataSource<MemoryCreateCollectionSection> { get }
+    // outputs
+    
+    var textChunkGrows: PublishRelay<Void> { get }
+    var items: BehaviorRelay<[MemoryCreateCollectionItem]>! { get }
 }
 
 enum MemoryCreateCollectionItem {
     case TextItem(viewModel: TextChunkViewModel)
     case PhotoItem(viewModel: PhotoChunkViewModel)
 }
-
-struct MemoryCreateCollectionSection {
-    var items: [MemoryCreateCollectionItem]
-}
-
-extension MemoryCreateCollectionSection: SectionModelType {
-    typealias Item = MemoryCreateCollectionItem
-    
-    init(original: Self, items: [Self.Item]) {
-        self = original
-    }
-}
-
-struct MemoryCreateDataSource {
-    typealias DataSource = RxCollectionViewSectionedReloadDataSource
-    
-    static func dataSource() -> DataSource<MemoryCreateCollectionSection> {
-        return .init(configureCell: { (dataSource, collectionView, indexPath, item) -> UICollectionViewCell in
-            switch dataSource[indexPath] {
-            case let .TextItem(viewModel):
-                if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TextChunkMemoryCell.reuseIdentifier, for: indexPath) as? TextChunkMemoryCell {
-                    cell.viewModel = viewModel
-                    return cell
-                }
-                return UICollectionViewCell()
-            case let .PhotoItem(viewModel):
-                if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PhotoChunkMemoryCell.reuseIdentifier, for: indexPath) as? PhotoChunkMemoryCell {
-                    cell.viewModel = viewModel
-                    return cell
-                }
-                return UICollectionViewCell()
-            }
-        })
-    }
-}
-
 
 class MemoryCreateViewController: BaseViewController {
     let imagePicker = ImagePicker()
@@ -84,26 +68,26 @@ class MemoryCreateViewController: BaseViewController {
         return view
     }()
     
-    lazy var collectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.itemSize = .init(width: UIScreen.main.bounds.width, height: 150)
-        let view = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        view.register(TextChunkMemoryCell.self, forCellWithReuseIdentifier: TextChunkMemoryCell.reuseIdentifier)
-        view.register(PhotoChunkMemoryCell.self, forCellWithReuseIdentifier: PhotoChunkMemoryCell.reuseIdentifier)
+    lazy var scrollView: UIScrollView = {
+        let view = UIScrollView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    lazy var contentView: UIStackView = {
+        let view = UIStackView()
+        view.axis = .vertical
+        view.spacing = 10
+        view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
     private let disposeBag = DisposeBag()
-    private var currentMemory: MemorizableView!
-    
-    override func loadView() {
-        view = collectionView
-    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         viewModel.viewDidLoad.accept(())
-        setupCollectionView()
+        setupScrollView()
         setupPhotoButton()
     }
     
@@ -121,21 +105,58 @@ class MemoryCreateViewController: BaseViewController {
         
     }
     
-    func setupCollectionView() {
-        viewModel.items
-            .bind(to: collectionView.rx.items(dataSource: viewModel.dataSource))
-            .disposed(by: disposeBag)
+    func setupScrollView() {
+        let safeGuide = view.safeAreaLayoutGuide
+        
+        view.addSubview(scrollView)
+        scrollView.addSubview(contentView)
+        scrollView.leadingAnchor.constraint(equalTo: safeGuide.leadingAnchor).isActive = true
+        scrollView.topAnchor.constraint(equalTo: safeGuide.topAnchor).isActive = true
+        scrollView.trailingAnchor.constraint(equalTo: safeGuide.trailingAnchor).isActive = true
+        scrollView.bottomAnchor.constraint(equalTo: safeGuide.bottomAnchor).isActive = true
+        scrollView.contentInset.bottom = 150
+        
+        contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor).isActive = true
+        contentView.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
+        contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor).isActive = true
+        contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor).isActive = true
+        contentView.widthAnchor.constraint(equalTo: view.safeAreaLayoutGuide.widthAnchor).isActive = true
+        
+        scrollView.contentSize = contentView.bounds.size
+        scrollView.sizeToFit()
+        
+        
+        scrollView.backgroundColor = UIColor.white
+        
+        viewModel.items.map { $0.map { $0.map { (item) -> UIView in
+            switch item {
+            case let .PhotoItem(viewModel):
+                let view = PhotoChunkMemoryView()
+                view.viewModel = viewModel
+                return view
+            case let .TextItem(viewModel):
+                let view = TextChunkMemoryView()
+                view.viewModel = viewModel
+                return view
+            }
+            }}}?.subscribe(onNext: { [weak self] (views) in
+                self?.contentView.removeAllArrangedSubviews()
+                views.forEach { self?.contentView.addArrangedSubview($0) }
+            }).disposed(by: disposeBag)
+//        viewModel.items
+//            .bind(to: collectionView.rx.items(dataSource: viewModel.dataSource))
+//            .disposed(by: disposeBag)
         
         
         let tapGesture = UITapGestureRecognizer()
-        
-        collectionView.addGestureRecognizer(tapGesture)
-        collectionView.backgroundColor = .white
+//        collectionView.addGestureRecognizer(tapGesture)
+//        collectionView.backgroundColor = .white
+        scrollView.addGestureRecognizer(tapGesture)
         tapGesture
             .rx.event
             .observeOn(MainScheduler.asyncInstance)
             .bind { [weak self] recognizer in
-                self?.viewModel.viewDidAddTextChunk.accept(())
+                self?.viewModel.textChunkRequest.accept(())
         }
         .disposed(by: disposeBag)
     }
@@ -149,7 +170,7 @@ class MemoryCreateViewController: BaseViewController {
             }, completion: { data in
                 self?.dismiss(animated: true)
                 if let image = data.originalImage {
-                    self?.viewModel.viewDidAddPhotoChunk.accept(image)
+                    self?.viewModel.photoChunkRequest.accept(image)
                 }                
             })
         }))
@@ -167,5 +188,3 @@ class MemoryCreateViewController: BaseViewController {
         completion(alert)
     }
 }
-
-

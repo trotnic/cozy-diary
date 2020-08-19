@@ -14,43 +14,57 @@ import RxDataSources
 
 class MemoryCreateViewModel: MemoryCreateViewModelProtocol {
     
-    typealias DataSource = RxCollectionViewSectionedReloadDataSource<MemoryCreateCollectionSection>
+//    typealias DataSource = RxCollectionViewSectionedReloadDataSource<MemoryCreateCollectionSection>
     
-    var dataSource: DataSource
+//    var dataSource: DataSource
     
     var viewDidLoad = PublishRelay<Void>()
-    var viewDidAddTextChunk = PublishRelay<Void>()
-    var viewDidAddPhotoChunk = PublishRelay<Data>()
+    var textChunkRequest = PublishRelay<Void>()
+    var photoChunkRequest = PublishRelay<Data>()
+    
+    var textChunkGrows = PublishRelay<Void>()
     
     var currentMemory: BehaviorRelay<Memory>
     
-    var items: BehaviorRelay<[MemoryCreateCollectionSection]>!
+    var items: BehaviorRelay<[MemoryCreateCollectionItem]>!
     
     private let disposeBag = DisposeBag()
     
     init(memory: BehaviorRelay<Memory>) {
-        dataSource = MemoryCreateDataSource.dataSource()
         currentMemory = memory
         items = .init(value: [])
-        
-        
+
         currentMemory.subscribe(onNext: { [weak self] memory in
-            self?.items.accept([
-                .init(items: memory.sortedChunks.map { chunk -> MemoryCreateCollectionItem in
+            self?.items.accept(
+                memory.sortedChunks.map { chunk -> MemoryCreateCollectionItem in
                     if let textChunk = chunk as? TextChunk {
-                        return .TextItem(viewModel: .init(textChunk))
+                        let viewModel = TextChunkViewModel(textChunk)
+//                        viewModel.cellGrows.subscribe(onNext: { [weak self] in
+//                            self?.textChunkGrows.accept(())
+//                        }).disposed(by: self!.disposeBag)
+                        return .TextItem(viewModel: viewModel)
                     } else {
-                        return .PhotoItem(viewModel: .init(chunk as! PhotoChunk))
+                        let viewModel = PhotoChunkViewModel(chunk as! PhotoChunk)
+                        
+                        viewModel.tapRequest.subscribe(onNext: {
+                            print("TAP")
+                        }).disposed(by: self!.disposeBag)
+                        
+                        viewModel.longPressRequest.subscribe(onNext: {
+                            print("LONG")
+                        }).disposed(by: self!.disposeBag)
+                        
+                        return .PhotoItem(viewModel: viewModel)
                     }
-                })
-            ])
+                }
+            )
         }).disposed(by: disposeBag)
         
         bindView()
     }
     
     private func bindView() {
-        viewDidAddTextChunk.subscribe(onNext: { [weak self] in
+        textChunkRequest.subscribe(onNext: { [weak self] in
             if let value = self?.currentMemory.value {
                 if ((value.sortedChunks.last as? TextChunkable) == nil) {
                     value.insertTextChunk("")
@@ -60,7 +74,7 @@ class MemoryCreateViewModel: MemoryCreateViewModelProtocol {
             }
         }).disposed(by: disposeBag)
         
-        viewDidAddPhotoChunk.subscribe(onNext: { [weak self] image in
+        photoChunkRequest.subscribe(onNext: { [weak self] image in
             if let value = self?.currentMemory.value {
                 value.insertPhoto(image)
                 self?.currentMemory.accept(value)
@@ -74,6 +88,10 @@ class TextChunkViewModel {
     var text: BehaviorRelay<String>
     var index: BehaviorRelay<Int>
     
+    var cellGrows = PublishRelay<Void>()
+    
+    var cellReceiveTap = PublishRelay<Void>()
+    
     private let chunk: TextChunk
     private let disposeBag = DisposeBag()
     
@@ -85,12 +103,17 @@ class TextChunkViewModel {
         text.bind { [weak self] text in
             self?.chunk.text = text
         }.disposed(by: disposeBag)
+        
+        
     }
 }
 
 class PhotoChunkViewModel {
     var photo: BehaviorRelay<Data>
     var index: BehaviorRelay<Int>
+    
+    var tapRequest = PublishRelay<Void>()
+    var longPressRequest = PublishRelay<Void>()
     
     private let chunk: PhotoChunk
     private let disposeBag = DisposeBag()
