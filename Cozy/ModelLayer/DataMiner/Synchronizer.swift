@@ -87,7 +87,13 @@ class CoreDataModeller {
         return entity.selfChunk
     }
     
-    
+    func fetchAllMemories() -> [Memory] {
+        let context = CoreDataManager.shared.viewContext
+        let fetchRequest = NSFetchRequest<CoreMemory>(entityName: "CoreMemory")
+        fetchRequest.returnsObjectsAsFaults = false
+        let result = try? context.fetch(fetchRequest)
+        return result?.map { $0.selfChunk } ?? []
+    }
 }
 
 class PerfectCalendar {

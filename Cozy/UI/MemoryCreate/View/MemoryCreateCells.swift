@@ -29,15 +29,8 @@ class TextChunkMemoryView: UIView {
         let view = UITextView()
         view.isScrollEnabled = false
         view.sizeToFit()
-        
         view.font = .systemFont(ofSize: 20)
         view.translatesAutoresizingMaskIntoConstraints = false
-        
-        
-        view.rx.didChange.subscribe(onNext: { [weak self] in
-            
-            self?.viewModel.cellGrows.accept(())
-        }).disposed(by: self.disposeBag)
         return view
     }()
     
@@ -70,7 +63,6 @@ class PhotoChunkMemoryView: UIView {
                         self?.contentView.invalidateIntrinsicContentSize()
                         self?.imageView.heightAnchor.constraint(equalToConstant: size.height).isActive = true
                         self?.imageView.widthAnchor.constraint(equalToConstant: size.width).isActive = true
-                        
                     }
                 }).disposed(by: disposeBag)
             
@@ -92,7 +84,6 @@ class PhotoChunkMemoryView: UIView {
     
     lazy var contentView: UIView = {
         let view = UIView()
-        
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -101,7 +92,6 @@ class PhotoChunkMemoryView: UIView {
         let view = UIImageView()
         view.contentMode = .scaleAspectFit
         view.translatesAutoresizingMaskIntoConstraints = false
-        
         return view
     }()
     
@@ -115,5 +105,4 @@ class PhotoChunkMemoryView: UIView {
         imageView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
         imageView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
     }
-    
 }

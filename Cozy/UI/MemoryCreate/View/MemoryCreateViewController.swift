@@ -28,7 +28,7 @@ extension UIStackView {
     }
 }
 
-protocol MemoryCreateViewModelProtocol {
+protocol MemoryCreateViewModelType {
     
     // inputs
     
@@ -39,7 +39,6 @@ protocol MemoryCreateViewModelProtocol {
     
     // outputs
     
-    var textChunkGrows: PublishRelay<Void> { get }
     var items: BehaviorRelay<[MemoryCreateCollectionItem]>! { get }
 }
 
@@ -51,9 +50,9 @@ enum MemoryCreateCollectionItem {
 class MemoryCreateViewController: BaseViewController {
     let imagePicker = ImagePicker()
 
-    let viewModel: MemoryCreateViewModelProtocol
+    let viewModel: MemoryCreateViewModelType
     
-    init(_ viewModel: MemoryCreateViewModelProtocol) {
+    init(_ viewModel: MemoryCreateViewModelType) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
@@ -82,27 +81,53 @@ class MemoryCreateViewController: BaseViewController {
         return view
     }()
     
+    lazy var buttonsPanel: ButtonsPanel = {
+        let view = ButtonsPanel(frame: .zero)
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     private let disposeBag = DisposeBag()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         viewModel.viewDidLoad.accept(())
         setupScrollView()
-        setupPhotoButton()
+        setupPanel()
     }
     
-    func setupPhotoButton() {
-        let button = UIBarButtonItem(image: .add, style: .plain, target: nil, action: nil)
-        // FIXME
-        button.rx.tap.subscribe(onNext: { [weak self] in self?.dothings() }).disposed(by: disposeBag)
-        navigationItem.rightBarButtonItem = button
-    }
-    
-    func dothings() {
-        setupAlertController(onView: view) { [weak self] (controller) in
-            self?.present(controller, animated: true)
-        }
+    func setupPanel() {
+        view.addSubview(buttonsPanel)
         
+        buttonsPanel.buttons.accept([
+            {
+            let button = UIButton(frame: .zero)
+            button.rx.tap.bind { [weak self] in
+                if let strongSelf = self {
+                    strongSelf.setupAlertController(onView: strongSelf.view) { (controller) in
+                        strongSelf.present(controller, animated: true)
+                    }
+                }
+            }.disposed(by: disposeBag)
+            button.setTitle("➕", for: .normal)
+            button.backgroundColor = .clear
+            return button
+          }(),
+        {
+            let button = UIButton(frame: .zero)
+            button.setTitle("🐶", for: .normal)
+            return button
+          }(),
+        {
+            let button = UIButton(frame: .zero)
+            button.setTitle("🐱", for: .normal)
+            return button
+          }()
+        ])
+        
+        
+        buttonsPanel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        buttonsPanel.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -20).isActive = true
     }
     
     func setupScrollView() {
@@ -188,3 +213,4 @@ class MemoryCreateViewController: BaseViewController {
         completion(alert)
     }
 }
+

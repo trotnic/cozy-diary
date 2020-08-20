@@ -11,22 +11,25 @@ import RxSwift
 import RxCocoa
 import RxDataSources
 
-
-class MemoryCreateViewModel: MemoryCreateViewModelProtocol {
+class MemoryCreateViewModel: MemoryCreateViewModelType {
     
-//    typealias DataSource = RxCollectionViewSectionedReloadDataSource<MemoryCreateCollectionSection>
+    // coordinator
     
-//    var dataSource: DataSource
+    var requestDetailImage = PublishRelay<Data>()
+    
+    // view inputs
     
     var viewDidLoad = PublishRelay<Void>()
     var textChunkRequest = PublishRelay<Void>()
     var photoChunkRequest = PublishRelay<Data>()
-    
-    var textChunkGrows = PublishRelay<Void>()
-    
-    var currentMemory: BehaviorRelay<Memory>
+
+    // view outputs
     
     var items: BehaviorRelay<[MemoryCreateCollectionItem]>!
+    
+    // private
+    
+    private var currentMemory: BehaviorRelay<Memory>
     
     private let disposeBag = DisposeBag()
     
@@ -47,7 +50,7 @@ class MemoryCreateViewModel: MemoryCreateViewModelProtocol {
                         let viewModel = PhotoChunkViewModel(chunk as! PhotoChunk)
                         
                         viewModel.tapRequest.subscribe(onNext: {
-                            print("TAP")
+                            self?.requestDetailImage.accept((chunk as! PhotoChunk).photo)
                         }).disposed(by: self!.disposeBag)
                         
                         viewModel.longPressRequest.subscribe(onNext: {
@@ -88,9 +91,8 @@ class TextChunkViewModel {
     var text: BehaviorRelay<String>
     var index: BehaviorRelay<Int>
     
-    var cellGrows = PublishRelay<Void>()
-    
-    var cellReceiveTap = PublishRelay<Void>()
+    var tapRequest = PublishRelay<Void>()
+    var longPressRequest = PublishRelay<Void>()
     
     private let chunk: TextChunk
     private let disposeBag = DisposeBag()
@@ -103,8 +105,6 @@ class TextChunkViewModel {
         text.bind { [weak self] text in
             self?.chunk.text = text
         }.disposed(by: disposeBag)
-        
-        
     }
 }
 

@@ -8,19 +8,28 @@
 
 import UIKit
 import CoreData
+import SwipeViewController
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
-
+    let coordinator = MemoryCreateCoordinator()
+     let colCoord = MemoryCollectionCoordinator()
     var taskIdentifier: UIBackgroundTaskIdentifier!
     
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         
-        if let scene = scene as? UIWindowScene {    
-            let vc = MemoryCreateViewController(MemoryCreateViewModel(memory: Synchronizer.shared.relevantMemory))
+        if let scene = scene as? UIWindowScene {
+            coordinator.start()
             window = UIWindow(windowScene: scene)
-            window?.rootViewController = UINavigationController(rootViewController: vc)
+            
+//            let colCoord = MemoryCollectionCoordinator()
+            colCoord.start()
+            let vc = PageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
+            
+            vc.items = [coordinator.viewController, colCoord.viewController]
+            vc.setViewControllers([colCoord.viewController], direction: .reverse, animated: true)
+            window?.rootViewController = vc
             
             window?.makeKeyAndVisible()
         }
