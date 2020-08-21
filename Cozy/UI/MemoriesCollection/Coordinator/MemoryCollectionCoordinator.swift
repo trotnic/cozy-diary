@@ -12,7 +12,7 @@ import RxSwift
 import RxCocoa
 
 
-class MemoryCollectionCoordinator {
+class MemoryCollectionCoordinator: Coordinator {
     
     var viewController: MemoryCollectionViewController!
     

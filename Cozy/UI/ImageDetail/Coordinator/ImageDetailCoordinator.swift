@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-class ImageDetailCoordinator {
+class ImageDetailCoordinator: Coordinator {
     
     private let controller: UIViewController
     private let image: Data
@@ -20,11 +20,9 @@ class ImageDetailCoordinator {
     }
     
     func start() {
-        
         let viewModel = ImageDetailViewModel(image: image)
         let vc = ImageDetailViewController(viewModel)
         controller.present(vc, animated: true)
-        
     }
     
 }

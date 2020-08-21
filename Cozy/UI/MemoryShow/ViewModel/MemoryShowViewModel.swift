@@ -36,9 +36,9 @@ class MemoryShowViewModel: MemoryShowViewModelType {
 //                                self?.requestDetailImage.accept((chunk as! PhotoChunk).photo)
 //                            }).disposed(by: self!.disposeBag)
                             
-                            viewModel.longPressRequest.subscribe(onNext: {
-                                print("LONG")
-                            }).disposed(by: self!.disposeBag)
+//                            viewModel.longPressRequest.subscribe(onNext: {
+//                                print("LONG")
+//                            }).disposed(by: self!.disposeBag)
                             
                             return .PhotoItem(viewModel: viewModel)
                         }

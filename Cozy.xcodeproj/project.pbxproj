@@ -36,6 +36,10 @@
 		2BD4CD8D24EEDC4900BCA0D5 /* MemoryShowViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BD4CD8C24EEDC4900BCA0D5 /* MemoryShowViewController.swift */; };
 		2BD4CD8F24EEDC5F00BCA0D5 /* MemoryShowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BD4CD8E24EEDC5F00BCA0D5 /* MemoryShowViewModel.swift */; };
 		2BD4CD9124EEE12D00BCA0D5 /* MemoryShowCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BD4CD9024EEE12D00BCA0D5 /* MemoryShowCoordinator.swift */; };
+		2BD4CD9424EEF17400BCA0D5 /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BD4CD9324EEF17400BCA0D5 /* AppCoordinator.swift */; };
+		2BD4CD9724EEFD4D00BCA0D5 /* ImageProposalSheetController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BD4CD9624EEFD4D00BCA0D5 /* ImageProposalSheetController.swift */; };
+		2BD4CD9924EEFD6500BCA0D5 /* ImageProposalViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BD4CD9824EEFD6500BCA0D5 /* ImageProposalViewModel.swift */; };
+		2BD4CD9B24EF104600BCA0D5 /* ImagesProposalCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BD4CD9A24EF104600BCA0D5 /* ImagesProposalCoordinator.swift */; };
 		B3B88CF141F8D6A579ECA1EE /* Pods_Cozy.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0FC798F2920457D08D7A46D4 /* Pods_Cozy.framework */; };
 /* End PBXBuildFile section */
 
@@ -72,6 +76,10 @@
 		2BD4CD8C24EEDC4900BCA0D5 /* MemoryShowViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryShowViewController.swift; sourceTree = "<group>"; };
 		2BD4CD8E24EEDC5F00BCA0D5 /* MemoryShowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryShowViewModel.swift; sourceTree = "<group>"; };
 		2BD4CD9024EEE12D00BCA0D5 /* MemoryShowCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryShowCoordinator.swift; sourceTree = "<group>"; };
+		2BD4CD9324EEF17400BCA0D5 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
+		2BD4CD9624EEFD4D00BCA0D5 /* ImageProposalSheetController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageProposalSheetController.swift; sourceTree = "<group>"; };
+		2BD4CD9824EEFD6500BCA0D5 /* ImageProposalViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageProposalViewModel.swift; sourceTree = "<group>"; };
+		2BD4CD9A24EF104600BCA0D5 /* ImagesProposalCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagesProposalCoordinator.swift; sourceTree = "<group>"; };
 		392D86B353E56D3881C36505 /* Pods-Cozy.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Cozy.release.xcconfig"; path = "Target Support Files/Pods-Cozy/Pods-Cozy.release.xcconfig"; sourceTree = "<group>"; };
 		9EA38423ED02106646ABD875 /* Pods-Cozy.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Cozy.debug.xcconfig"; path = "Target Support Files/Pods-Cozy/Pods-Cozy.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -143,9 +151,10 @@
 		2B574CA224E71BB50071D97C /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				2BD4CD9524EEFC1E00BCA0D5 /* ImageProposalSheet */,
+				2BD4CD9224EEF16300BCA0D5 /* App */,
 				2BD4CD8824EEDC2200BCA0D5 /* MemoryShow */,
 				2BD4CD7724ED6B3F00BCA0D5 /* ImageDetail */,
-				2B574CA524E71E4D0071D97C /* MemoryEdit */,
 				2B574CA424E71E460071D97C /* MemoryCreate */,
 				2B574CA324E71BBF0071D97C /* MemoriesCollection */,
 			);
@@ -170,13 +179,6 @@
 				2B574CA824E71E5C0071D97C /* View */,
 			);
 			path = MemoryCreate;
-			sourceTree = "<group>";
-		};
-		2B574CA524E71E4D0071D97C /* MemoryEdit */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = MemoryEdit;
 			sourceTree = "<group>";
 		};
 		2B574CA624E71E530071D97C /* View */ = {
@@ -351,6 +353,24 @@
 			path = ViewModel;
 			sourceTree = "<group>";
 		};
+		2BD4CD9224EEF16300BCA0D5 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				2BD4CD9324EEF17400BCA0D5 /* AppCoordinator.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		2BD4CD9524EEFC1E00BCA0D5 /* ImageProposalSheet */ = {
+			isa = PBXGroup;
+			children = (
+				2BD4CD9624EEFD4D00BCA0D5 /* ImageProposalSheetController.swift */,
+				2BD4CD9824EEFD6500BCA0D5 /* ImageProposalViewModel.swift */,
+				2BD4CD9A24EF104600BCA0D5 /* ImagesProposalCoordinator.swift */,
+			);
+			path = ImageProposalSheet;
+			sourceTree = "<group>";
+		};
 		6E3DB1B36F17ADB64E364AEA /* Pods */ = {
 			isa = PBXGroup;
 			children = (
@@ -489,6 +509,7 @@
 				2B574CB024E7E2300071D97C /* MemoryCreateViewModel.swift in Sources */,
 				2B574CBB24E842160071D97C /* MemoryCollectionViewCell.swift in Sources */,
 				2B574CC024E84A060071D97C /* Synchronizer.swift in Sources */,
+				2BD4CD9724EEFD4D00BCA0D5 /* ImageProposalSheetController.swift in Sources */,
 				2BD4CD8724EECB5700BCA0D5 /* MemoryCollectionCoordinator.swift in Sources */,
 				2BD4CD9124EEE12D00BCA0D5 /* MemoryShowCoordinator.swift in Sources */,
 				2B0748B024E5E3FA0031D203 /* ViewController.swift in Sources */,
@@ -501,11 +522,14 @@
 				2BD4CD8224EDAD2100BCA0D5 /* PageViewController.swift in Sources */,
 				2BD4CD8424EE85CC00BCA0D5 /* ButtonsPanel.swift in Sources */,
 				2B6DF78B24EB0C4D00B94C21 /* CorePhotoChunk+CoreDataClass.swift in Sources */,
+				2BD4CD9B24EF104600BCA0D5 /* ImagesProposalCoordinator.swift in Sources */,
 				2BD4CD8D24EEDC4900BCA0D5 /* MemoryShowViewController.swift in Sources */,
+				2BD4CD9424EEF17400BCA0D5 /* AppCoordinator.swift in Sources */,
 				2B574CD624E850DA0071D97C /* CoreTextChunk+CoreDataClass.swift in Sources */,
 				2B0748B624E5E3FA0031D203 /* Cozy.xcdatamodeld in Sources */,
 				2BD4CD7E24ED703700BCA0D5 /* ImageDetailViewModel.swift in Sources */,
 				2B0748AE24E5E3FA0031D203 /* SceneDelegate.swift in Sources */,
+				2BD4CD9924EEFD6500BCA0D5 /* ImageProposalViewModel.swift in Sources */,
 				2B59E31A24E933F80084F118 /* Helpers.swift in Sources */,
 				2BD4CD7C24ED702900BCA0D5 /* ImageDetailViewController.swift in Sources */,
 				2B574CD824E850DA0071D97C /* CoreMemory+CoreDataClass.swift in Sources */,

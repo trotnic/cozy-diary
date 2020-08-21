@@ -9,7 +9,7 @@
 import Foundation
 
 
-class MemoryShowCoordinator {
+class MemoryShowCoordinator: Coordinator {
     
     var viewController: MemoryShowViewController!
     

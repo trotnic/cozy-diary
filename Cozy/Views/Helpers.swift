@@ -31,27 +31,42 @@ class ImagePicker: NSObject, UIImagePickerControllerDelegate, UINavigationContro
         return controller
     }()
     
-    func prepareRollback(_ presenting: @escaping (UIImagePickerController) -> (), completion: @escaping (ImageMeta) -> ()) {
-        imagePickerController.sourceType = .savedPhotosAlbum
-        imagePickerController.allowsEditing = true
+    func prepareCamera(_ presenting: @escaping (UIImagePickerController) -> (), completion: @escaping (ImageMeta) -> ()) {
+        imagePickerController.sourceType = .camera
         presenting(imagePickerController)
         self.completion = completion
     }
     
     func prepareGallery(_ presenting: @escaping (UIImagePickerController) -> (), completion: @escaping (ImageMeta) -> ()) {
         imagePickerController.sourceType = .photoLibrary
-        imagePickerController.allowsEditing = true
         presenting(imagePickerController)
         self.completion = completion
     }
     
+    // TODO: Unsplash-way to pick photo
     
-    // TODO: try to avoid type cast
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         let originalImage = (info[UIImagePickerController.InfoKey.originalImage] as? UIImage)?.jpegData(compressionQuality: 1)
         let editedImage = (info[UIImagePickerController.InfoKey.editedImage] as? UIImage)?.jpegData(compressionQuality: 1)
         let imageUrl = info[UIImagePickerController.InfoKey.imageURL] as? URL
         let imageMeta = ImageMeta(imageUrl: imageUrl, originalImage: originalImage, editedImage: editedImage)
         completion?(imageMeta)
+    }
+}
+
+extension UIStackView {
+    
+    func removeAllArrangedSubviews() {
+        
+        let removedSubviews = arrangedSubviews.reduce([]) { (allSubviews, subview) -> [UIView] in
+            self.removeArrangedSubview(subview)
+            return allSubviews + [subview]
+        }
+        
+        // Deactivate all constraints
+        NSLayoutConstraint.deactivate(removedSubviews.flatMap({ $0.constraints }))
+        
+        // Remove the views from self
+        removedSubviews.forEach({ $0.removeFromSuperview() })
     }
 }

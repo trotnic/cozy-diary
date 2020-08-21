@@ -50,11 +50,28 @@ class Memory {
         index += 1
     }
     
+    func removeChunk(_ chunk: Chunkable) {
+        if let index = texts.firstIndex(where: { (textChunk) -> Bool in
+            textChunk.index == chunk.index
+        }) {
+            texts.remove(at: index)
+            return
+        }
+        if let index = photos.firstIndex(where: { (photoChunk) -> Bool in
+            photoChunk.index == chunk.index
+        }) {
+            photos.remove(at: index)
+            return
+        }
+        
+    }
+    
     var sortedChunks: Array<Chunkable> {
         (texts + photos).sorted { (t1, t2) -> Bool in
             t1.index < t2.index
         }
     }
+    
 }
 
 class TextChunk: TextChunkable {
