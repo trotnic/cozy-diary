@@ -11,6 +11,21 @@ import RxCocoa
 import RxSwift
 
 
+extension UIView {
+    func childFirstResponder() -> UIView? {
+        if self.isFirstResponder { return self }
+        for subview in subviews {
+            let firstResponder = subview.childFirstResponder()
+            if firstResponder != nil {
+                return firstResponder
+            }
+        }
+        return nil
+    }
+    
+    
+}
+
 class MemoryCreateViewController: BaseViewController {
 
     let viewModel: MemoryCreateViewModelType!
@@ -83,8 +98,13 @@ class MemoryCreateViewController: BaseViewController {
         tapGesture
             .rx.event
             .observeOn(MainScheduler.asyncInstance)
-            .bind { [weak self] recognizer in
-                self?.viewModel.inputs.textChunkInsertRequest()
+            .bind { [unowned self] recognizer in
+                if self.contentView.childFirstResponder() != nil {
+                    self.view.endEditing(true)
+                } else {
+                    self.viewModel.inputs.textChunkInsertRequest()
+                    self.contentView.arrangedSubviews.last?.becomeFirstResponder()
+                }
         }
         .disposed(by: disposeBag)
     }
@@ -116,8 +136,8 @@ class MemoryCreateViewController: BaseViewController {
         scrollView.leadingAnchor.constraint(equalTo: safeGuide.leadingAnchor).isActive = true
         scrollView.topAnchor.constraint(equalTo: safeGuide.topAnchor).isActive = true
         scrollView.trailingAnchor.constraint(equalTo: safeGuide.trailingAnchor).isActive = true
-        scrollView.bottomAnchor.constraint(equalTo: safeGuide.bottomAnchor).isActive = true
-        scrollView.contentInset.bottom = 150
+        scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+        scrollView.contentInset.bottom = 75
         
         contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor).isActive = true
         contentView.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
@@ -129,6 +149,29 @@ class MemoryCreateViewController: BaseViewController {
         scrollView.sizeToFit()
         
         scrollView.backgroundColor = UIColor.white
+        
+        keyboardHeight().subscribe(onNext: { [weak self] (inset) in        
+            let additionalInset: CGFloat = inset == 0 ? 75 : 0
+            self?.scrollView.contentInset = .init(top: 0, left: 0, bottom: inset + additionalInset, right: 0)
+        }).disposed(by: disposeBag)
+        
+    }
+    
+    func keyboardHeight() -> Observable<CGFloat> {
+        return Observable
+                .from([
+                    NotificationCenter.default
+                        .rx.notification(UIResponder.keyboardWillShowNotification)
+                        .map { notification -> CGFloat in
+                            (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue.height ?? 0
+                        },
+                    NotificationCenter.default
+                        .rx.notification(UIResponder.keyboardWillHideNotification)
+                        .map { _ -> CGFloat in
+                            0
+                        }
+                ])
+                .merge()
     }
 }
 

@@ -8,7 +8,6 @@
 
 import UIKit
 import CoreData
-import SwipeViewController
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 

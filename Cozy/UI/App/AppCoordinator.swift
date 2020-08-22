@@ -39,11 +39,11 @@ class AppCoordinator: ParentCoordinator {
         collectionCoordinator.start()
         
         pageViewController.items = [
-            createCoordinator.viewController,
+            createCoordinator.navigationController,
             collectionCoordinator.viewController
         ]
         
-        pageViewController.setViewControllers([createCoordinator.viewController], direction: .forward, animated: true)
+        pageViewController.setViewControllers([createCoordinator.navigationController], direction: .forward, animated: true)
         
         window.rootViewController = pageViewController
         window.makeKeyAndVisible()

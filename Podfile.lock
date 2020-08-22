@@ -10,13 +10,11 @@ PODS:
   - RxRelay (5.1.1):
     - RxSwift (~> 5)
   - RxSwift (5.1.1)
-  - SwipeViewController (2.0)
 
 DEPENDENCIES:
   - RxCocoa
   - RxDataSources
   - RxSwift
-  - SwipeViewController
 
 SPEC REPOS:
   trunk:
@@ -25,7 +23,6 @@ SPEC REPOS:
     - RxDataSources
     - RxRelay
     - RxSwift
-    - SwipeViewController
 
 SPEC CHECKSUMS:
   Differentiator: 886080237d9f87f322641dedbc5be257061b0602
@@ -33,8 +30,7 @@ SPEC CHECKSUMS:
   RxDataSources: efee07fa4de48477eca0a4611e6d11e2da9c1114
   RxRelay: d77f7d771495f43c556cbc43eebd1bb54d01e8e9
   RxSwift: 81470a2074fa8780320ea5fe4102807cb7118178
-  SwipeViewController: 87ac3b72473f2caee7b84a7761c9367501fd557a
 
-PODFILE CHECKSUM: e55c224933595a678562b5759460b95677295c65
+PODFILE CHECKSUM: d6e61296381dec848f9f04fda9f7a0d72dee28eb
 
 COCOAPODS: 1.9.3

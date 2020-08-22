@@ -8,7 +8,6 @@ target 'Cozy' do
   pod 'RxSwift'
   pod 'RxCocoa'
   pod 'RxDataSources'
-  pod 'SwipeViewController'
   
   # Pods for Cozy
 

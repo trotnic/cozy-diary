@@ -64,6 +64,10 @@ class TextChunkMemoryView: UIView {
         }).disposed(by: disposeBag)
     }
     
+    override func becomeFirstResponder() -> Bool {
+        textView.becomeFirstResponder()
+    }
+    
 }
 
 extension TextChunkMemoryView: UITextViewDelegate {

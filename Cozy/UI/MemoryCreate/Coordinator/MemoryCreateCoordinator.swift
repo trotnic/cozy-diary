@@ -14,6 +14,7 @@ import RxCocoa
 class MemoryCreateCoordinator: ParentCoordinator {
     
     var viewController: MemoryCreateViewController!
+    let navigationController = UINavigationController()
     var childCoordinators: [Coordinator] = []
     
     private let disposeBag = DisposeBag()
@@ -21,9 +22,11 @@ class MemoryCreateCoordinator: ParentCoordinator {
     func start() {
         let viewModel = MemoryCreateViewModel(memory: Synchronizer.shared.relevantMemory)
         viewController = MemoryCreateViewController(viewModel)
+        navigationController.setViewControllers([viewController], animated: false)
         
         // SELFCOMM: Inserting photo via image sheet
         viewModel.outputs.photoInsertRequestObservable.subscribe(onNext: { [unowned self] (_) in
+            
             let coordinator = ImageProposalCoordinator(presentationController: self.viewController)
             coordinator.start()
             coordinator.metaObservable.subscribe(onNext: { [weak self] (meta) in
@@ -35,7 +38,8 @@ class MemoryCreateCoordinator: ParentCoordinator {
         
         // SELFCOMM: Transition to detail image
         viewModel.outputs.photoDetailRequestObservable.subscribe(onNext: { [weak self] (photo) in
-            if let vc = self?.viewController {
+            
+            if let vc = self?.navigationController {
                 let coord = ImageDetailCoordinator(vc, image: photo)
                 self?.childCoordinators.append(coord)
                 coord.start()
@@ -44,12 +48,13 @@ class MemoryCreateCoordinator: ParentCoordinator {
         
         // SELFCOMM: Activity VC to share selected image
         viewModel.outputs.photoShareRequestObservable.subscribe(onNext: { [weak self] (photo) in
+            
             DispatchQueue.global(qos: .userInteractive).async {
                 if let image = UIImage(data: photo) {
                     let activity = UIActivityViewController(activityItems: [image], applicationActivities: nil)
                     activity.excludedActivityTypes = [.copyToPasteboard]
                     DispatchQueue.main.async {
-                     self?.viewController.present(activity, animated: true)
+                        self?.viewController.present(activity, animated: true)
                     }
                 }
             }
