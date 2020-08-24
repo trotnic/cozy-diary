@@ -21,31 +21,32 @@ class AppCoordinator: ParentCoordinator {
     
     let window: UIWindow
     var childCoordinators: [Coordinator] = []
-    var pageViewController: PageViewController!
+    var tabBarController: UITabBarController!
     
     init(window: UIWindow) {
         self.window = window
     }
     
     func start() {
-        pageViewController = PageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal)
+        
+        tabBarController = PageTabBarController()
         
         let createCoordinator = MemoryCreateCoordinator()
         childCoordinators.append(createCoordinator)
+        createCoordinator.navigationController.tabBarItem = .init(title: "Today", image: UIImage(systemName: "pencil"), tag: 0)
         createCoordinator.start()
         
         let collectionCoordinator = MemoryCollectionCoordinator()
         childCoordinators.append(collectionCoordinator)
+        collectionCoordinator.navigationController.tabBarItem = .init(title: "All memories", image: UIImage(systemName: "tray"), tag: 1)
         collectionCoordinator.start()
         
-        pageViewController.items = [
+        tabBarController.viewControllers = [
             createCoordinator.navigationController,
-            collectionCoordinator.viewController
+            collectionCoordinator.navigationController
         ]
         
-        pageViewController.setViewControllers([createCoordinator.navigationController], direction: .forward, animated: true)
-        
-        window.rootViewController = pageViewController
+        window.rootViewController = tabBarController
         window.makeKeyAndVisible()
     }
     

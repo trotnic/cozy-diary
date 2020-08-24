@@ -15,6 +15,7 @@ import RxCocoa
 class MemoryCollectionCoordinator: Coordinator {
     
     var viewController: MemoryCollectionViewController!
+    let navigationController = UINavigationController()
     
     var childs: [MemoryShowCoordinator] = []
     
@@ -22,9 +23,12 @@ class MemoryCollectionCoordinator: Coordinator {
     
     func start() {
         
-        let viewModel = MemoryCollectionViewModel()
+        let viewModel = MemoryCollectionViewModel(dataModeller: CoreDataModeller(manager: CoreDataManager.shared))
         viewController = .init(viewModel: viewModel)
-        viewModel.detailMemoryRequest.subscribe(onNext: { [weak self] memory in
+        navigationController.setViewControllers([viewController], animated: true)
+        
+        viewModel.outputs.detailRequestObservable
+            .subscribe(onNext: { [weak self] memory in
             self?.gotodetail(memory: memory)
         }).disposed(by: disposeBag)
         
@@ -34,7 +38,14 @@ class MemoryCollectionCoordinator: Coordinator {
         let coordinator = MemoryShowCoordinator(memory: memory)
         coordinator.start()
         childs.append(coordinator)
-        viewController.present(coordinator.viewController, animated: true)
+//        coordinator.navigationController.modalPresentationStyle = .overFullScreen
+        
+//        coordinator.viewController.modalPresentationStyle = .overFullScreen
+//        coordinator.viewController.modalTransitionStyle = .coverVertical
+//        coordinator.viewController.definesPresentationContext = true
+//        coordinator.viewController.hidesBottomBarWhenPushed
+//        coordinator.viewController.hidesBottomBarWhenPushed = true
+        navigationController.pushViewController(coordinator.viewController, animated: true)
     }
     
 }

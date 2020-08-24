@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="16119" systemVersion="19G73" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="CoreGraffitiChunk" representedClassName="CoreGraffitiChunk" syncable="YES" codeGenerationType="category">
+        <attribute name="graffiti" optional="YES" attributeType="Binary"/>
+        <attribute name="index" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="model" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CoreMemory" inverseName="graffities" inverseEntity="CoreMemory"/>
+    </entity>
     <entity name="CoreMemory" representedClassName="CoreMemory" syncable="YES" codeGenerationType="category">
         <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="increment" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="graffities" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CoreGraffitiChunk" inverseName="model" inverseEntity="CoreGraffitiChunk"/>
         <relationship name="photos" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CorePhotoChunk" inverseName="model" inverseEntity="CorePhotoChunk"/>
         <relationship name="texts" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CoreTextChunk" inverseName="model" inverseEntity="CoreTextChunk"/>
     </entity>
@@ -17,8 +23,9 @@
         <relationship name="model" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CoreMemory" inverseName="texts" inverseEntity="CoreMemory"/>
     </entity>
     <elements>
-        <element name="CoreMemory" positionX="-45" positionY="0" width="128" height="103"/>
-        <element name="CoreTextChunk" positionX="-18" positionY="36" width="128" height="88"/>
+        <element name="CoreMemory" positionX="-45" positionY="0" width="128" height="28"/>
         <element name="CorePhotoChunk" positionX="-27" positionY="45" width="128" height="88"/>
+        <element name="CoreTextChunk" positionX="-18" positionY="36" width="128" height="88"/>
+        <element name="CoreGraffitiChunk" positionX="-36" positionY="54" width="128" height="88"/>
     </elements>
 </model>

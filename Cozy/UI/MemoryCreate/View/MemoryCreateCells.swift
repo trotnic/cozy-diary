@@ -9,6 +9,7 @@
 import UIKit
 import RxCocoa
 import RxSwift
+import SwiftyDraw
 
 class TextChunkMemoryView: UIView {
     private let disposeBag = DisposeBag()
@@ -180,3 +181,59 @@ extension PhotoChunkMemoryView: UIContextMenuInteractionDelegate {
 }
 
 
+// MARK: Graffiti View
+
+
+class GraffitiChunkMemoryView: UIView {
+    private let disposeBag = DisposeBag()
+    
+    var viewModel: GraffitiChunkViewModelType!
+    
+    lazy var contentView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    lazy var graffitiView: SwiftyDrawView = {
+        let view = SwiftyDrawView()
+        view.isEnabled = false
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        addSubview(contentView)
+        
+        contentView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
+        contentView.topAnchor.constraint(equalTo: topAnchor).isActive = true
+        contentView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
+        contentView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
+        
+        contentView.addSubview(graffitiView)
+        
+//        graffitiView.leadingAnchor.constraint(lessThanOrEqualTo: contentView.leadingAnchor).isActive = true
+//        graffitiView.topAnchor.constraint(lessThanOrEqualTo: contentView.topAnchor).isActive = true
+//        graffitiView.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor).isActive = true
+//        graffitiView.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor).isActive = true
+        
+//        graffitiView.transform.scaledBy(x: 0.2, y: 0.2)
+//        graffitiView.heightAnchor.constraint(equalTo: heightAnchor).isActive = true
+        
+        heightAnchor.constraint(equalTo: widthAnchor).isActive = true
+        graffitiView.heightAnchor.constraint(equalTo: heightAnchor).isActive = true
+        graffitiView.widthAnchor.constraint(equalTo: widthAnchor).isActive = true
+//        heightAnchor.constraint(equalToConstant: 400).isActive = true
+        bindViewModel()
+    }
+    
+    func bindViewModel() {
+        viewModel.outputs.graffiti
+            .map { data in try! JSONDecoder().decode([SwiftyDrawView.DrawItem].self, from: data) }
+            .subscribe(onNext: { [weak self] (items) in
+                self?.graffitiView.display(drawItems: items)
+            }).disposed(by: disposeBag)
+    }
+}

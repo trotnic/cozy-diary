@@ -8,7 +8,8 @@ target 'Cozy' do
   pod 'RxSwift'
   pod 'RxCocoa'
   pod 'RxDataSources'
-  
+  pod 'SwiftyDraw'
+    
   # Pods for Cozy
 
 end

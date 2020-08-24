@@ -80,6 +80,10 @@ class MemoryShowViewController: BaseViewController {
                 let view = TextChunkMemoryView()
                 view.viewModel = viewModel
                 return view
+            case let .GraffitiItem(viewModel):
+                let view = GraffitiChunkMemoryView()
+                view.viewModel = viewModel
+                return view
             }
             }}.subscribe(onNext: { [weak self] (views) in
                 self?.contentView.removeAllArrangedSubviews()

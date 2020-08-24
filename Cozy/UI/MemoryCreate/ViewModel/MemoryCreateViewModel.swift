@@ -12,8 +12,9 @@ import RxCocoa
 
 
 enum MemoryCreateCollectionItem {
-    case TextItem(viewModel: TextChunkViewModel)
-    case PhotoItem(viewModel: PhotoChunkViewModel)
+    case TextItem(viewModel: TextChunkViewModelType)
+    case PhotoItem(viewModel: PhotoChunkViewModelType)
+    case GraffitiItem(viewModel: GraffitiChunkViewModelType)
 }
 
 protocol MemoryCreateViewModelOutput {
@@ -22,6 +23,10 @@ protocol MemoryCreateViewModelOutput {
     var photoInsertRequestObservable: Observable<Void> { get }
     var photoDetailRequestObservable: Observable<Data> { get }
     var photoShareRequestObservable: Observable<Data> { get }
+    
+    var mapInsertRequestObservable: Observable<Void> { get }
+    
+    var graffitiInsertRequestObservable: Observable<Void> { get }
 }
 
 protocol MemoryCreateViewModelInput {
@@ -29,8 +34,11 @@ protocol MemoryCreateViewModelInput {
     
     var textChunkInsertRequest: () -> () { get }
     var photoChunkInsertRequest: () -> () { get }
+    var mapChunkInsertRequest: () -> () { get }
+    var graffitiChunkInsertRequest: () -> () { get }
     
     var photoInsertResponse: (ImageMeta) -> () { get }
+    var graffitiInsertResponse: (Data) -> () { get }
 }
 
 protocol MemoryCreateViewModelType {
@@ -48,6 +56,10 @@ class MemoryCreateViewModel: MemoryCreateViewModelType, MemoryCreateViewModelOut
     var photoInsertRequestObservable: Observable<Void>
     var photoDetailRequestObservable: Observable<Data>
     var photoShareRequestObservable: Observable<Data>
+    
+    var mapInsertRequestObservable: Observable<Void>
+    
+    var graffitiInsertRequestObservable: Observable<Void>
     
     // MARK: Inputs
     lazy var viewDidLoad = { { } }()
@@ -72,10 +84,25 @@ class MemoryCreateViewModel: MemoryCreateViewModelType, MemoryCreateViewModelOut
         }
     }()
     
+    lazy var graffitiInsertResponse: (Data) -> () = {
+        { graffiti in
+            let value = self.currentMemory.value
+            value.insertGraffiti(graffiti)
+            self.currentMemory.accept(value)
+        }
+    }()
+    
+    lazy var mapChunkInsertRequest = { { self.mapChunkRequestPublisher.onNext(()) } }()
+    
+    lazy var graffitiChunkInsertRequest = { { self.graffitiChunkRequestPublisher.onNext(()) } }()
+    
     // MARK: Private
     private let photoInsertRequestPublisher = PublishSubject<Void>()
     private let photoDetailRequestPublisher = PublishSubject<Data>()
     private let photoShareRequestPublisher = PublishSubject<Data>()
+    
+    private let mapChunkRequestPublisher = PublishSubject<Void>()
+    private let graffitiChunkRequestPublisher = PublishSubject<Void>()
     
     private var currentMemory: BehaviorRelay<Memory>
     private let disposeBag = DisposeBag()
@@ -86,6 +113,10 @@ class MemoryCreateViewModel: MemoryCreateViewModelType, MemoryCreateViewModelOut
         photoInsertRequestObservable = photoInsertRequestPublisher.asObservable()
         photoDetailRequestObservable = photoDetailRequestPublisher.asObservable()
         photoShareRequestObservable = photoShareRequestPublisher.asObservable()
+        
+        mapInsertRequestObservable = mapChunkRequestPublisher.asObservable()
+        
+        graffitiInsertRequestObservable = graffitiChunkRequestPublisher.asObservable()
         
         bindRelevantMemory()
     }
@@ -108,6 +139,9 @@ class MemoryCreateViewModel: MemoryCreateViewModelType, MemoryCreateViewModelOut
                         }).disposed(by: self.disposeBag)
                         
                         return .TextItem(viewModel: viewModel)
+                    } else if let graffitiChunk = chunk as? GraffitiChunk {
+                        let viewModel = GraffitiChunkViewModel(graffitiChunk)
+                        return .GraffitiItem(viewModel: viewModel)
                     } else {
                         let photoChunk = chunk as! PhotoChunk
                         let viewModel = PhotoChunkViewModel(photoChunk)
@@ -282,3 +316,40 @@ class PhotoChunkViewModel: PhotoChunkViewModelType, PhotoChunkViewModelOutput, P
         }.disposed(by: disposeBag)
     }
 }
+
+// MARK: Graffiti Chunk View Model
+
+protocol GraffitiChunkViewModelOutput {
+    var graffiti: Observable<Data> { get }
+}
+
+protocol GraffitiChunkViewModelInput {
+    
+}
+
+protocol GraffitiChunkViewModelType {
+    var outputs: GraffitiChunkViewModelOutput { get }
+    var inputs: GraffitiChunkViewModelInput { get }
+}
+
+class GraffitiChunkViewModel: GraffitiChunkViewModelType, GraffitiChunkViewModelOutput, GraffitiChunkViewModelInput {
+    
+    var outputs: GraffitiChunkViewModelOutput { return self }
+    var inputs: GraffitiChunkViewModelInput { return self }
+    
+    // MARK: Outputs
+    let graffiti: Observable<Data>
+    
+    // MARK: Inputs
+    
+    // MARK: Private
+    private let chunk: GraffitiChunk
+    private let disposeBag = DisposeBag()
+    
+    // MARK: Init
+    init(_ chunk: GraffitiChunk) {
+        self.chunk = chunk
+        graffiti = .just(chunk.graffiti)
+    }
+}
+

@@ -12,7 +12,7 @@ import RxCocoa
 
 class ButtonsPanel: UIView {
 
-    var buttonSize: CGFloat = 56
+    var buttonSize: CGFloat = 46
     var shadowOpacity: Float = 0.7
     
     var buttons: BehaviorRelay<[UIButton]> = .init(value: [])
@@ -27,7 +27,7 @@ class ButtonsPanel: UIView {
 
     override init(frame: CGRect) {
       super.init(frame: frame)
-      backgroundColor = UIColor(red: 81/255, green: 166/255, blue: 219/255, alpha: 1)
+//      backgroundColor = UIColor(red: 81/255, green: 166/255, blue: 219/255, alpha: 1)
       layer.cornerRadius = buttonSize / 2
       layer.shadowColor = UIColor.lightGray.cgColor
       layer.shadowOpacity = shadowOpacity

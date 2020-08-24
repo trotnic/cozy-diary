@@ -30,6 +30,8 @@ class MemoryCreateViewController: BaseViewController {
 
     let viewModel: MemoryCreateViewModelType!
     
+    private var buttonsPanelBottomConstraint: NSLayoutConstraint!
+    
     init(_ viewModel: MemoryCreateViewModelType) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
@@ -65,10 +67,24 @@ class MemoryCreateViewController: BaseViewController {
         return view
     }()
     
+    lazy var endEditButton: UIButton = {
+        let button = UIButton(frame: .zero)
+        button.setImage(UIImage(systemName: "chevron.down.circle"), for: .normal)
+        button.tintColor = .white
+        button.backgroundColor = .clear
+        button.isHidden = true
+        return button
+    }()
+    
     private let disposeBag = DisposeBag()
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        navigationItem.title = "Current item"
+        
+        view.backgroundColor = .white
+        
         setupScrollView()
         bindViewModel()
         setupPanel()
@@ -84,6 +100,10 @@ class MemoryCreateViewController: BaseViewController {
                 return view
             case let .TextItem(viewModel):
                 let view = TextChunkMemoryView()
+                view.viewModel = viewModel
+                return view
+            case let .GraffitiItem(viewModel):
+                let view = GraffitiChunkMemoryView()
                 view.viewModel = viewModel
                 return view
             }
@@ -114,18 +134,56 @@ class MemoryCreateViewController: BaseViewController {
         
         buttonsPanel.buttons.accept([
             {
-            let button = UIButton(frame: .zero)
-            button.rx.tap.bind { [weak self] in
-                self?.viewModel.inputs.photoChunkInsertRequest()
-            }.disposed(by: disposeBag)
-            button.setTitle("➕", for: .normal)
-            button.backgroundColor = .clear
-            return button
-          }()
+                let button = UIButton(frame: .zero)
+                button.rx.tap.bind { [weak self] in
+                    self?.viewModel.inputs.photoChunkInsertRequest()
+                }.disposed(by: disposeBag)
+                button.setImage(UIImage(systemName: "plus"), for: .normal)
+                button.tintColor = .white
+                button.backgroundColor = .clear
+                return button
+          }(),
+            {
+                let button = UIButton(frame: .zero)
+                button.rx.tap
+                    .bind { [weak self] in
+                    self?.viewModel.inputs.mapChunkInsertRequest()
+                }.disposed(by: disposeBag)
+                button.setImage(UIImage(systemName: "mappin"), for: .normal)
+                button.tintColor = .white
+                button.backgroundColor = .clear
+                return button
+            }(),
+            {
+                let button = UIButton(frame: .zero)
+                button.setImage(UIImage(systemName: "play"), for: .normal)
+                button.tintColor = .white
+                button.backgroundColor = .clear
+                return button
+            }(),
+            {
+                let button = UIButton(frame: .zero)
+                button.rx.tap
+                    .bind { [weak self] in
+                        self?.viewModel.inputs.graffitiChunkInsertRequest()
+                }.disposed(by: disposeBag)
+                button.setImage(UIImage(systemName: "paintbrush"), for: .normal)
+                button.tintColor = .white
+                button.backgroundColor = .clear
+                return button
+            }(),
+            endEditButton
         ])
         
+        endEditButton.rx.tap
+            .subscribe(onNext: { [weak self] in
+                self?.view.endEditing(true)
+            }).disposed(by: disposeBag)
+        
         buttonsPanel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        buttonsPanel.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -20).isActive = true
+        buttonsPanelBottomConstraint = buttonsPanel.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10)
+        buttonsPanelBottomConstraint.isActive = true
+        buttonsPanel.backgroundColor = UIColor.black.withAlphaComponent(0.6)
     }
     
     func setupScrollView() {
@@ -150,8 +208,14 @@ class MemoryCreateViewController: BaseViewController {
         
         scrollView.backgroundColor = UIColor.white
         
-        keyboardHeight().subscribe(onNext: { [weak self] (inset) in        
+        keyboardHeight().subscribe(onNext: { [weak self] (inset) in
             let additionalInset: CGFloat = inset == 0 ? 75 : 0
+            let panelInset: CGFloat = inset == 0 ? 10 : -60
+            self?.buttonsPanelBottomConstraint.constant = (-inset - panelInset)
+            UIView.animate(withDuration: 0.3) {
+                self?.view.layoutIfNeeded()
+                self?.endEditButton.isHidden.toggle()
+            }
             self?.scrollView.contentInset = .init(top: 0, left: 0, bottom: inset + additionalInset, right: 0)
         }).disposed(by: disposeBag)
         

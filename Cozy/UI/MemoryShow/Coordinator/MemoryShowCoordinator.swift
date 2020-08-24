@@ -7,21 +7,27 @@
 //
 
 import Foundation
+import UIKit
+import RxSwift
+import RxCocoa
 
-
-class MemoryShowCoordinator: Coordinator {
+class MemoryShowCoordinator: ParentCoordinator {
     
-    var viewController: MemoryShowViewController!
+    var viewController: MemoryCreateViewController!
+    let navigationController = UINavigationController()
+    var childCoordinators: [Coordinator] = []
     
-    private let memory: Memory
+    private let memory: BehaviorRelay<Memory>
     
     init(memory: Memory) {
-        self.memory = memory
+        self.memory = .init(value: memory)
     }
     
     func start() {
         
-        let viewModel = MemoryShowViewModel(memory: memory)
-        viewController = .init(viewModel: viewModel)
+//        let viewModel = MemoryShowViewModel(memory: memory)
+        let viewModel = MemoryCreateViewModel(memory: memory)
+        viewController = .init(viewModel)
+//        navigationController.setViewControllers([viewController], animated: true)
     }
 }

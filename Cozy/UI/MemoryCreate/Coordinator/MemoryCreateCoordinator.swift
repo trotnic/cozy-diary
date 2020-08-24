@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 import RxSwift
 import RxCocoa
 
@@ -25,7 +26,8 @@ class MemoryCreateCoordinator: ParentCoordinator {
         navigationController.setViewControllers([viewController], animated: false)
         
         // SELFCOMM: Inserting photo via image sheet
-        viewModel.outputs.photoInsertRequestObservable.subscribe(onNext: { [unowned self] (_) in
+        viewModel.outputs.photoInsertRequestObservable
+            .subscribe(onNext: { [unowned self] (_) in
             
             let coordinator = ImageProposalCoordinator(presentationController: self.viewController)
             coordinator.start()
@@ -37,7 +39,8 @@ class MemoryCreateCoordinator: ParentCoordinator {
         }).disposed(by: disposeBag)
         
         // SELFCOMM: Transition to detail image
-        viewModel.outputs.photoDetailRequestObservable.subscribe(onNext: { [weak self] (photo) in
+        viewModel.outputs.photoDetailRequestObservable
+            .subscribe(onNext: { [weak self] (photo) in
             
             if let vc = self?.navigationController {
                 let coord = ImageDetailCoordinator(vc, image: photo)
@@ -47,7 +50,8 @@ class MemoryCreateCoordinator: ParentCoordinator {
         }).disposed(by: disposeBag)
         
         // SELFCOMM: Activity VC to share selected image
-        viewModel.outputs.photoShareRequestObservable.subscribe(onNext: { [weak self] (photo) in
+        viewModel.outputs.photoShareRequestObservable
+            .subscribe(onNext: { [weak self] (photo) in
             
             DispatchQueue.global(qos: .userInteractive).async {
                 if let image = UIImage(data: photo) {
@@ -59,5 +63,33 @@ class MemoryCreateCoordinator: ParentCoordinator {
                 }
             }
         }).disposed(by: disposeBag)
+        
+        // SELFCOMM: Map
+        viewModel.outputs.mapInsertRequestObservable
+            .subscribe(onNext: { [weak self] in
+                if let vc = self?.navigationController {
+                    let coord = MapCreateCoordinator(vc)
+                    self?.childCoordinators.append(coord)
+                    coord.start()
+                }
+        }).disposed(by: disposeBag)
+        
+        // SELFCOMM: Graffiti
+        viewModel.outputs.graffitiInsertRequestObservable
+            .subscribe(onNext: { [weak self] in
+                if let self = self {
+                    let vc = self.navigationController
+                    let coord = GraffitiCreateCoordinator(vc)
+                    
+                    coord.outputs.saveObservable
+                        .subscribe(onNext: { (graffiti) in
+                            viewModel.inputs.graffitiInsertResponse(graffiti)
+                            vc.dismiss(animated: true)
+                        }).disposed(by: self.disposeBag)
+                    
+                    self.childCoordinators.append(coord)
+                    coord.start()
+                }
+            }).disposed(by: disposeBag)
     }
 }

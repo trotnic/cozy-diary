@@ -21,6 +21,10 @@ protocol TextChunkable: Chunkable {
 protocol PhotoChunkable: Chunkable {
     var photo: Data { get set }
 }
+
+protocol GraffitiChunkable: Chunkable {
+    var graffiti: Data { get set }
+}
 // structs
 
 class Memory {
@@ -28,16 +32,24 @@ class Memory {
     private(set) var index: Int
     private(set) var texts: Array<TextChunk>
     private(set) var photos: Array<PhotoChunk>
-
+    private(set) var graffities: Array<GraffitiChunk>
+    
     private var total: Int {
         texts.count + photos.count
     }
     
-    init(date: Date, index: Int, texts: Array<TextChunk>, photos: Array<PhotoChunk>) {
+    init(
+        date: Date,
+        index: Int,
+        texts: Array<TextChunk>,
+        photos: Array<PhotoChunk>,
+        graffities: Array<GraffitiChunk>
+    ) {
         self.date = date
         self.index = index
         self.texts = texts
         self.photos = photos
+        self.graffities = graffities
     }
     
     func insertTextChunk(_ text: String) {
@@ -47,6 +59,11 @@ class Memory {
     
     func insertPhoto(_ photo: Data) {
         photos.append(PhotoChunk(photo: photo, index: index))
+        index += 1
+    }
+    
+    func insertGraffiti(_ graffiti: Data) {
+        graffities.append(GraffitiChunk(graffiti: graffiti, index: index))
         index += 1
     }
     
@@ -63,11 +80,17 @@ class Memory {
             photos.remove(at: index)
             return
         }
+        if let index = graffities.firstIndex(where: { (graffitiChunk) -> Bool in
+            graffitiChunk.index == index
+        }) {
+            graffities.remove(at: index)
+            return
+        }
         
     }
     
     var sortedChunks: Array<Chunkable> {
-        (texts + photos).sorted { (t1, t2) -> Bool in
+        (texts + photos + graffities).sorted { (t1, t2) -> Bool in
             t1.index < t2.index
         }
     }
@@ -90,6 +113,16 @@ class PhotoChunk: PhotoChunkable {
     
     init(photo: Data, index: Int) {
         self.photo = photo
+        self.index = index
+    }
+}
+
+class GraffitiChunk: GraffitiChunkable {
+    var graffiti: Data
+    var index: Int
+    
+    init(graffiti: Data, index: Int) {
+        self.graffiti = graffiti
         self.index = index
     }
 }

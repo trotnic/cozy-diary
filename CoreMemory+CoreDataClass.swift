@@ -14,7 +14,13 @@ import CoreData
 public class CoreMemory: NSManagedObject {
 
     var selfChunk: Memory {
-        Memory(date: date!, index: Int(increment), texts: textChunks, photos: photoChunks)
+        Memory(
+            date: date!,
+            index: Int(increment),
+            texts: textChunks,
+            photos: photoChunks,
+            graffities: graffitiChunks
+        )
     }
     
     var textChunks: Array<TextChunk> {
@@ -32,6 +38,15 @@ public class CoreMemory: NSManagedObject {
         }
         set {
             photos = NSSet(array: newValue)
+        }
+    }
+    
+    var graffitiChunks: Array<GraffitiChunk> {
+        get {
+            (graffities?.allObjects as? Array<CoreGraffitiChunk>)?.map { $0.selfChunk } ?? []
+        }
+        set {
+            graffities = NSSet(array: newValue)
         }
     }
     
@@ -57,6 +72,13 @@ public class CoreMemory: NSManagedObject {
                     photoEntity.index = Int64($0.index)
                     photoEntity.photo = $0.photo
                     return photoEntity
+                })
+                
+                entity?.graffities = NSSet(array: copy.graffities.map {
+                    let graffityEntity = CoreGraffitiChunk(context: context)
+                    graffityEntity.index = Int64($0.index)
+                    graffityEntity.graffiti = $0.graffiti
+                    return graffityEntity
                 })
                 
                 entity?.increment = Int64(copy.index)
