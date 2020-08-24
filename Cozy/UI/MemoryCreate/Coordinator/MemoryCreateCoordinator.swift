@@ -87,6 +87,11 @@ class MemoryCreateCoordinator: ParentCoordinator {
                             vc.dismiss(animated: true)
                         }).disposed(by: self.disposeBag)
                     
+                    coord.outputs.closeObservable
+                        .subscribe(onNext: {
+                            vc.dismiss(animated: true)
+                        }).disposed(by: self.disposeBag)
+                    
                     self.childCoordinators.append(coord)
                     coord.start()
                 }

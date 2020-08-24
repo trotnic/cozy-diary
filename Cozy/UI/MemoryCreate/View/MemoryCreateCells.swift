@@ -187,7 +187,11 @@ extension PhotoChunkMemoryView: UIContextMenuInteractionDelegate {
 class GraffitiChunkMemoryView: UIView {
     private let disposeBag = DisposeBag()
     
-    var viewModel: GraffitiChunkViewModelType!
+    var viewModel: GraffitiChunkViewModelType! {
+        didSet {
+            bindViewModel()
+        }
+    }
     
     lazy var contentView: UIView = {
         let view = UIView()
@@ -195,9 +199,9 @@ class GraffitiChunkMemoryView: UIView {
         return view
     }()
     
-    lazy var graffitiView: SwiftyDrawView = {
-        let view = SwiftyDrawView()
-        view.isEnabled = false
+    lazy var graffitiView: UIImageView = {
+        let view = UIImageView()
+        view.contentMode = .scaleAspectFit
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -205,35 +209,40 @@ class GraffitiChunkMemoryView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         
-        addSubview(contentView)
+//        addSubview(contentView)
+//
+//        contentView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
+//        contentView.topAnchor.constraint(equalTo: topAnchor).isActive = true
+//        contentView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
+//        contentView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
         
-        contentView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
-        contentView.topAnchor.constraint(equalTo: topAnchor).isActive = true
-        contentView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
-        contentView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
+        addSubview(graffitiView)
         
-        contentView.addSubview(graffitiView)
-        
-//        graffitiView.leadingAnchor.constraint(lessThanOrEqualTo: contentView.leadingAnchor).isActive = true
-//        graffitiView.topAnchor.constraint(lessThanOrEqualTo: contentView.topAnchor).isActive = true
-//        graffitiView.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor).isActive = true
+        graffitiView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
+        graffitiView.topAnchor.constraint(equalTo: topAnchor).isActive = true
+        graffitiView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
+        graffitiView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
 //        graffitiView.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor).isActive = true
         
 //        graffitiView.transform.scaledBy(x: 0.2, y: 0.2)
 //        graffitiView.heightAnchor.constraint(equalTo: heightAnchor).isActive = true
         
-        heightAnchor.constraint(equalTo: widthAnchor).isActive = true
-        graffitiView.heightAnchor.constraint(equalTo: heightAnchor).isActive = true
-        graffitiView.widthAnchor.constraint(equalTo: widthAnchor).isActive = true
+//        heightAnchor.constraint(equalTo: widthAnchor).isActive = true
+//        graffitiView.heightAnchor.constraint(equalTo: heightAnchor).isActive = true
+//        graffitiView.widthAnchor.constraint(equalTo: widthAnchor).isActive = true
 //        heightAnchor.constraint(equalToConstant: 400).isActive = true
-        bindViewModel()
+//        heightAnchor.constraint(equalToConstant: 100).isActive = true
+        
     }
     
     func bindViewModel() {
         viewModel.outputs.graffiti
-            .map { data in try! JSONDecoder().decode([SwiftyDrawView.DrawItem].self, from: data) }
-            .subscribe(onNext: { [weak self] (items) in
-                self?.graffitiView.display(drawItems: items)
-            }).disposed(by: disposeBag)
+            .map { data in UIImage(data: data) }
+            .bind(to: graffitiView.rx.image)
+            .disposed(by: disposeBag)
+//            .map { data in try! JSONDecoder().decode([SwiftyDrawView.DrawItem].self, from: data) }
+//            .subscribe(onNext: { [weak self] (items) in
+//                self?.graffitiView.display(drawItems: items)
+//            }).disposed(by: disposeBag)
     }
 }

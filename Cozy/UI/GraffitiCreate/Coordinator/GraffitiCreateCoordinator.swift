@@ -12,6 +12,7 @@ import RxSwift
 
 protocol GraffitiCreateCoordinatorOutput {
     var saveObservable: Observable<Data> { get }
+    var closeObservable: Observable<Void> { get }
 }
 
 
@@ -21,9 +22,11 @@ class GraffitiCreateCoordinator: Coordinator, GraffitiCreateCoordinatorOutput {
     
     // MARK: Outputs
     let saveObservable: Observable<Data>
+    let closeObservable: Observable<Void>
     
     // MARK: Private
     private let savePublisher = PublishSubject<Data>()
+    private let closePublisher = PublishSubject<Void>()
     
     var viewController: GraffitiCreateViewController!
     let presentationController: UIViewController
@@ -34,12 +37,13 @@ class GraffitiCreateCoordinator: Coordinator, GraffitiCreateCoordinatorOutput {
         self.presentationController = presentationController
         
         saveObservable = savePublisher.asObservable()
+        closeObservable = closePublisher.asObservable()
     }
     
     func start() {
         let viewModel = GraffitiCreateViewModel()
         viewController = .init(viewModel: viewModel)
-        viewController.modalPresentationStyle = .overFullScreen
+        viewController.modalPresentationStyle = .fullScreen
         presentationController.present(viewController, animated: true)
         
         
@@ -52,7 +56,7 @@ class GraffitiCreateCoordinator: Coordinator, GraffitiCreateCoordinatorOutput {
         
         viewModel.outputs.closeRequestObservable
             .subscribe(onNext: { [weak self] in
-                
+                self?.closePublisher.onNext(())
             }).disposed(by: disposeBag)
         
         

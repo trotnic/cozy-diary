@@ -8,7 +8,7 @@
 
 import UIKit
 import RxSwift
-import SwiftyDraw
+import PencilKit
 
 class GraffitiCreateViewController: BaseViewController {
 
@@ -25,9 +25,8 @@ class GraffitiCreateViewController: BaseViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    lazy var drawView: SwiftyDrawView = {
-        let view = SwiftyDrawView()
-        view.brush = .marker
+    lazy var drawView: PKCanvasView = {
+        let view = PKCanvasView(frame: .zero)
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -81,7 +80,7 @@ class GraffitiCreateViewController: BaseViewController {
         dividerView.bottomAnchor.constraint(equalTo: headerView.bottomAnchor).isActive = true
         dividerView.heightAnchor.constraint(equalToConstant: 1.25).isActive = true
         
-    
+        
         
         setupCloseButton()
         setupSaveButton()
@@ -118,13 +117,27 @@ class GraffitiCreateViewController: BaseViewController {
         saveButton.backgroundColor = .clear
         saveButton.setImage(UIImage(systemName: "checkmark"), for: .normal)
         
+        
+        
         saveButton.rx.tap
             .subscribe(onNext: { [weak self] in
-                let encoder = JSONEncoder()
-                if let data = try? encoder.encode(self?.drawView.drawItems) {
-                    self?.viewModel.inputs.saveRequest(data)
+                if let self = self{
+                    let image = self.drawView.drawing.image(from: self.drawView.drawing.bounds, scale: 1.0)
+                    if let data = image.pngData() {
+                        self.viewModel.inputs.saveRequest(data)
+                    }
                 }
+//                if let data = self?.drawView.drawing.dataRepresentation() {
+//                    self?.viewModel.inputs.saveRequest(data)
+//                }
             }).disposed(by: disposeBag)
+//        saveButton.rx.tap
+//            .subscribe(onNext: { [weak self] in
+//                let encoder = JSONEncoder()
+//                if let data = try? encoder.encode(self?.drawView.drawItems) {
+//                    self?.viewModel.inputs.saveRequest(data)
+//                }
+//            }).disposed(by: disposeBag)
     }
     
     private func setupDrawView() {
@@ -134,16 +147,20 @@ class GraffitiCreateViewController: BaseViewController {
         
         let safeGuide = view.safeAreaLayoutGuide
         
-        let screenWidth = UIScreen.main.bounds.width
-        
-//        drawView.leadingAnchor.constraint(equalTo: safeGuide.leadingAnchor).isActive = true
+        drawView.leadingAnchor.constraint(equalTo: safeGuide.leadingAnchor).isActive = true
         drawView.topAnchor.constraint(equalTo: headerView.bottomAnchor).isActive = true
-        drawView.widthAnchor.constraint(equalToConstant: screenWidth).isActive = true
-        drawView.heightAnchor.constraint(equalToConstant: screenWidth).isActive = true
-        drawView.centerXAnchor.constraint(equalTo: safeGuide.centerXAnchor).isActive = true
-        drawView.backgroundColor = .red
-//        drawView.trailingAnchor.constraint(equalTo: safeGuide.trailingAnchor).isActive = true
-//        drawView.bottomAnchor.constraint(equalTo: safeGuide.bottomAnchor).isActive = true
+        drawView.trailingAnchor.constraint(equalTo: safeGuide.trailingAnchor).isActive = true
+        drawView.bottomAnchor.constraint(equalTo: safeGuide.bottomAnchor).isActive = true
         
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if let window = view.window,
+            let toolPicker = PKToolPicker.shared(for: window) {
+            toolPicker.setVisible(true, forFirstResponder: drawView)
+            toolPicker.addObserver(drawView)
+            drawView.becomeFirstResponder()
+        }
     }
 }
