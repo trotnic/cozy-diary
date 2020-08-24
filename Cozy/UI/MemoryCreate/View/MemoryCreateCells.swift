@@ -25,7 +25,7 @@ class TextChunkMemoryView: UIView {
         view.delegate = self
         view.isScrollEnabled = false
         view.sizeToFit()
-        view.font = .systemFont(ofSize: 20)
+        view.font = .systemFont(ofSize: 17)
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -43,10 +43,11 @@ class TextChunkMemoryView: UIView {
     
     func bindViewModel() {
         viewModel.outputs.text
-            .bind(to: textView.rx.text)
+            .bind(to: textView.rx.attributedText)
             .disposed(by: disposeBag)
         textView.rx
-            .text.orEmpty
+            .attributedText
+            .map { $0 ?? NSAttributedString(string: "") }
             .bind(to: viewModel.outputs.text)
             .disposed(by: disposeBag)
         
@@ -208,31 +209,12 @@ class GraffitiChunkMemoryView: UIView {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        
-//        addSubview(contentView)
-//
-//        contentView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
-//        contentView.topAnchor.constraint(equalTo: topAnchor).isActive = true
-//        contentView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
-//        contentView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
-        
         addSubview(graffitiView)
         
         graffitiView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
         graffitiView.topAnchor.constraint(equalTo: topAnchor).isActive = true
         graffitiView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
         graffitiView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
-//        graffitiView.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor).isActive = true
-        
-//        graffitiView.transform.scaledBy(x: 0.2, y: 0.2)
-//        graffitiView.heightAnchor.constraint(equalTo: heightAnchor).isActive = true
-        
-//        heightAnchor.constraint(equalTo: widthAnchor).isActive = true
-//        graffitiView.heightAnchor.constraint(equalTo: heightAnchor).isActive = true
-//        graffitiView.widthAnchor.constraint(equalTo: widthAnchor).isActive = true
-//        heightAnchor.constraint(equalToConstant: 400).isActive = true
-//        heightAnchor.constraint(equalToConstant: 100).isActive = true
-        
     }
     
     func bindViewModel() {
@@ -240,9 +222,5 @@ class GraffitiChunkMemoryView: UIView {
             .map { data in UIImage(data: data) }
             .bind(to: graffitiView.rx.image)
             .disposed(by: disposeBag)
-//            .map { data in try! JSONDecoder().decode([SwiftyDrawView.DrawItem].self, from: data) }
-//            .subscribe(onNext: { [weak self] (items) in
-//                self?.graffitiView.display(drawItems: items)
-//            }).disposed(by: disposeBag)
     }
 }

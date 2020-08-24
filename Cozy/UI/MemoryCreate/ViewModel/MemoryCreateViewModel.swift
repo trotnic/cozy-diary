@@ -192,7 +192,7 @@ class MemoryCreateViewModel: MemoryCreateViewModelType, MemoryCreateViewModelOut
 // MARK: Text Chunk ViewModel
 
 protocol TextChunkViewModelOutput {
-    var text: BehaviorRelay<String> { get }
+    var text: BehaviorRelay<NSAttributedString> { get }
     
     var removeTextRequest: Observable<Void> { get }
 }
@@ -215,7 +215,7 @@ class TextChunkViewModel: TextChunkViewModelType, TextChunkViewModelOutput, Text
     var inputs: TextCHunkViewModelInput { return self }
     
     // MARK: Outputs
-    var text: BehaviorRelay<String>
+    var text: BehaviorRelay<NSAttributedString>
     
     var removeTextRequest: Observable<Void>
     

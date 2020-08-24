@@ -97,7 +97,7 @@ class MemoryCollectionCommonItemViewModel: MemoryCollectionCommonItemViewModelTy
     }()
     
     lazy var text: Observable<String> = {
-        let result = memory.texts.first?.text ?? ""
+        let result = memory.texts.first?.text.string ?? ""
         
         return .just(result)
     }()

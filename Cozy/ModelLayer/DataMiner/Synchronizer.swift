@@ -75,7 +75,7 @@ class CoreDataModeller {
         entity.date = PerfectCalendar.shared.today
         entity.increment = 1
         let textEntity = CoreTextChunk(context: context)
-        textEntity.text = ""
+        textEntity.text = NSAttributedString(string: "")
         textEntity.index = 0
         entity.addToTexts(textEntity)
         

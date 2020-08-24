@@ -15,7 +15,7 @@ protocol Chunkable {
 }
 
 protocol TextChunkable: Chunkable {
-    var text: String { get set }
+    var text: NSAttributedString { get set }
 }
 
 protocol PhotoChunkable: Chunkable {
@@ -53,7 +53,7 @@ class Memory {
     }
     
     func insertTextChunk(_ text: String) {
-        texts.append(TextChunk(text: text, index: index))
+        texts.append(TextChunk(text: NSAttributedString(string: text), index: index))
         index += 1
     }
     
@@ -98,10 +98,10 @@ class Memory {
 }
 
 class TextChunk: TextChunkable {
-    var text: String
+    var text: NSAttributedString
     var index: Int
     
-    init(text: String, index: Int) {
+    init(text: NSAttributedString, index: Int) {
         self.text = text
         self.index = index
     }

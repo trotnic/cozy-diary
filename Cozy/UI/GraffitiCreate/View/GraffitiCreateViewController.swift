@@ -121,23 +121,17 @@ class GraffitiCreateViewController: BaseViewController {
         
         saveButton.rx.tap
             .subscribe(onNext: { [weak self] in
-                if let self = self{
-                    let image = self.drawView.drawing.image(from: self.drawView.drawing.bounds, scale: 1.0)
-                    if let data = image.pngData() {
-                        self.viewModel.inputs.saveRequest(data)
+                if let self = self {
+                    DispatchQueue.global(qos: .userInitiated).async {
+                        let image = self.drawView.drawing.image(from: self.drawView.drawing.bounds, scale: 1.0)
+                        if let data = image.pngData() {
+                            DispatchQueue.main.async {
+                                self.viewModel.inputs.saveRequest(data)
+                            }                            
+                        }
                     }
                 }
-//                if let data = self?.drawView.drawing.dataRepresentation() {
-//                    self?.viewModel.inputs.saveRequest(data)
-//                }
             }).disposed(by: disposeBag)
-//        saveButton.rx.tap
-//            .subscribe(onNext: { [weak self] in
-//                let encoder = JSONEncoder()
-//                if let data = try? encoder.encode(self?.drawView.drawItems) {
-//                    self?.viewModel.inputs.saveRequest(data)
-//                }
-//            }).disposed(by: disposeBag)
     }
     
     private func setupDrawView() {

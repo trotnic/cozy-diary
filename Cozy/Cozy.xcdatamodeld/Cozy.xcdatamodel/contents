@@ -19,13 +19,13 @@
     </entity>
     <entity name="CoreTextChunk" representedClassName="CoreTextChunk" syncable="YES" codeGenerationType="category">
         <attribute name="index" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="text" optional="YES" attributeType="String"/>
+        <attribute name="text" optional="YES" attributeType="Transformable"/>
         <relationship name="model" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CoreMemory" inverseName="texts" inverseEntity="CoreMemory"/>
     </entity>
     <elements>
+        <element name="CoreGraffitiChunk" positionX="-36" positionY="54" width="128" height="88"/>
         <element name="CoreMemory" positionX="-45" positionY="0" width="128" height="28"/>
         <element name="CorePhotoChunk" positionX="-27" positionY="45" width="128" height="88"/>
         <element name="CoreTextChunk" positionX="-18" positionY="36" width="128" height="88"/>
-        <element name="CoreGraffitiChunk" positionX="-36" positionY="54" width="128" height="88"/>
     </elements>
 </model>

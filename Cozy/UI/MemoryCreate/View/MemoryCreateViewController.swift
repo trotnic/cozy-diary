@@ -11,26 +11,13 @@ import RxCocoa
 import RxSwift
 
 
-extension UIView {
-    func childFirstResponder() -> UIView? {
-        if self.isFirstResponder { return self }
-        for subview in subviews {
-            let firstResponder = subview.childFirstResponder()
-            if firstResponder != nil {
-                return firstResponder
-            }
-        }
-        return nil
-    }
-    
-    
-}
 
 class MemoryCreateViewController: BaseViewController {
 
     let viewModel: MemoryCreateViewModelType!
     
     private var buttonsPanelBottomConstraint: NSLayoutConstraint!
+    private lazy var isTextPanelActive = BehaviorRelay<Bool>(value: false)
     
     init(_ viewModel: MemoryCreateViewModelType) {
         self.viewModel = viewModel
@@ -76,6 +63,15 @@ class MemoryCreateViewController: BaseViewController {
         return button
     }()
     
+    lazy var textFormatButton: UIButton = {
+        let button = UIButton(frame: .zero)
+        button.setImage(UIImage(systemName: "a"), for: .normal)
+        button.tintColor = .white
+        button.backgroundColor = .clear
+        button.isHidden = true
+        return button
+    }()
+    
     private let disposeBag = DisposeBag()
 
     override func viewDidLoad() {
@@ -88,6 +84,12 @@ class MemoryCreateViewController: BaseViewController {
         setupScrollView()
         bindViewModel()
         setupPanel()
+    }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        
+        isTextPanelActive.accept(isTextPanelActive.value)
     }
     
     func bindViewModel() {
@@ -112,7 +114,6 @@ class MemoryCreateViewController: BaseViewController {
                 views.forEach { self?.contentView.addArrangedSubview($0) }
         }).disposed(by: disposeBag)
         
-        
         let tapGesture = UITapGestureRecognizer()
         scrollView.addGestureRecognizer(tapGesture)
         tapGesture
@@ -121,6 +122,7 @@ class MemoryCreateViewController: BaseViewController {
             .bind { [unowned self] recognizer in
                 if self.contentView.childFirstResponder() != nil {
                     self.view.endEditing(true)
+                    self.isTextPanelActive.accept(false)
                 } else {
                     self.viewModel.inputs.textChunkInsertRequest()
                     self.contentView.arrangedSubviews.last?.becomeFirstResponder()
@@ -129,55 +131,109 @@ class MemoryCreateViewController: BaseViewController {
         .disposed(by: disposeBag)
     }
     
+    private func panelButtonBuilder(_ image: String, _ action: @escaping () -> ()) -> UIButton {
+        let button = UIButton()
+        button.rx.tap
+        .bind(onNext: action)
+        .disposed(by: disposeBag)
+        button.setImage(UIImage(systemName: image), for: .normal)
+        button.tintColor = .white
+        button.backgroundColor = .clear
+        return button
+    }
+    
     private func setupPanel() {
         view.addSubview(buttonsPanel)
         
-        buttonsPanel.buttons.accept([
-            {
-                let button = UIButton(frame: .zero)
-                button.rx.tap.bind { [weak self] in
-                    self?.viewModel.inputs.photoChunkInsertRequest()
-                }.disposed(by: disposeBag)
-                button.setImage(UIImage(systemName: "plus"), for: .normal)
-                button.tintColor = .white
-                button.backgroundColor = .clear
-                return button
-          }(),
-            {
-                let button = UIButton(frame: .zero)
-                button.rx.tap
-                    .bind { [weak self] in
-                    self?.viewModel.inputs.mapChunkInsertRequest()
-                }.disposed(by: disposeBag)
-                button.setImage(UIImage(systemName: "mappin"), for: .normal)
-                button.tintColor = .white
-                button.backgroundColor = .clear
-                return button
-            }(),
-            {
-                let button = UIButton(frame: .zero)
-                button.setImage(UIImage(systemName: "play"), for: .normal)
-                button.tintColor = .white
-                button.backgroundColor = .clear
-                return button
-            }(),
-            {
-                let button = UIButton(frame: .zero)
-                button.rx.tap
-                    .bind { [weak self] in
-                        self?.viewModel.inputs.graffitiChunkInsertRequest()
-                }.disposed(by: disposeBag)
-                button.setImage(UIImage(systemName: "paintbrush"), for: .normal)
-                button.tintColor = .white
-                button.backgroundColor = .clear
-                return button
-            }(),
+        let commonButtons: [UIButton] = [
+            panelButtonBuilder("plus", { [weak self] in
+                self?.viewModel.inputs.photoChunkInsertRequest()
+            }),
+            panelButtonBuilder("mappin", { [weak self] in
+                self?.viewModel.inputs.mapChunkInsertRequest()
+            }),
+            panelButtonBuilder("paintbrush", { [weak self] in
+                self?.viewModel.inputs.graffitiChunkInsertRequest()
+            })
+        ]
+        
+        let textEditButtons: [UIButton] = [
+            panelButtonBuilder("bold", { [weak self] in
+                if let view = self?.contentView.childFirstResponder() as? UITextView,
+                    let font = view.typingAttributes[.font] as? UIFont {
+                    if font.isBold() {
+                        view.typingAttributes[.font] = font.undoBold()
+                    } else {
+                        view.typingAttributes[.font] = font.bold()
+                    }
+                }
+            }),
+            panelButtonBuilder("italic", { [weak self] in
+                if let view = self?.contentView.childFirstResponder() as? UITextView,
+                    let font = view.typingAttributes[.font] as? UIFont {
+                    if font.isItalic() {
+                        view.typingAttributes[.font] = font.undoItalic()
+                    } else {
+                        view.typingAttributes[.font] = font.italic()
+                    }
+                }
+            }),
+            panelButtonBuilder("underline", { [weak self] in
+                if let view = self?.contentView.childFirstResponder() as? UITextView {
+                    if let value = view.typingAttributes[.underlineStyle] as? NSNumber {
+                        if value.intValue == 1 {
+                            view.typingAttributes[.underlineStyle] = 0
+                        }
+                    } else {
+                        view.typingAttributes[.underlineStyle] = 1
+                    }
+                }
+            }),
+            panelButtonBuilder("strikethrough", { [weak self] in
+                if let view = self?.contentView.childFirstResponder() as? UITextView {
+                    if let value = view.typingAttributes[.strikethroughStyle] as? NSNumber {
+                        if value.intValue == 1 {
+                            view.typingAttributes[.strikethroughStyle] = 0
+                        }
+                    } else {
+                        view.typingAttributes[.strikethroughStyle] = 1
+                    }
+                }
+            })
+            ]
+        
+        textEditButtons.forEach {
+            isTextPanelActive
+            .map { !$0 }
+            .bind(to: $0.rx.isHidden)
+            .disposed(by: disposeBag)
+        }
+        
+        commonButtons.forEach { button in
+            isTextPanelActive
+            .bind(to: button.rx.isHidden)
+            .disposed(by: disposeBag)
+        }
+        
+        buttonsPanel.buttons.accept(commonButtons + textEditButtons + [
+            textFormatButton,
             endEditButton
         ])
         
-        endEditButton.rx.tap
+        textFormatButton.rx.tap
             .subscribe(onNext: { [weak self] in
-                self?.view.endEditing(true)
+                UIView.animate(withDuration: 0.3) {
+                    if let current = self?.isTextPanelActive.value {
+                        self?.isTextPanelActive.accept(!current)
+                    }
+                }
+            })
+            .disposed(by: disposeBag)
+        
+        endEditButton.rx.tap
+            .subscribe(onNext: { [unowned self] in
+                self.view.endEditing(true)
+                self.isTextPanelActive.accept(false)
             }).disposed(by: disposeBag)
         
         buttonsPanel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
@@ -209,14 +265,20 @@ class MemoryCreateViewController: BaseViewController {
         scrollView.backgroundColor = UIColor.white
         
         keyboardHeight().subscribe(onNext: { [weak self] (inset) in
-            let additionalInset: CGFloat = inset == 0 ? 75 : 0
-            let panelInset: CGFloat = inset == 0 ? 10 : -60
-            self?.buttonsPanelBottomConstraint.constant = (-inset - panelInset)
-            UIView.animate(withDuration: 0.3) {
-                self?.view.layoutIfNeeded()
-                self?.endEditButton.isHidden.toggle()
+            if let self = self {
+                let additionalInset: CGFloat = inset == 0 ? 75 : 0
+                let panelInset: CGFloat = inset == 0 ? 10 : -self.view.safeAreaInsets.bottom + 10
+                self.buttonsPanelBottomConstraint.constant = (-inset - panelInset)
+                UIView.animate(withDuration: 0.3) {
+                    if inset == 0 {
+                        self.isTextPanelActive.accept(false)
+                    }
+                    self.view.layoutIfNeeded()
+                    self.textFormatButton.isHidden.toggle()
+                    self.endEditButton.isHidden.toggle()
+                }
+                self.scrollView.contentInset = .init(top: 0, left: 0, bottom: inset + additionalInset, right: 0)
             }
-            self?.scrollView.contentInset = .init(top: 0, left: 0, bottom: inset + additionalInset, right: 0)
         }).disposed(by: disposeBag)
         
     }
@@ -239,3 +301,54 @@ class MemoryCreateViewController: BaseViewController {
     }
 }
 
+
+extension UIFont {
+        
+    // MARK: Bold
+    
+    func bold() -> UIFont {
+        var traits = fontDescriptor.symbolicTraits
+        traits.insert([.traitBold])
+        if let descriptor = fontDescriptor.withSymbolicTraits(traits) {
+            return .init(descriptor: descriptor, size: 0)
+        }
+        return self
+    }
+    
+    func undoBold() -> UIFont {
+        var traits = fontDescriptor.symbolicTraits
+        traits.remove([.traitBold])
+        if let descriptor = fontDescriptor.withSymbolicTraits(traits) {
+            return .init(descriptor: descriptor, size: 0)
+        }
+        return self
+    }
+    
+    func isBold() -> Bool {
+        fontDescriptor.symbolicTraits.contains(.traitBold)
+    }
+    
+    // MARK: Italic
+    
+    func italic() -> UIFont {
+        var traits = fontDescriptor.symbolicTraits
+        traits.insert([.traitItalic])
+        if let descriptor = fontDescriptor.withSymbolicTraits(traits) {
+            return .init(descriptor: descriptor, size: 0)
+        }
+        return self
+    }
+    
+    func undoItalic() -> UIFont {
+        var traits = fontDescriptor.symbolicTraits
+        traits.remove(.traitItalic)
+        if let descriptor = fontDescriptor.withSymbolicTraits(traits) {
+            return .init(descriptor: descriptor, size: 0)
+        }
+        return self
+    }
+    
+    func isItalic() -> Bool {
+        fontDescriptor.symbolicTraits.contains(.traitItalic)
+    }
+}

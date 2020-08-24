@@ -14,7 +14,7 @@ import CoreData
 public class CoreTextChunk: NSManagedObject {
 
     var selfChunk: TextChunk {
-        TextChunk(text: text ?? "", index: Int(index))
+        TextChunk(text: text as! NSAttributedString, index: Int(index))
     }
     
 }
