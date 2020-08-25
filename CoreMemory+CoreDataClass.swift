@@ -13,6 +13,10 @@ import CoreData
 @objc(CoreMemory)
 public class CoreMemory: NSManagedObject {
 
+    @nonobjc public static func memoryFetchRequest() -> NSFetchRequest<CoreMemory> {
+        return NSFetchRequest<CoreMemory>(entityName: "CoreMemory")
+    }
+    
     var selfChunk: Memory {
         Memory(
             date: date!,
@@ -48,6 +52,36 @@ public class CoreMemory: NSManagedObject {
         set {
             graffities = NSSet(array: newValue)
         }
+    }
+    
+    /// Updates properties with provided object and context without commiting
+    ///
+    /// - parameter  memory: Object to update with
+    /// - parameter context: Actual context
+    func updateSelfWith(_ memory: Memory, on context: NSManagedObjectContext) {
+        date = memory.date
+        increment = Int64(memory.index)
+        
+        texts = NSSet(array: memory.texts.map {
+            let textEntity = CoreTextChunk(context: context)
+            textEntity.index = Int64($0.index)
+            textEntity.text = $0.text
+            return textEntity
+        })
+        
+        photos = NSSet(array: memory.photos.map {
+            let photoEntity = CorePhotoChunk(context: context)
+            photoEntity.index = Int64($0.index)
+            photoEntity.photo = $0.photo
+            return photoEntity
+        })
+        
+        graffities = NSSet(array: memory.graffities.map {
+            let graffitiEntity = CoreGraffitiChunk(context: context)
+            graffitiEntity.index = Int64($0.index)
+            graffitiEntity.graffiti = $0.graffiti
+            return graffitiEntity
+        })
     }
     
     static func update(_ memory: Memory) {

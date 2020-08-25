@@ -72,6 +72,13 @@ class MemoryCollectionViewController: BaseViewController {
         return view
     }()
     
+    lazy var searchController: UISearchController = {
+        let item = UISearchController(searchResultsController: nil)
+//        item.searchResultsUpdater = self
+        item.searchBar.placeholder = "Type something here to search"
+        return item
+    }()
+    
     let viewModel: MemoryCollectionViewModelType
     private let disposeBag = DisposeBag()
     
@@ -92,6 +99,8 @@ class MemoryCollectionViewController: BaseViewController {
         setupCollectionView()
         bindViewModel()
         setupView()
+        
+        setupSearchButton()
     }
     
     private func setupView() {
@@ -100,7 +109,7 @@ class MemoryCollectionViewController: BaseViewController {
     
     private func bindViewModel() {
         viewModel.outputs.items
-            .bind(to: collectionView.rx.items(dataSource: dataSource))
+            .drive(collectionView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
     }
     
@@ -112,6 +121,16 @@ class MemoryCollectionViewController: BaseViewController {
         collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
         
         collectionView.backgroundColor = .white
+    }
+    
+    private func setupSearchButton() {
+        let button = UIBarButtonItem(image: UIImage(systemName: "magnifyingglass"), style: .plain, target: nil, action: nil)
+        navigationItem.rightBarButtonItem = button
+        
+        button.rx.tap
+            .subscribe(onNext: { [weak self] in
+                self?.viewModel.inputs.searchRequest()
+            }).disposed(by: disposeBag)
     }
 }
 

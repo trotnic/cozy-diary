@@ -11,7 +11,12 @@ import CoreData
 import RxSwift
 import RxCocoa
 
-class CoreDataManager {
+protocol CoreDataManagerType {
+    var viewContext: NSManagedObjectContext { get }
+    var backgroundContext: NSManagedObjectContext { get }
+}
+
+class CoreDataManager: CoreDataManagerType {
     
     static let shared = CoreDataManager()
     
@@ -45,58 +50,16 @@ class UserDefaultsManager {
     
 }
 
-class CoreDataModeller {
-    
-    let manager: CoreDataManager
-    
-    init(manager: CoreDataManager) {
-        self.manager = manager
-    }
-    
-    func fetchRelevantOrCreate() -> Memory {
-        guard let memory = relevantMemory() else {
-            return createNewOne()
-        }
-        return memory
-    }
-    
-    func relevantMemory() -> Memory? {
-        let context = CoreDataManager.shared.viewContext
-        let fetchRequest = NSFetchRequest<CoreMemory>(entityName: "CoreMemory")
-        fetchRequest.returnsObjectsAsFaults = false
-        fetchRequest.predicate = NSPredicate(format: "(date >= %@) AND (date < %@)", PerfectCalendar.shared.today as NSDate, PerfectCalendar.shared.tomorrow as NSDate)
-        let result = try? context.fetch(fetchRequest)
-        return result?.first?.selfChunk
-    }
-    
-    func createNewOne() -> Memory {
-        let context = CoreDataManager.shared.viewContext
-        let entity = CoreMemory(context: context)
-        entity.date = PerfectCalendar.shared.today
-        entity.increment = 1
-        let textEntity = CoreTextChunk(context: context)
-        textEntity.text = NSAttributedString(string: "")
-        textEntity.index = 0
-        entity.addToTexts(textEntity)
-        
-        do {
-            try context.save()
-        } catch {
-            fatalError("Oh sh*t")
-        }
-        return entity.selfChunk
-    }
-    
-    func fetchAllMemories() -> [Memory] {
-        let context = CoreDataManager.shared.viewContext
-        let fetchRequest = NSFetchRequest<CoreMemory>(entityName: "CoreMemory")
-        fetchRequest.returnsObjectsAsFaults = false
-        let result = try? context.fetch(fetchRequest)
-        return result?.map { $0.selfChunk } ?? []
-    }
+
+// MARK: Calendar
+
+
+protocol CalendarType {
+    var today: Date { get }
+    var tomorrow: Date { get }
 }
 
-class PerfectCalendar {
+class PerfectCalendar: CalendarType {
     
     static let shared = PerfectCalendar()
     
@@ -116,25 +79,138 @@ class PerfectCalendar {
     
 }
 
-class Synchronizer {
+
+// MARK: Synchronizer
+
+protocol MemoryStoreType {
+    var relevantMemory: BehaviorRelay<Memory> { get }
+    func fetchObservables() -> Observable<[Memory]>
+    func addItem(_ memory: Memory) -> Bool
+    func updateItem(_ memory: Memory) -> Bool
+    func removeItem(_ memory: Memory) -> Bool
+}
+
+class Synchronizer: MemoryStoreType {
     
-    static let shared = Synchronizer()
-    let relevantMemory: BehaviorRelay<Memory>
+    private var coreDataModels = BehaviorSubject<[CoreMemory]>(value: [])
+    private let coreDataManager: CoreDataManagerType = CoreDataManager()
+    
+    let relevantMemory: BehaviorRelay<Memory> = .init(value: .init())
     
     private let disposeBag = DisposeBag()
     
-    init() {
-        let memory = CoreDataModeller(manager: CoreDataManager.shared).fetchRelevantOrCreate()
-        relevantMemory = .init(value: memory)
-        
-        NotificationCenter.default
-            .rx.notification(UIApplication.willResignActiveNotification)
-            .subscribe(onNext: { notificaiton in
-                
-        })
-        .disposed(by: disposeBag)
+    private let calendar: CalendarType
+    
+    init(calendar: CalendarType) {
+        self.calendar = calendar
+        coreDataModels.onNext(fetchData())
+        relevantMemory.accept(fetchRelevantOrCreate())
     }
     
+    private func fetchData() -> [CoreMemory] {
+        let request = CoreMemory.memoryFetchRequest()
+        request.returnsDistinctResults = false
+        
+        do {
+            return try self.coreDataManager.viewContext.fetch(request)
+        } catch {
+            return []
+        }
+    }
+    
+    func fetchObservables() -> Observable<[Memory]> {
+        coreDataModels.onNext(fetchData())
+        return coreDataModels.map { $0.map { $0.selfChunk }}
+    }
+    
+    
+    @discardableResult
+    func addItem(_ memory: Memory) -> Bool {
+        let context = coreDataManager.backgroundContext
+        let entity = CoreMemory(context: context)
+        entity.updateSelfWith(memory, on: context)
+        
+        do {
+            try context.save()
+            coreDataModels.onNext(fetchData())
+            return true
+        } catch {
+            print(error)
+            return false
+        }
+    }
+    
+    
+    @discardableResult
+    func updateItem(_ memory: Memory) -> Bool {
+        let context = coreDataManager.backgroundContext
+        let request = CoreMemory.memoryFetchRequest()
+        request.predicate = .init(format: "date == %@", memory.date as NSDate)
+        
+        do {
+            let fetchResult = try context.fetch(request)
+            if fetchResult.count == 1,
+                let entity = fetchResult.last {
+                entity.updateSelfWith(memory, on: context)
+                try context.save()
+                return true
+            }
+        } catch {
+            print(error)
+        }
+        return false
+    }
+    
+    
+    @discardableResult
+    func removeItem(_ memory: Memory) -> Bool {
+        let context = coreDataManager.backgroundContext
+        if let request = CoreMemory.memoryFetchRequest() as? NSFetchRequest<NSFetchRequestResult> {
+            request.predicate = .init(format: "date == %@", memory.date as NSDate)
+            let batchRequest = NSBatchDeleteRequest(fetchRequest: request)
+            
+            do {
+                try context.execute(batchRequest)
+                coreDataModels.onNext(fetchData())
+                return true
+            } catch  {
+                print(error)
+            }
+        }
+        return false
+    }
+    
+    
+    private func getRelevantMemory() -> CoreMemory? {
+        let context = coreDataManager.viewContext
+        let request = CoreMemory.memoryFetchRequest()
+        request.returnsObjectsAsFaults = false
+        request.predicate = .init(format: "(date >= %@) AND (date < %@)", calendar.today as NSDate, calendar.tomorrow as NSDate)
+        
+        let result = try? context.fetch(request)
+        return result?.first
+    }
+    
+    
+    private func fetchRelevantOrCreate() -> Memory {
+        guard let memory = getRelevantMemory() else {
+            return createEmpty()
+        }
+        return memory.selfChunk
+    }
+    
+    private func createEmpty() -> Memory {
+        let context = coreDataManager.backgroundContext
+        let entity = CoreMemory(context: context)
+        entity.date = calendar.today
+        entity.increment = 0
+        do {
+            try context.save()
+        } catch {
+            fatalError("ohm, emrorm :(")
+        }
+        return entity.selfChunk
+    }
     
     
 }

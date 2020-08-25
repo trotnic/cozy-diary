@@ -7,11 +7,26 @@
 //
 
 import UIKit
+import RxSwift
 
 class BaseViewController: UIViewController {
 
+    private let disposeBag = DisposeBag()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
+    }
+    
+    func stubSwipeToRight() {
+        let swipe = UISwipeGestureRecognizer()
+        swipe.direction = .right
+        view.addGestureRecognizer(swipe)
+    }
+    
+    func stubSwipeToLeft() {
+        let swipe = UISwipeGestureRecognizer()
+        swipe.direction = .left
+        view.addGestureRecognizer(swipe)
     }
 }

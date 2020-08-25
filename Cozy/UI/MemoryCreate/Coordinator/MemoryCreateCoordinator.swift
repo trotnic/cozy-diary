@@ -20,8 +20,14 @@ class MemoryCreateCoordinator: ParentCoordinator {
     
     private let disposeBag = DisposeBag()
     
+    let memoryStore: MemoryStoreType
+    
+    init(memoryStore: MemoryStoreType) {
+        self.memoryStore = memoryStore
+    }
+    
     func start() {
-        let viewModel = MemoryCreateViewModel(memory: Synchronizer.shared.relevantMemory)
+        let viewModel = MemoryCreateViewModel(memory: memoryStore.relevantMemory)
         viewController = MemoryCreateViewController(viewModel)
         navigationController.setViewControllers([viewController], animated: false)
         

@@ -97,6 +97,22 @@ class Memory {
     
 }
 
+extension Memory {
+    convenience init() {
+        self.init(
+            date: Date(),
+            index: 0,
+            texts: [],
+            photos: [],
+            graffities: []
+        )
+    }
+}
+
+
+// MARK: Sub Chunks
+
+
 class TextChunk: TextChunkable {
     var text: NSAttributedString
     var index: Int

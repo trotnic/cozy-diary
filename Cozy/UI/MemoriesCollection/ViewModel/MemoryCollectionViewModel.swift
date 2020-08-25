@@ -11,13 +11,14 @@ import RxSwift
 import RxCocoa
 
 protocol MemoryCollectionViewModelOutput {
-    var items: Observable<[MemoryCollectionViewSection]> { get }
+    var items: Driver<[MemoryCollectionViewSection]> { get }
     
     var detailRequestObservable: Observable<Memory> { get }
+    var searchRequestObservable: Observable<Void> { get }
 }
 
 protocol MemoryCollectionViewModelInput {
-    
+    var searchRequest: () -> () { get }
 }
 
 protocol MemoryCollectionViewModelType {
@@ -31,37 +32,50 @@ class MemoryCollectionViewModel: MemoryCollectionViewModelType, MemoryCollection
     var inputs: MemoryCollectionViewModelInput { return self }
     
     // MARK: Outputs
-    lazy var items: Observable<[MemoryCollectionViewSection]> = {
-        .just([
-            .init(items: self.dataModeller
-            .fetchAllMemories()
-            .map { [unowned self] memory -> MemoryCollectionViewItem in
-                let viewModel = MemoryCollectionCommonItemViewModel(memory: memory)
-                viewModel.outputs.tapRequestObservable
-                    .subscribe(onNext: { [weak self] in
-                        self?.detailRequestPublisher.onNext(memory)
-                    }).disposed(by: self.disposeBag)
-                return .CommonItem(viewModel: viewModel)
-        })])
-    }()
+    var items: Driver<[MemoryCollectionViewSection]> {
+        itemsPublisher.asDriver()
+    }
     
-    var detailRequestObservable: Observable<Memory>
+    let detailRequestObservable: Observable<Memory>
+    let searchRequestObservable: Observable<Void>
     
     // MARK: Inputs
+    
+    lazy var searchRequest = { { self.searchRequestPublisher.onNext(()) } }()
         
     // MARK: Private
     private let disposeBag = DisposeBag()
-    private let dataModeller: CoreDataModeller
+    private let memoryStore: MemoryStoreType
     
     private let detailRequestPublisher = PublishSubject<Memory>()
+    private let searchRequestPublisher = PublishSubject<Void>()
+    
+    private let itemsPublisher = BehaviorRelay<[MemoryCollectionViewSection]>(value: [])
     
     // MARK: Init
-    init(dataModeller: CoreDataModeller) {
-        self.dataModeller = dataModeller
+    init(memoryStore: MemoryStoreType) {
+        self.memoryStore = memoryStore
         
         detailRequestObservable = detailRequestPublisher.asObservable()
+        searchRequestObservable = searchRequestPublisher.asObservable()
+        
+        memoryStore.fetchObservables()
+            .map { [unowned self] memories -> [MemoryCollectionViewSection] in
+                [.init(items: memories.map { memory -> MemoryCollectionViewItem in
+                    let viewModel = MemoryCollectionCommonItemViewModel(memory: memory)
+                    viewModel.outputs.tapRequestObservable
+                        .subscribe(onNext: { [weak self] in
+                            self?.detailRequestPublisher.onNext(memory)
+                        })
+                        .disposed(by: self.disposeBag)
+                    return .CommonItem(viewModel: viewModel)
+                })]
+        }
+        .subscribe(onNext: { [weak self] (section) in
+            self?.itemsPublisher.accept(section)
+        })
+        .disposed(by: disposeBag)
     }
-    
 }
 
 
