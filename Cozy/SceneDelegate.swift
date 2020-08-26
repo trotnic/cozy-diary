@@ -34,9 +34,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     func sceneDidEnterBackground(_ scene: UIScene) {
-//        taskIdentifier = UIApplication.shared.beginBackgroundTask()
+        
 //        CoreMemory.update(Synchronizer.shared.relevantMemory.value)
-//        UIApplication.shared.endBackgroundTask(taskIdentifier)
+        
         (UIApplication.shared.delegate as? AppDelegate)?.saveContext()
     }
 

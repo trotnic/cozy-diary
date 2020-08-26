@@ -20,6 +20,7 @@ class MemoryShowViewModel: MemoryShowViewModelType {
     init(memory: Memory) {
         self.memory = .init(value: memory)
         items = .init(value: [])
+        
         self.memory.subscribe(onNext: { [weak self] (memory) in
             self?.items.accept(
                     memory.sortedChunks.map { chunk -> MemoryCreateCollectionItem in
@@ -45,6 +46,7 @@ class MemoryShowViewModel: MemoryShowViewModelType {
                     }
                 )
         })
+        .disposed(by: disposeBag)
     }
     
     

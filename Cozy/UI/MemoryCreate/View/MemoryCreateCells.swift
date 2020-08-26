@@ -9,7 +9,7 @@
 import UIKit
 import RxCocoa
 import RxSwift
-import SwiftyDraw
+
 
 class TextChunkMemoryView: UIView {
     private let disposeBag = DisposeBag()
@@ -141,7 +141,6 @@ class PhotoChunkMemoryView: UIView {
             self?.viewModel.inputs.tapRequest()
         }).disposed(by: disposeBag)
     }
-    
     
 }
 

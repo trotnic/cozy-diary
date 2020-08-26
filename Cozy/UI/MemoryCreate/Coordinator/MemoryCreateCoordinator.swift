@@ -27,7 +27,7 @@ class MemoryCreateCoordinator: ParentCoordinator {
     }
     
     func start() {
-        let viewModel = MemoryCreateViewModel(memory: memoryStore.relevantMemory)
+        let viewModel = MemoryCreateViewModel(memory: memoryStore.relevantMemory, memoryStore: memoryStore)
         viewController = MemoryCreateViewController(viewModel)
         navigationController.setViewControllers([viewController], animated: false)
         

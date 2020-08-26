@@ -29,8 +29,8 @@ protocol MemoryCreateViewModelOutput {
     var graffitiInsertRequestObservable: Observable<Void> { get }
 }
 
-protocol MemoryCreateViewModelInput {
-    var viewDidLoad: () -> () { get }
+protocol MemoryCreateViewModelInput {    
+    var saveRequest: () -> () { get }
     
     var textChunkInsertRequest: () -> () { get }
     var photoChunkInsertRequest: () -> () { get }
@@ -62,7 +62,11 @@ class MemoryCreateViewModel: MemoryCreateViewModelType, MemoryCreateViewModelOut
     var graffitiInsertRequestObservable: Observable<Void>
     
     // MARK: Inputs
-    lazy var viewDidLoad = { { } }()
+    
+    lazy var saveRequest: () -> ()  = { {
+        self.memoryStore.updateItem(self.currentMemory.value)
+        self.memoryStore.leaveAway(key: self.currentMemory.value.date)
+    } }()
     
     lazy var textChunkInsertRequest = { {
         let value = self.currentMemory.value
@@ -106,10 +110,14 @@ class MemoryCreateViewModel: MemoryCreateViewModelType, MemoryCreateViewModelOut
     
     private var currentMemory: BehaviorRelay<Memory>
     private let disposeBag = DisposeBag()
+    
+    private let memoryStore: MemoryStoreType
 
     // MARK: Init
-    init(memory: BehaviorRelay<Memory>) {
+    init(memory: BehaviorRelay<Memory>, memoryStore: MemoryStoreType) {
         currentMemory = memory
+        self.memoryStore = memoryStore
+        
         photoInsertRequestObservable = photoInsertRequestPublisher.asObservable()
         photoDetailRequestObservable = photoDetailRequestPublisher.asObservable()
         photoShareRequestObservable = photoShareRequestPublisher.asObservable()
@@ -119,6 +127,8 @@ class MemoryCreateViewModel: MemoryCreateViewModelType, MemoryCreateViewModelOut
         graffitiInsertRequestObservable = graffitiChunkRequestPublisher.asObservable()
         
         bindRelevantMemory()
+        
+        memoryStore.seekFor(currentMemory, key: currentMemory.value.date)
     }
     
     private func bindRelevantMemory() {
@@ -186,6 +196,10 @@ class MemoryCreateViewModel: MemoryCreateViewModelType, MemoryCreateViewModelOut
                 }
             )
         }).disposed(by: disposeBag)
+    }
+    
+    deinit {
+        memoryStore.updateItem(currentMemory.value)
     }
 }
 

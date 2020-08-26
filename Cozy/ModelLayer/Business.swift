@@ -95,6 +95,12 @@ class Memory {
         }
     }
     
+    func contains(term: String) -> Bool {
+        !texts.filter { (chunk) -> Bool in
+            chunk.text.string.contains(term)
+        }.isEmpty
+    }
+    
 }
 
 extension Memory {

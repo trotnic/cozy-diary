@@ -59,21 +59,41 @@ class MemorySearchViewModel: MemorySearchViewModelType, MemorySearchViewModelOut
         
         closeObservable = closePublisher.asObservable()
         
-        searchObserver.subscribe(onNext: { (search) in
-            print(search)
-        })
-        .disposed(by: disposeBag)
+        searchObserver
+            .filter { !$0.isEmpty }
+            .distinctUntilChanged()
+            .debounce(.microseconds(400), scheduler: MainScheduler.instance)
+            .subscribe(onNext: { [unowned self] (search) in
+                    self.memoryStore.fetchObservables()
+                    .map({ (memories) -> [MemoryCollectionViewSection] in
+                        [
+                            .init(items:
+                                memories.filter({ (memory) -> Bool in
+                                    memory.contains(term: search)
+                                }).map({ (memory) -> MemoryCollectionViewItem in
+                                    let viewModel = MemoryCollectionCommonItemViewModel(memory: memory)
+                                    return .CommonItem(viewModel: viewModel)
+                                })
+                            )
+                        ]
+                    })
+                    .subscribe(onNext: { (result) in
+                        self.itemsPublisher.accept(result)
+                    })
+                    .disposed(by: self.disposeBag)
+            })
+            .disposed(by: disposeBag)
         
-        memoryStore.fetchObservables()
-            .map { memories -> [MemoryCollectionViewSection] in
-                [.init(items: memories.map { memory -> MemoryCollectionViewItem in
-                    let viewModel = MemoryCollectionCommonItemViewModel(memory: memory)
-                    return .CommonItem(viewModel: viewModel)
-                })]
-        }
-        .subscribe(onNext: { [weak self] (section) in
-            self?.itemsPublisher.accept(section)
-        })
-        .disposed(by: disposeBag)
+//        memoryStore.fetchObservables()
+//            .map { memories -> [MemoryCollectionViewSection] in
+//                [.init(items: memories.map { memory -> MemoryCollectionViewItem in
+//                    let viewModel = MemoryCollectionCommonItemViewModel(memory: memory)
+//                    return .CommonItem(viewModel: viewModel)
+//                })]
+//        }
+//        .subscribe(onNext: { [weak self] (section) in
+//            self?.itemsPublisher.accept(section)
+//        })
+//        .disposed(by: disposeBag)
     }
 }

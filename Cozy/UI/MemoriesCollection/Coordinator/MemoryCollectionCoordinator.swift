@@ -47,11 +47,12 @@ class MemoryCollectionCoordinator: Coordinator {
     }
     
     func gotodetail(memory: Memory) {
-        let coordinator = MemoryShowCoordinator(memory: memory)
+        let coordinator = MemoryShowCoordinator(memory: memory, memoryStore: memoryStore)
         coordinator.start()
         childs.append(coordinator)
         coordinator.viewController.stubSwipeToRight()
         coordinator.viewController.hidesBottomBarWhenPushed = true
+        
         navigationController.pushViewController(coordinator.viewController, animated: true)
     }
     

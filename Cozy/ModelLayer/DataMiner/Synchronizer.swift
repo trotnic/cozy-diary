@@ -85,12 +85,17 @@ class PerfectCalendar: CalendarType {
 protocol MemoryStoreType {
     var relevantMemory: BehaviorRelay<Memory> { get }
     func fetchObservables() -> Observable<[Memory]>
-    func addItem(_ memory: Memory) -> Bool
-    func updateItem(_ memory: Memory) -> Bool
-    func removeItem(_ memory: Memory) -> Bool
+    @discardableResult func addItem(_ memory: Memory) -> Bool
+    @discardableResult func updateItem(_ memory: Memory) -> Bool
+    @discardableResult func removeItem(_ memory: Memory) -> Bool
+    
+    func seekFor(_ memory: BehaviorRelay<Memory>, key: Date)
+    func leaveAway(key: Date)
 }
 
 class Synchronizer: MemoryStoreType {
+    
+    private var blackDayBag: [Date: BehaviorRelay<Memory>] = [:]
     
     private var coreDataModels = BehaviorSubject<[CoreMemory]>(value: [])
     private let coreDataManager: CoreDataManagerType = CoreDataManager()
@@ -105,22 +110,39 @@ class Synchronizer: MemoryStoreType {
         self.calendar = calendar
         coreDataModels.onNext(fetchData())
         relevantMemory.accept(fetchRelevantOrCreate())
+        
+        NotificationCenter.default.rx
+            .notification(UIApplication.willResignActiveNotification)
+            .subscribe(onNext: { [weak self] (notificaiton) in
+                if let self = self {
+                    let taskIdentifier = UIApplication.shared.beginBackgroundTask()
+                    self.blackDayBag.values.forEach { (memory) in
+                        self.updateItem(memory.value)
+                    }
+                    self.updateItem(self.relevantMemory.value)
+                    UIApplication.shared.endBackgroundTask(taskIdentifier)
+                }
+            })
+        .disposed(by: disposeBag)
     }
     
-    private func fetchData() -> [CoreMemory] {
+    private func fetchData(context: NSManagedObjectContext) -> [CoreMemory] {
         let request = CoreMemory.memoryFetchRequest()
         request.returnsDistinctResults = false
         
         do {
-            return try self.coreDataManager.viewContext.fetch(request)
+            return try context.fetch(request)
         } catch {
             return []
         }
     }
     
+    private func fetchData() -> [CoreMemory] {
+        fetchData(context: self.coreDataManager.viewContext)
+    }
+    
     func fetchObservables() -> Observable<[Memory]> {
-        coreDataModels.onNext(fetchData())
-        return coreDataModels.map { $0.map { $0.selfChunk }}
+        coreDataModels.map { $0.map { $0.selfChunk }}.share(replay: 1, scope: .whileConnected)
     }
     
     
@@ -153,6 +175,7 @@ class Synchronizer: MemoryStoreType {
                 let entity = fetchResult.last {
                 entity.updateSelfWith(memory, on: context)
                 try context.save()
+                coreDataModels.onNext(fetchData(context: context))
                 return true
             }
         } catch {
@@ -178,6 +201,14 @@ class Synchronizer: MemoryStoreType {
             }
         }
         return false
+    }
+    
+    func seekFor(_ memory: BehaviorRelay<Memory>, key: Date) {
+        blackDayBag[key] = memory
+    }
+    
+    func leaveAway(key: Date) {
+        blackDayBag.removeValue(forKey: key)
     }
     
     

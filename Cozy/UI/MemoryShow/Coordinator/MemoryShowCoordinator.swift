@@ -11,23 +11,24 @@ import UIKit
 import RxSwift
 import RxCocoa
 
+
 class MemoryShowCoordinator: ParentCoordinator {
     
     var viewController: MemoryCreateViewController!
-    let navigationController = UINavigationController()
     var childCoordinators: [Coordinator] = []
     
     private let memory: BehaviorRelay<Memory>
+    private let memoryStore: MemoryStoreType
+    private let disposeBag = DisposeBag()
     
-    init(memory: Memory) {
+    init(memory: Memory, memoryStore: MemoryStoreType) {
         self.memory = .init(value: memory)
+        self.memoryStore = memoryStore
     }
     
     func start() {
-        
-//        let viewModel = MemoryShowViewModel(memory: memory)
-        let viewModel = MemoryCreateViewModel(memory: memory)
+        let viewModel = MemoryCreateViewModel(memory: memory, memoryStore: memoryStore)
         viewController = .init(viewModel)
-//        navigationController.setViewControllers([viewController], animated: true)
+        
     }
 }

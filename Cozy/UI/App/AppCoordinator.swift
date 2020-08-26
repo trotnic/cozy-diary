@@ -35,22 +35,31 @@ class AppCoordinator: ParentCoordinator {
         
         tabBarController = PageTabBarController()
         
-        let createCoordinator = MemoryCreateCoordinator(memoryStore: memoryStore)
-        childCoordinators.append(createCoordinator)
-        createCoordinator.navigationController.tabBarItem = .init(title: "Today", image: UIImage(systemName: "pencil"), tag: 0)
-        createCoordinator.start()
+//        let createCoordinator = MemoryCreateCoordinator(memoryStore: memoryStore)
+//        childCoordinators.append(createCoordinator)
+//        createCoordinator.navigationController.tabBarItem = .init(title: "Today", image: UIImage(systemName: "pencil"), tag: 0)
+//        createCoordinator.start()
+//
+//        let collectionCoordinator = MemoryCollectionCoordinator(memoryStore: memoryStore)
+//        childCoordinators.append(collectionCoordinator)
+//        collectionCoordinator.navigationController.tabBarItem = .init(title: "All memories", image: UIImage(systemName: "tray"), tag: 1)
+//        collectionCoordinator.start()
+//
+//        tabBarController.viewControllers = [
+//            createCoordinator.navigationController,
+//            collectionCoordinator.navigationController
+//        ]
         
-        let collectionCoordinator = MemoryCollectionCoordinator(memoryStore: memoryStore)
-        childCoordinators.append(collectionCoordinator)
-        collectionCoordinator.navigationController.tabBarItem = .init(title: "All memories", image: UIImage(systemName: "tray"), tag: 1)
-        collectionCoordinator.start()
-        
+        let unsplashCoordinator = UnsplashImageCollectionCoordinator()
+        unsplashCoordinator.start()
+
+        childCoordinators.append(unsplashCoordinator)
+
         tabBarController.viewControllers = [
-            createCoordinator.navigationController,
-            collectionCoordinator.navigationController
+            unsplashCoordinator.viewController
         ]
         
-        tabBarController.selectedIndex = 1
+        tabBarController.selectedIndex = 0
         
         window.rootViewController = tabBarController
         window.makeKeyAndVisible()

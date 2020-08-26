@@ -11,6 +11,10 @@ import RxCocoa
 import RxSwift
 import RxDataSources
 
+
+// MARK: Data Source Configuration
+
+
 enum MemoryCollectionViewItem {
     case CommonItem(viewModel: MemoryCollectionCommonItemViewModelType)
 }
@@ -44,6 +48,10 @@ struct MemoryCollectionViewDataSource {
     }
 }
 
+
+// MARK: Controller
+
+
 class MemoryCollectionViewController: BaseViewController {
     
     var dataSource = MemoryCollectionViewDataSource.dataSource()
@@ -74,7 +82,6 @@ class MemoryCollectionViewController: BaseViewController {
     
     lazy var searchController: UISearchController = {
         let item = UISearchController(searchResultsController: nil)
-//        item.searchResultsUpdater = self
         item.searchBar.placeholder = "Type something here to search"
         return item
     }()

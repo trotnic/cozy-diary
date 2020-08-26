@@ -100,11 +100,11 @@ class ImageDetailViewController: BaseViewController {
         }).disposed(by: disposeBag)
         
         closeButton.rx.tap.subscribe(onNext: { [weak self] in
-            self?.viewModel.inputs.closeRequest()
+            self?.viewModel.inputs.closeObserver.accept(())
         }).disposed(by: disposeBag)
         
         shareButton.rx.tap.subscribe(onNext: { [weak self] in
-            self?.viewModel.inputs.shareRequest()
+            self?.viewModel.inputs.shareObserver.accept(())
         }).disposed(by: disposeBag)
         
     }
@@ -167,7 +167,7 @@ class ImageDetailViewController: BaseViewController {
                     })
                 }
                 if yTranslate > 250 {
-                    self.viewModel.inputs.closeRequest()
+                    self.viewModel.inputs.closeObserver.accept(())
                 }
             }
             if recognizer.state == .ended {

@@ -18,8 +18,8 @@ protocol ImageDetailViewModelOutput {
 }
 
 protocol ImageDetailViewModelInput {
-    var closeRequest: () -> () { get }
-    var shareRequest: () -> () { get }
+    var closeObserver: PublishRelay<Void> { get }
+    var shareObserver: PublishRelay<Void> { get }
 }
 
 protocol ImageDetailViewModelType {
@@ -35,22 +35,23 @@ class ImageDetailViewModel: ImageDetailViewModelType, ImageDetailViewModelOutput
     // MARK: Outputs
     var image: Observable<Data>
     
-    var closeRequestObservable: Observable<Void>
-    var shareRequestObservable: Observable<Void>
+    var closeRequestObservable: Observable<Void> {
+        closeObserver.asObservable()
+    }
+    
+    var shareRequestObservable: Observable<Void> {
+        shareObserver.asObservable()
+    }
     
     // MARK: Inputs
-    lazy var closeRequest = { { self.closePublisher.onNext(()) } }()
-    lazy var shareRequest = { { self.sharePublisher.onNext(()) } }()
+    let closeObserver = PublishRelay<Void>()
+    let shareObserver = PublishRelay<Void>()
     
     // MARK: Private
-    var closePublisher = PublishSubject<Void>()
-    var sharePublisher = PublishSubject<Void>()
+    
     
     init(image: Data) {
         self.image = .just(image)
-        
-        closeRequestObservable = closePublisher.asObservable()
-        shareRequestObservable = sharePublisher.asObservable()
     }
     
 }
