@@ -24,12 +24,12 @@ class UnsplashImageCollectionCoordinator: ParentCoordinator {
         
         viewModel = UnsplashImageCollectionViewModel(service: UnsplashService(), cache: cache)
         
-        viewModel.outputs.detailImageRequest
-            .asObservable()
-            .subscribe(onNext: { [weak self] (photo) in
-                self?.gotodetail(meta: photo)
-            })
-            .disposed(by: disposeBag)
+//        viewModel.outputs.detailImageRequest
+//            .asObservable()
+//            .subscribe(onNext: { [weak self] (photo) in
+//                self?.gotodetail(meta: photo)
+//            })
+//            .disposed(by: disposeBag)
         
         viewController = UnsplashImageCollectionController(viewModel: viewModel)
     }

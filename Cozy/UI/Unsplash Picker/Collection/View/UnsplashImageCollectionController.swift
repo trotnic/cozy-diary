@@ -61,7 +61,7 @@ class UnsplashImageCollectionController: BaseViewController {
     // MARK: Private Properties
     private let disposeBag = DisposeBag()
     private let dataSource = UnsplashCollectionDataSource.dataSource()
-    
+    private var cachedImages: [Int: UIImage] = [:]
     
     // MARK: Init
     init(viewModel: UnsplashImageCollectionViewModelType) {
@@ -87,12 +87,72 @@ class UnsplashImageCollectionController: BaseViewController {
         view.backgroundColor = .red
         setupCollectionView()
         bindViewModel()
+        
+//        viewModel.inputs.viewDidLoad.accept(())
     }
     
     func bindViewModel() {
         
         viewModel.outputs.items
-            .drive(collectionView.rx.items(dataSource: dataSource))
+            .bind(to: collectionView.rx.items(cellIdentifier: UnsplashCollectionCommonCell.reuseIdentifier, cellType: UnsplashCollectionCommonCell.self)) { _, _, _ in }
+        .disposed(by: disposeBag)
+        
+        collectionView.rx.willDisplayCell
+            .filter { $0.cell.isKind(of: UnsplashCollectionCommonCell.self) }
+            .map { ($0.cell as! UnsplashCollectionCommonCell, $0.at.item)}
+            .do(onNext: { (cell, index) in
+                cell.imageView.image = nil
+            })
+            .subscribe(onNext: { [weak self] (cell, index) in
+//                if let cachedImage = self?.cachedImages[index] {
+//                    cell.imageView.image = cachedImage
+//                } else {
+                    self?.viewModel.inputs.willDisplayCellAtIndex.accept(index)
+//                }
+            })
+        .disposed(by: disposeBag)
+        
+        viewModel.outputs.imageRetrievedSuccess
+            .observeOn(MainScheduler.asyncInstance)
+            .subscribe(onNext: { [weak self] (image, index) in
+                if let cell = self?.collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? UnsplashCollectionCommonCell {
+                    cell.transform = CGAffineTransform(scaleX: 0.6, y: 0.6)
+                    UIView.animate(withDuration: 0.2) {
+                        cell.transform = .identity
+                    }
+                    cell.imageView.image = image
+                    
+//                    self?.cachedImages[index] = image
+                }
+            })
+        .disposed(by: disposeBag)
+        
+        viewModel.outputs.imageRetrievedError
+            .observeOn(MainScheduler.asyncInstance)
+            .subscribe(onNext: { [weak self] (index) in
+                if let cell = self?.collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? UnsplashCollectionCommonCell {
+                    cell.imageView.image = nil
+                }
+            })
+        .disposed(by: disposeBag)
+        
+        collectionView.rx.modelSelected(UnsplashPhoto.self)
+            .compactMap { $0.id }
+            .bind(to: viewModel.inputs.didSelectModelWithId)
+        .disposed(by: disposeBag)
+        
+        collectionView.rx.willDisplayCell
+            .flatMap { (cell, indexPath) -> Observable<(section: Int, row: Int)> in
+                return .of((indexPath.section, indexPath.row))
+        }
+        .filter { (section, row) in
+            let numberOfSections = self.collectionView.numberOfSections
+            let numberOfItems = self.collectionView.numberOfItems(inSection: section)
+
+            return section == numberOfSections - 1 && row == numberOfItems - 5
+        }
+        .map { _ in () }
+        .bind(to: viewModel.inputs.didScrollToTheBottom)
         .disposed(by: disposeBag)
     }
     
@@ -108,20 +168,20 @@ class UnsplashImageCollectionController: BaseViewController {
         collectionView.trailingAnchor.constraint(equalTo: safeGuide.trailingAnchor).isActive = true
         collectionView.bottomAnchor.constraint(equalTo: safeGuide.bottomAnchor).isActive = true
         
-        collectionView.rx.willDisplayCell
-            .flatMap({ (_, indexPath) -> Observable<(section: Int, row: Int)> in
-                return Observable.of((indexPath.section, indexPath.row))
-            })
-            .filter { (section, row) in
-                let numberOfSections = self.collectionView.numberOfSections
-                let numberOfItems = self.collectionView.numberOfItems(inSection: section)
-                
-                return section == numberOfSections - 1
-                    && row == numberOfItems - 1
-            }
-            .map { _ in () }
-            .bind(to: viewModel.inputs.didScrollToEnd)
-        .disposed(by: disposeBag)
+//        collectionView.rx.willDisplayCell
+//            .flatMap({ (_, indexPath) -> Observable<(section: Int, row: Int)> in
+//                return Observable.of((indexPath.section, indexPath.row))
+//            })
+//            .filter { (section, row) in
+//                let numberOfSections = self.collectionView.numberOfSections
+//                let numberOfItems = self.collectionView.numberOfItems(inSection: section)
+//
+//                return section == numberOfSections - 1
+//                    && row == numberOfItems - 1
+//            }
+//            .map { _ in () }
+//            .bind(to: viewModel.inputs.didScrollToEnd)
+//        .disposed(by: disposeBag)
     }
     
     // MARK: Private Methods
@@ -168,16 +228,23 @@ class UnsplashCollectionCommonCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        let tapReco = UITapGestureRecognizer()
-        tapReco.rx.event
-            .subscribe(onNext: { [weak self] (recognizer) in
-                self?.viewModel.inputs.tapRequest.accept(())
-                self?.contentView.layoutIfNeeded()
-            })
-        .disposed(by: disposeBag)
+//        let tapReco = UITapGestureRecognizer()
+//        tapReco.rx.event
+//            .subscribe(onNext: { [weak self] (recognizer) in
+//                self?.viewModel.inputs.tapRequest.accept(())
+//                self?.contentView.layoutIfNeeded()
+//            })
+//        .disposed(by: disposeBag)
+//
+//        addGestureRecognizer(tapReco)
         
-        addGestureRecognizer(tapReco)
         
+        contentView.addSubview(imageView)
+        
+        imageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor).isActive = true
+        imageView.topAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
+        imageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor).isActive = true
+        imageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor).isActive = true
     }
     
     required init?(coder: NSCoder) {
@@ -196,11 +263,5 @@ class UnsplashCollectionCommonCell: UICollectionViewCell {
     override func layoutSubviews() {
         super.layoutSubviews()
         
-        contentView.addSubview(imageView)
-        
-        imageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor).isActive = true
-        imageView.topAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
-        imageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor).isActive = true
-        imageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor).isActive = true
     }
 }

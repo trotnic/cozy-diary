@@ -47,7 +47,7 @@ enum UnsplashRequest: URLRequestConvertible {
         case let .photos(page, limit):
             return [
                 .init(name: "page", value: "\(page)"),
-                .init(name: "limit", value: "\(limit)")
+                .init(name: "per_page", value: "\(limit)")
             ]
         }
     }

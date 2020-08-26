@@ -45,8 +45,8 @@ class UnsplashImageDetailViewModel: ImageDetailViewModelType, ImageDetailViewMod
         self.imageMeta = imageMeta
         self.cache = cache
         
-        cache.fetchPhotoFor(url: URL(string: self.imageMeta.urls.regular)!)
-        .bind(to: imageObserver)
-        .disposed(by: disposeBag)
+//        cache.fetchPhotoFor(url: URL(string: self.imageMeta.urls.regular)!)
+//        .bind(to: imageObserver)
+//        .disposed(by: disposeBag)
     }
 }
