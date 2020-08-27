@@ -53,19 +53,19 @@ class ImageProposalSheetController: UIAlertController {
             .disposed(by: disposeBag)
         
         let unsplashAction = UIAlertAction(
-            title: "Unsplash",
+            title: "Pick on Unsplash",
             style: .default,
             handler: { _ in inputs.unsplashAction() })
         addAction(unsplashAction)
         
         let galleryAction = UIAlertAction(
-            title: "Gallery",
+            title: "Photo Library",
             style: .default,
             handler: { _ in inputs.galleryAction()})
         addAction(galleryAction)
         
         let cameraAction = UIAlertAction(
-            title: "Camera",
+            title: "Take a Photo",
             style: .default,
             handler: { _ in inputs.cameraAction()})
         addAction(cameraAction)

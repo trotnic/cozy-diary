@@ -9,6 +9,7 @@
 import UIKit
 import RxSwift
 import RxDataSources
+import Kingfisher
 
 
 // MARK: Data Source Configuration
@@ -61,7 +62,7 @@ class UnsplashImageCollectionController: BaseViewController {
     // MARK: Private Properties
     private let disposeBag = DisposeBag()
     private let dataSource = UnsplashCollectionDataSource.dataSource()
-    private var cachedImages: [Int: UIImage] = [:]
+    
     
     // MARK: Init
     init(viewModel: UnsplashImageCollectionViewModelType) {
@@ -87,72 +88,17 @@ class UnsplashImageCollectionController: BaseViewController {
         view.backgroundColor = .red
         setupCollectionView()
         bindViewModel()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
         
-//        viewModel.inputs.viewDidLoad.accept(())
     }
     
     func bindViewModel() {
         
         viewModel.outputs.items
-            .bind(to: collectionView.rx.items(cellIdentifier: UnsplashCollectionCommonCell.reuseIdentifier, cellType: UnsplashCollectionCommonCell.self)) { _, _, _ in }
-        .disposed(by: disposeBag)
-        
-        collectionView.rx.willDisplayCell
-            .filter { $0.cell.isKind(of: UnsplashCollectionCommonCell.self) }
-            .map { ($0.cell as! UnsplashCollectionCommonCell, $0.at.item)}
-            .do(onNext: { (cell, index) in
-                cell.imageView.image = nil
-            })
-            .subscribe(onNext: { [weak self] (cell, index) in
-//                if let cachedImage = self?.cachedImages[index] {
-//                    cell.imageView.image = cachedImage
-//                } else {
-                    self?.viewModel.inputs.willDisplayCellAtIndex.accept(index)
-//                }
-            })
-        .disposed(by: disposeBag)
-        
-        viewModel.outputs.imageRetrievedSuccess
-            .observeOn(MainScheduler.asyncInstance)
-            .subscribe(onNext: { [weak self] (image, index) in
-                if let cell = self?.collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? UnsplashCollectionCommonCell {
-                    cell.transform = CGAffineTransform(scaleX: 0.6, y: 0.6)
-                    UIView.animate(withDuration: 0.2) {
-                        cell.transform = .identity
-                    }
-                    cell.imageView.image = image
-                    
-//                    self?.cachedImages[index] = image
-                }
-            })
-        .disposed(by: disposeBag)
-        
-        viewModel.outputs.imageRetrievedError
-            .observeOn(MainScheduler.asyncInstance)
-            .subscribe(onNext: { [weak self] (index) in
-                if let cell = self?.collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? UnsplashCollectionCommonCell {
-                    cell.imageView.image = nil
-                }
-            })
-        .disposed(by: disposeBag)
-        
-        collectionView.rx.modelSelected(UnsplashPhoto.self)
-            .compactMap { $0.id }
-            .bind(to: viewModel.inputs.didSelectModelWithId)
-        .disposed(by: disposeBag)
-        
-        collectionView.rx.willDisplayCell
-            .flatMap { (cell, indexPath) -> Observable<(section: Int, row: Int)> in
-                return .of((indexPath.section, indexPath.row))
-        }
-        .filter { (section, row) in
-            let numberOfSections = self.collectionView.numberOfSections
-            let numberOfItems = self.collectionView.numberOfItems(inSection: section)
-
-            return section == numberOfSections - 1 && row == numberOfItems - 5
-        }
-        .map { _ in () }
-        .bind(to: viewModel.inputs.didScrollToTheBottom)
+            .drive(collectionView.rx.items(dataSource: dataSource))
         .disposed(by: disposeBag)
     }
     
@@ -168,20 +114,16 @@ class UnsplashImageCollectionController: BaseViewController {
         collectionView.trailingAnchor.constraint(equalTo: safeGuide.trailingAnchor).isActive = true
         collectionView.bottomAnchor.constraint(equalTo: safeGuide.bottomAnchor).isActive = true
         
-//        collectionView.rx.willDisplayCell
-//            .flatMap({ (_, indexPath) -> Observable<(section: Int, row: Int)> in
-//                return Observable.of((indexPath.section, indexPath.row))
-//            })
-//            .filter { (section, row) in
-//                let numberOfSections = self.collectionView.numberOfSections
-//                let numberOfItems = self.collectionView.numberOfItems(inSection: section)
-//
-//                return section == numberOfSections - 1
-//                    && row == numberOfItems - 1
-//            }
-//            .map { _ in () }
-//            .bind(to: viewModel.inputs.didScrollToEnd)
-//        .disposed(by: disposeBag)
+        collectionView.rx.willDisplayCell
+            .flatMap { (_, indexPath) -> Observable<IndexPath> in .just(indexPath) }
+            .filter { indexPath in
+                let numberOfSections = self.collectionView.numberOfSections
+                let numberOfElements = self.collectionView.numberOfItems(inSection: indexPath.section)
+                return indexPath.section == numberOfSections - 1 && indexPath.item == numberOfElements - 1
+            }
+            .map { _ in () }
+            .bind(to: viewModel.inputs.didScrollToEnd)
+        .disposed(by: disposeBag)
     }
     
     // MARK: Private Methods
@@ -211,13 +153,7 @@ class UnsplashCollectionCommonCell: UICollectionViewCell {
     
     var viewModel: UnsplashImageCollectionCommonItemViewModelType! {
         didSet {
-            viewModel.outputs.image
-                .drive(onNext: { [weak self] (data) in
-                    if let data = data {
-                        self?.imageView.image = UIImage(data: data)
-                    }
-                })
-            .disposed(by: disposeBag)
+            bindViewModel()
         }
     }
     
@@ -228,23 +164,8 @@ class UnsplashCollectionCommonCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-//        let tapReco = UITapGestureRecognizer()
-//        tapReco.rx.event
-//            .subscribe(onNext: { [weak self] (recognizer) in
-//                self?.viewModel.inputs.tapRequest.accept(())
-//                self?.contentView.layoutIfNeeded()
-//            })
-//        .disposed(by: disposeBag)
-//
-//        addGestureRecognizer(tapReco)
-        
-        
-        contentView.addSubview(imageView)
-        
-        imageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor).isActive = true
-        imageView.topAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
-        imageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor).isActive = true
-        imageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor).isActive = true
+        setupImageView()
+        setupTapRecognizer()
     }
     
     required init?(coder: NSCoder) {
@@ -260,8 +181,34 @@ class UnsplashCollectionCommonCell: UICollectionViewCell {
         return view
     }()
     
-    override func layoutSubviews() {
-        super.layoutSubviews()
+    // MARK: Private methods
+    private func setupImageView() {
+        contentView.addSubview(imageView)
         
+        imageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor).isActive = true
+        imageView.topAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
+        imageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor).isActive = true
+        imageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor).isActive = true
+    }
+    
+    private func setupTapRecognizer() {
+        let tapReco = UITapGestureRecognizer()
+        tapReco.rx.event
+            .subscribe(onNext: { [weak self] (recognizer) in
+                self?.viewModel.inputs.tapRequest.accept(())
+            })
+        .disposed(by: disposeBag)
+        addGestureRecognizer(tapReco)
+    }
+    
+    private func bindViewModel() {
+        viewModel.outputs.image.drive(onNext: { [weak self] (url) in
+            if let url = url {
+                self?.imageView.kf.indicatorType = .activity
+                self?.imageView.kf
+                    .setImage(with: url, options: [.transition(.fade(0.25))])
+            }
+        })
+        .disposed(by: disposeBag)
     }
 }

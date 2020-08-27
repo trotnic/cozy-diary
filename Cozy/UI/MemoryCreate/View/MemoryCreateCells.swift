@@ -86,7 +86,15 @@ extension TextChunkMemoryView: UITextViewDelegate {
 
 
 class PhotoChunkMemoryView: UIView {
+    
+    // MARK: Outputs
+    var tapDriver: Driver<Void> {
+        tapObserver.asDriver(onErrorJustReturn: ())
+    }
+    
+    // MARK: Private
     private let disposeBag = DisposeBag()
+    private let tapObserver = PublishRelay<Void>()
     
     var viewModel: PhotoChunkViewModelType! {
         didSet {
@@ -138,6 +146,7 @@ class PhotoChunkMemoryView: UIView {
         let tapReco = UITapGestureRecognizer()
         addGestureRecognizer(tapReco)
         tapReco.rx.event.subscribe(onNext: { [weak self] (reco) in
+            self?.tapObserver.accept(())
             self?.viewModel.inputs.tapRequest()
         }).disposed(by: disposeBag)
     }

@@ -10,9 +10,112 @@ import UIKit
 import RxSwift
 import RxCocoa
 
+
+private let animationDuration: TimeInterval = 0.3
+
+// MARK: Transitioning
+
+class CustomTransitioningDelegate: NSObject, UIViewControllerTransitioningDelegate {
+    
+    var shouldDoInteractive = true
+    var interactionTransition = UIPercentDrivenInteractiveTransition()
+    
+    func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+        return CustomTransitionPresent()
+    }
+    
+    func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+        return CustomTransitionDismiss()
+    }
+    
+    func interactionControllerForDismissal(using animator: UIViewControllerAnimatedTransitioning) -> UIViewControllerInteractiveTransitioning? {
+        return shouldDoInteractive ? interactionTransition : nil
+    }
+}
+
+class CustomTransitionPresent: NSObject, UIViewControllerAnimatedTransitioning {
+    func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
+        return animationDuration
+    }
+    
+    func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
+        guard
+            let toVC = transitionContext.viewController(forKey: .to)
+        else {
+            transitionContext.completeTransition(false)
+            return
+        }
+        
+        let containerView = transitionContext.containerView
+        
+        let fadeView = UIView(frame: toVC.view.frame)
+        fadeView.backgroundColor = .gray
+        fadeView.alpha = 0
+        
+        containerView.addSubview(fadeView)
+        containerView.addSubview(toVC.view)
+        let toRectSize = toVC.view.frame.size
+        
+        toVC.view.transform = .init(translationX: 0, y: toRectSize.height)
+        toVC.view.layer.cornerRadius = 80
+        
+        UIView.animate(withDuration: animationDuration, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 0.2, options: .allowUserInteraction, animations: {
+            toVC.view.transform = .identity
+            toVC.view.layer.cornerRadius = 0
+            fadeView.alpha = 1
+        }) { (success) in
+            transitionContext.completeTransition(!transitionContext.transitionWasCancelled)
+        }
+    }
+}
+
+class CustomTransitionDismiss: NSObject, UIViewControllerAnimatedTransitioning {
+    func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
+        return animationDuration
+    }
+    
+    func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
+        guard
+            let toVC = transitionContext.viewController(forKey: .to),
+            let fromVC = transitionContext.viewController(forKey: .from)
+        else {
+            transitionContext.completeTransition(false)
+            return
+        }
+        
+        let containerView = transitionContext.containerView
+        
+        let fadeView = UIView(frame: fromVC.view.frame)
+        fadeView.backgroundColor = .gray
+        
+        toVC.view.frame.size = fromVC.view.frame.size
+        containerView.addSubview(toVC.view.snapshotView(afterScreenUpdates: true) ?? toVC.view)
+        containerView.addSubview(fadeView)
+        containerView.addSubview(fromVC.view)
+        
+
+        
+        
+        let toRectSize = fromVC.view.frame.size
+        
+        let transform = CGAffineTransform(translationX: 0, y: toRectSize.height)
+        
+        UIView.animate(withDuration: animationDuration, delay: 0, usingSpringWithDamping: 0.75, initialSpringVelocity: 0.2, options: .allowUserInteraction, animations: {
+            fromVC.view.transform = transform
+            fromVC.view.layer.cornerRadius = 80
+            fadeView.alpha = 0
+        }) { (success) in
+            transitionContext.completeTransition(!transitionContext.transitionWasCancelled)
+        }
+    }
+}
+
+// MARK: Controller
+
 class ImageDetailViewController: BaseViewController {
 
     let viewModel: ImageDetailViewModelType!
+    let transitionDelegate = CustomTransitioningDelegate()
     
     init(_ viewModel: ImageDetailViewModelType) {
         self.viewModel = viewModel
@@ -25,12 +128,14 @@ class ImageDetailViewController: BaseViewController {
     
     lazy var imageView: UIImageView = {
         let view = UIImageView()
+        view.isUserInteractionEnabled = true
         view.contentMode = .scaleAspectFit
         return view
     }()
     
     lazy var scrollView: UIScrollView = {
         let view = UIScrollView()
+        view.isUserInteractionEnabled = true
         view.delegate = self
         view.maximumZoomScale = 3
         view.minimumZoomScale = 1
@@ -40,6 +145,7 @@ class ImageDetailViewController: BaseViewController {
     
     lazy var stackView: UIStackView = {
         let view = UIStackView()
+        view.isUserInteractionEnabled = true
         view.alignment = .center
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
@@ -75,6 +181,9 @@ class ImageDetailViewController: BaseViewController {
         bindViewModel()
         setupHeaderView()
         setupViewGestureSensitivity()
+        
+        transitioningDelegate = transitionDelegate
+        view.isUserInteractionEnabled = true
     }
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -100,6 +209,7 @@ class ImageDetailViewController: BaseViewController {
         }).disposed(by: disposeBag)
         
         closeButton.rx.tap.subscribe(onNext: { [weak self] in
+            self?.transitionDelegate.shouldDoInteractive = false
             self?.viewModel.inputs.closeObserver.accept(())
         }).disposed(by: disposeBag)
         
@@ -154,28 +264,33 @@ class ImageDetailViewController: BaseViewController {
         
         let panReco = UIPanGestureRecognizer()
         panReco.rx.event.subscribe(onNext: { [unowned self] (recognizer) in
-            
+
             if recognizer.state == .began {
-                self.headerView.alpha = 0
-                self.initialTouchPoint = recognizer.location(in: self.view)
+                self.initialTouchPoint = recognizer.location(in: self.view.window)
+                self.dismiss(animated: true)
             }
             if recognizer.state == .changed {
-                let yTranslate = recognizer.location(in: self.view).y - self.initialTouchPoint.y
-                if yTranslate > 0 {
-                    UIView.animate(withDuration: 0.3, animations: {
-                        self.view.transform = CGAffineTransform(translationX: 0, y: yTranslate)
-                    })
-                }
-                if yTranslate > 250 {
-                    self.viewModel.inputs.closeObserver.accept(())
+                let point = recognizer.location(in: self.view.window)
+                
+                if point.y > self.initialTouchPoint.y {
+                    let progress = abs(point.y - self.initialTouchPoint.y) / (1.4*self.view.frame.height)
+                    self.transitionDelegate.interactionTransition.update(progress)
                 }
             }
             if recognizer.state == .ended {
-                UIView.animate(withDuration: 0.3, animations: {
-                    self.view.transform = .identity
-                    self.initialTouchPoint = .zero
-                })
+                let point = recognizer.location(in: self.view.window)
+                let requiredDistance = (self.view.window?.bounds.height ?? 300) * 0.2
+                let shouldFinish = abs(point.y) - abs(self.initialTouchPoint.y) >= requiredDistance
                 
+                if shouldFinish {
+                    self.transitionDelegate.interactionTransition.finish()
+                } else {
+                    self.transitionDelegate.interactionTransition.cancel()
+                }
+            }
+            
+            if recognizer.state == .cancelled {
+                self.transitionDelegate.interactionTransition.cancel()
             }
         }).disposed(by: disposeBag)
         view.addGestureRecognizer(panReco)
@@ -203,7 +318,6 @@ class ImageDetailViewController: BaseViewController {
     }
     
 }
-
 
 extension ImageDetailViewController: UIScrollViewDelegate {
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {

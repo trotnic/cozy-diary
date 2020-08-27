@@ -9,7 +9,8 @@
 import Foundation
 import UIKit
 
-protocol Coordinator {
+
+protocol Coordinator: class {
     func start()
 }
 
@@ -18,7 +19,7 @@ protocol ParentCoordinator: Coordinator {
 }
 
 class AppCoordinator: ParentCoordinator {
-    
+        
     let window: UIWindow
     var childCoordinators: [Coordinator] = []
     var tabBarController: UITabBarController!
@@ -27,37 +28,36 @@ class AppCoordinator: ParentCoordinator {
     
     init(window: UIWindow) {
         self.window = window
-        
         memoryStore = Synchronizer(calendar: PerfectCalendar())
     }
     
     func start() {
-        
         tabBarController = PageTabBarController()
         
-//        let createCoordinator = MemoryCreateCoordinator(memoryStore: memoryStore)
-//        childCoordinators.append(createCoordinator)
-//        createCoordinator.navigationController.tabBarItem = .init(title: "Today", image: UIImage(systemName: "pencil"), tag: 0)
-//        createCoordinator.start()
-//
-//        let collectionCoordinator = MemoryCollectionCoordinator(memoryStore: memoryStore)
-//        childCoordinators.append(collectionCoordinator)
-//        collectionCoordinator.navigationController.tabBarItem = .init(title: "All memories", image: UIImage(systemName: "tray"), tag: 1)
-//        collectionCoordinator.start()
-//
-//        tabBarController.viewControllers = [
-//            createCoordinator.navigationController,
-//            collectionCoordinator.navigationController
-//        ]
-        
-        let unsplashCoordinator = UnsplashImageCollectionCoordinator()
-        unsplashCoordinator.start()
+        tabBarController.definesPresentationContext = false
+        let createCoordinator = MemoryCreateCoordinator(memoryStore: memoryStore)
+        childCoordinators.append(createCoordinator)
+        createCoordinator.navigationController.tabBarItem = .init(title: "Today", image: UIImage(systemName: "pencil"), tag: 0)
+        createCoordinator.start()
 
-        childCoordinators.append(unsplashCoordinator)
+        let collectionCoordinator = MemoryCollectionCoordinator(memoryStore: memoryStore)
+        childCoordinators.append(collectionCoordinator)
+        collectionCoordinator.navigationController.tabBarItem = .init(title: "All memories", image: UIImage(systemName: "tray"), tag: 1)
+        collectionCoordinator.start()
 
         tabBarController.viewControllers = [
-            unsplashCoordinator.viewController
+            createCoordinator.navigationController,
+            collectionCoordinator.navigationController
         ]
+        
+//        let unsplashCoordinator = UnsplashImageCollectionCoordinator()
+//        unsplashCoordinator.start()
+//
+//        childCoordinators.append(unsplashCoordinator)
+//
+//        tabBarController.viewControllers = [
+//            unsplashCoordinator.viewController
+//        ]
         
         tabBarController.selectedIndex = 0
         

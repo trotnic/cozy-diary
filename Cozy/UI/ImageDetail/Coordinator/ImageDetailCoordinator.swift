@@ -10,25 +10,25 @@ import Foundation
 import UIKit
 import RxSwift
 
+
 class ImageDetailCoordinator: Coordinator {
     
-    private let controller: UIViewController
+    var controller: ImageDetailViewController!
     private let image: Data
     private let disposeBag = DisposeBag()
     
-    init(_ presentationController: UIViewController, image: Data) {
-        controller = presentationController
+    init(image: Data) {
         self.image = image
     }
     
     func start() {
         let viewModel = ImageDetailViewModel(image: image)
-        let vc = ImageDetailViewController(viewModel)
+        controller = ImageDetailViewController(viewModel)
+        controller.modalPresentationStyle = .fullScreen
         
         viewModel.outputs.closeRequestObservable
             .subscribe(onNext: { [weak self] in
-                
-            self?.controller.dismiss(animated: true)
+                self?.controller.dismiss(animated: true)
         }).disposed(by: disposeBag)
         
         viewModel.outputs.shareRequestObservable
@@ -39,14 +39,13 @@ class ImageDetailCoordinator: Coordinator {
                         let image = UIImage(data: data){
                         let activityController = UIActivityViewController(activityItems: [image], applicationActivities: nil)
                         DispatchQueue.main.async {
-                            vc.present(activityController, animated: true)
+                            self?.controller.present(activityController, animated: true)
                         }                        
                     }
                 }
         }).disposed(by: disposeBag)
         
-        vc.modalPresentationStyle = .overFullScreen
-        controller.present(vc, animated: true)
+        
     }
     
 }

@@ -18,6 +18,11 @@ class MemoryCreateViewController: BaseViewController {
     private var buttonsPanelBottomConstraint: NSLayoutConstraint!
     private lazy var isTextPanelActive = BehaviorRelay<Bool>(value: false)
     
+    // MARK: Transition
+    private var imageViewToPresent: UIImageView!
+    private var rectToPresent: CGRect!
+    
+    // MARK: Init
     init(_ viewModel: MemoryCreateViewModelType) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
@@ -77,7 +82,7 @@ class MemoryCreateViewController: BaseViewController {
         super.viewDidLoad()
         
         navigationItem.title = "Current item"
-        
+        definesPresentationContext = true
         view.backgroundColor = .white
         
         setupScrollView()
@@ -92,16 +97,23 @@ class MemoryCreateViewController: BaseViewController {
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
-        
         isTextPanelActive.accept(isTextPanelActive.value)
     }
     
     func bindViewModel() {
 
-        viewModel.outputs.items.map { $0.map { (item) -> UIView in
+        viewModel.outputs.items.map { $0.map { [unowned self] (item) -> UIView in
             switch item {
             case let .PhotoItem(viewModel):
                 let view = PhotoChunkMemoryView()
+                
+                view.tapDriver.asObservable()
+                    .subscribe(onNext: {
+                        self.imageViewToPresent = view.imageView
+                        self.rectToPresent = view.imageView.convert(view.imageView.frame, to: self.view.window)
+                    })
+                .disposed(by: self.disposeBag)
+                
                 view.viewModel = viewModel
                 return view
             case let .TextItem(viewModel):

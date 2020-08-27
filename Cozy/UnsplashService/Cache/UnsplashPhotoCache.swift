@@ -10,51 +10,43 @@ import Foundation
 import RxSwift
 
 protocol PhotoCacheType {
-    func fetchPhotoFor(url: URL) -> Observable<UIImage>
+    func fetchPhotoFor(url: URL) -> Observable<Data>
 }
 
 class UnsplashPhotoCache: PhotoCacheType {
     
     // MARK: Private properties
-    private var cache: Dictionary<URL, UIImage> = [:]
+    private let cache: Dictionary<URL, Data> = [:]
     
     // MARK: Init
     
     
     // MARK: Public methods
-    func fetchPhotoFor(url: URL) -> Observable<UIImage> {
+    func fetchPhotoFor(url: URL) -> Observable<Data> {
         return .create { (observer) -> Disposable in
             
-            if let cached = self.cache[url] {
-                observer.onNext(cached)
-                observer.onCompleted()
-                return Disposables.create()
-            } else {
-                let task = URLSession.shared.dataTask(with: url) { (data, response, error) in
-                    guard error == nil else {
-                        observer.onError(error!)
-                        return
-                    }
-                    
-                    guard let data = data,
-                        let image = UIImage(data: data) else {
-                        observer.onError(URLError.init(.downloadDecodingFailedMidStream))
-                        return
-                    }
-                    
-                    self.cache[url] = image
-                    
-                    observer.onNext(image)
-                    observer.onCompleted()
+            let task = URLSession.shared.dataTask(with: url) { (data, response, error) in
+                guard error == nil else {
+                    observer.onError(error!)
+                    return
                 }
                 
-                task.resume()
-                return Disposables.create {
-                    task.cancel()
+                guard let data = data else {
+                    observer.onError(URLError.init(.downloadDecodingFailedMidStream))
+                    return
                 }
+                
+                observer.onNext(data)
+                observer.onCompleted()
+            }
+            
+            task.resume()
+            
+            return Disposables.create {
+                task.cancel()
             }
         }
     }
-
+    
     // MARK: Private methods
 }

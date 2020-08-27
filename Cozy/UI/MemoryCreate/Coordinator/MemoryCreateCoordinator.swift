@@ -28,47 +28,55 @@ class MemoryCreateCoordinator: ParentCoordinator {
     
     func start() {
         let viewModel = MemoryCreateViewModel(memory: memoryStore.relevantMemory, memoryStore: memoryStore)
-        viewController = MemoryCreateViewController(viewModel)
+        viewController = MemoryCreateViewController(viewModel)        
+        
         navigationController.setViewControllers([viewController], animated: false)
         
         // SELFCOMM: Inserting photo via image sheet
         viewModel.outputs.photoInsertRequestObservable
-            .subscribe(onNext: { [unowned self] (_) in
-            
-            let coordinator = ImageProposalCoordinator(presentationController: self.viewController)
-            coordinator.start()
-            coordinator.metaObservable.subscribe(onNext: { [weak self] (meta) in
-                viewModel.inputs.photoInsertResponse(meta)
-                self?.childCoordinators.removeAll()
-            }).disposed(by: self.disposeBag)
-            self.childCoordinators.append(coordinator)
-        }).disposed(by: disposeBag)
+            .subscribe(onNext: { [weak self] (_) in
+                if let self = self {
+                    
+                    let coordinator = ImageProposalCoordinator(presentationController: self.viewController, navigationController: self.navigationController)
+                    self.childCoordinators.append(coordinator)
+                    
+                    coordinator.metaObservable.subscribe(onNext: { [weak self] (meta) in
+                        viewModel.inputs.photoInsertResponse(meta)
+                        self?.childCoordinators.removeLast()
+                    }).disposed(by: self.disposeBag)
+                    
+                    coordinator.start()
+                    
+                }
+            }).disposed(by: disposeBag)
         
-        // SELFCOMM: Transition to detail image
+        // SELFCOMM: Transition to image detail
         viewModel.outputs.photoDetailRequestObservable
             .subscribe(onNext: { [weak self] (photo) in
-            
-            if let vc = self?.navigationController {
-                let coord = ImageDetailCoordinator(vc, image: photo)
-                self?.childCoordinators.append(coord)
-                coord.start()
-            }
-        }).disposed(by: disposeBag)
+                if let self = self {
+
+                    let coordinator = ImageDetailCoordinator(image: photo)
+                    self.childCoordinators.append(coordinator)
+                    
+                    coordinator.start()
+                    self.viewController.present(coordinator.controller, animated: true)
+                }
+            }).disposed(by: disposeBag)
         
         // SELFCOMM: Activity VC to share selected image
         viewModel.outputs.photoShareRequestObservable
             .subscribe(onNext: { [weak self] (photo) in
             
-            DispatchQueue.global(qos: .userInteractive).async {
-                if let image = UIImage(data: photo) {
-                    let activity = UIActivityViewController(activityItems: [image], applicationActivities: nil)
-                    activity.excludedActivityTypes = [.copyToPasteboard]
-                    DispatchQueue.main.async {
-                        self?.viewController.present(activity, animated: true)
+                DispatchQueue.global(qos: .userInteractive).async {
+                    if let image = UIImage(data: photo) {
+                        let activity = UIActivityViewController(activityItems: [image], applicationActivities: nil)
+                        activity.excludedActivityTypes = [.copyToPasteboard]
+                        DispatchQueue.main.async {
+                            self?.viewController.present(activity, animated: true)
+                        }
                     }
                 }
-            }
-        }).disposed(by: disposeBag)
+            }).disposed(by: disposeBag)
         
         // SELFCOMM: Map
         viewModel.outputs.mapInsertRequestObservable
@@ -78,7 +86,7 @@ class MemoryCreateCoordinator: ParentCoordinator {
                     self?.childCoordinators.append(coord)
                     coord.start()
                 }
-        }).disposed(by: disposeBag)
+            }).disposed(by: disposeBag)
         
         // SELFCOMM: Graffiti
         viewModel.outputs.graffitiInsertRequestObservable

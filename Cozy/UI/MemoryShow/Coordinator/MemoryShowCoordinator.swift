@@ -14,6 +14,7 @@ import RxCocoa
 
 class MemoryShowCoordinator: ParentCoordinator {
     
+    
     var viewController: MemoryCreateViewController!
     var childCoordinators: [Coordinator] = []
     
@@ -21,6 +22,8 @@ class MemoryShowCoordinator: ParentCoordinator {
     private let memoryStore: MemoryStoreType
     private let disposeBag = DisposeBag()
     
+    
+    // MARK: Init
     init(memory: Memory, memoryStore: MemoryStoreType) {
         self.memory = .init(value: memory)
         self.memoryStore = memoryStore
@@ -29,6 +32,5 @@ class MemoryShowCoordinator: ParentCoordinator {
     func start() {
         let viewModel = MemoryCreateViewModel(memory: memory, memoryStore: memoryStore)
         viewController = .init(viewModel)
-        
     }
 }

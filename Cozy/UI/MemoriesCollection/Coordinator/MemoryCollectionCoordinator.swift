@@ -12,12 +12,13 @@ import RxSwift
 import RxCocoa
 
 
-class MemoryCollectionCoordinator: Coordinator {
+class MemoryCollectionCoordinator: ParentCoordinator {
+    
+    var childCoordinators: [Coordinator] = []
     
     var viewController: MemoryCollectionViewController!
     let navigationController = UINavigationController()
     
-    var childs: [Coordinator] = []
     
     private let disposeBag = DisposeBag()
     
@@ -31,6 +32,7 @@ class MemoryCollectionCoordinator: Coordinator {
         
         let viewModel = MemoryCollectionViewModel(memoryStore: memoryStore)
         viewController = .init(viewModel: viewModel)
+        
         navigationController.setViewControllers([viewController], animated: true)
         
         // SELFCOMM: Opens detail for selected memory
@@ -49,7 +51,7 @@ class MemoryCollectionCoordinator: Coordinator {
     func gotodetail(memory: Memory) {
         let coordinator = MemoryShowCoordinator(memory: memory, memoryStore: memoryStore)
         coordinator.start()
-        childs.append(coordinator)
+        childCoordinators.append(coordinator)
         coordinator.viewController.stubSwipeToRight()
         coordinator.viewController.hidesBottomBarWhenPushed = true
         
@@ -58,7 +60,7 @@ class MemoryCollectionCoordinator: Coordinator {
     
     func gotosearch() {
         let coordinator = MemorySearchCoordinator(presentationController: navigationController, memoryStore: memoryStore)
-        childs.append(coordinator)
+        childCoordinators.append(coordinator)
         coordinator.start()
     }
     

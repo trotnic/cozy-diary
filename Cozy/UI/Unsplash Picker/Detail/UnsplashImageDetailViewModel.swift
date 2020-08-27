@@ -36,17 +36,12 @@ class UnsplashImageDetailViewModel: ImageDetailViewModelType, ImageDetailViewMod
     // MARK: Private
     private let imageMeta: UnsplashPhoto
     private let disposeBag = DisposeBag()
-    private let cache: PhotoCacheType
     
     private let imageObserver = PublishRelay<Data>()
     
     // MARK: Init
-    init(imageMeta: UnsplashPhoto, cache: PhotoCacheType) {
+    init(imageMeta: UnsplashPhoto) {
         self.imageMeta = imageMeta
-        self.cache = cache
         
-//        cache.fetchPhotoFor(url: URL(string: self.imageMeta.urls.regular)!)
-//        .bind(to: imageObserver)
-//        .disposed(by: disposeBag)
     }
 }
