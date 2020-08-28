@@ -9,15 +9,21 @@
 import Foundation
 
 
-struct UnsplashPhoto: Codable {
+struct UnsplashPhoto: Decodable {
     let id: String
     let urls: UnsplashPhotoUrls
 }
 
-struct UnsplashPhotoUrls: Codable {
+struct UnsplashPhotoUrls: Decodable {
     let raw: String
     let full: String
     let regular: String
     let small: String
     let thumb: String
+}
+
+struct UnsplashSearch: Decodable {
+    let total: Double
+    let total_pages: Double
+    let results: [UnsplashPhoto]
 }

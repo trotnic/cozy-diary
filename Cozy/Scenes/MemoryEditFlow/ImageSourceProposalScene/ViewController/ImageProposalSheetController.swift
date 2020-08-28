@@ -70,7 +70,11 @@ class ImageProposalSheetController: UIAlertController {
             handler: { _ in inputs.cameraAction()})
         addAction(cameraAction)
         
-        addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        let cancelAction = UIAlertAction(
+            title: "Cancel",
+            style: .cancel,
+            handler: { _ in inputs.cancelAction()})
+        addAction(cancelAction)
     }
     
 }

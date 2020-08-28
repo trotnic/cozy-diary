@@ -55,7 +55,7 @@ class MemoryCreateCoordinator: ParentCoordinator {
             .subscribe(onNext: { [weak self] (photo) in
                 if let self = self {
 
-                    let coordinator = ImageDetailCoordinator(image: photo)
+                    let coordinator = LocalImageDetailCoordinator(image: photo)
                     self.childCoordinators.append(coordinator)
                     
                     coordinator.start()

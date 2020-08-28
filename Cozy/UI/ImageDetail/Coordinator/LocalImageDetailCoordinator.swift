@@ -11,7 +11,7 @@ import UIKit
 import RxSwift
 
 
-class ImageDetailCoordinator: Coordinator {
+class LocalImageDetailCoordinator: Coordinator {
     
     var controller: ImageDetailViewController!
     private let image: Data
@@ -22,7 +22,7 @@ class ImageDetailCoordinator: Coordinator {
     }
     
     func start() {
-        let viewModel = ImageDetailViewModel(image: image)
+        let viewModel = LocalImageDetailViewModel(image: image)
         controller = ImageDetailViewController(viewModel)
         controller.modalPresentationStyle = .fullScreen
         
@@ -31,7 +31,7 @@ class ImageDetailCoordinator: Coordinator {
                 self?.controller.dismiss(animated: true)
         }).disposed(by: disposeBag)
         
-        viewModel.outputs.shareRequestObservable
+        viewModel.outputs.moreRequestObservable
             .subscribe(onNext: { [weak self] in
                 
                 DispatchQueue.global(qos: .userInitiated).async {

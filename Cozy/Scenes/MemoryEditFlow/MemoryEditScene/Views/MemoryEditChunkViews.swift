@@ -11,6 +11,33 @@ import RxCocoa
 import RxSwift
 
 
+
+
+// MARK: Text Chunk View Model Declaration
+
+
+protocol TextChunkViewModelOutput {
+    var text: BehaviorRelay<NSAttributedString> { get }
+    
+    var removeTextRequest: Observable<Void> { get }
+}
+
+protocol TextChunkViewModelInput {
+    var tapRequest: () -> () { get }
+    var longPressRequest: () -> () { get }
+    
+    var contextRemoveRequest: () -> () { get }
+}
+
+protocol TextChunkViewModelType {
+    var outputs: TextChunkViewModelOutput { get }
+    var inputs: TextChunkViewModelInput { get }
+}
+
+
+// MARK: Text Chunk View
+
+
 class TextChunkMemoryView: UIView {
     private let disposeBag = DisposeBag()
     
@@ -82,7 +109,35 @@ extension TextChunkMemoryView: UITextViewDelegate {
 }
 
 
-// MARK: Photo View
+// MARK: Photo Chunk View Model Declaration
+
+
+protocol PhotoChunkViewModelOutput {
+    var photo: BehaviorRelay<Data> { get }
+    
+    var detailPhotoRequestObservable: Observable<Void> { get }
+    
+    var sharePhotoRequest: Observable<Void> { get }
+    var copyPhotoRequest: Observable<Void> { get }
+    var removePhotoRequest: Observable<Void> { get }
+}
+
+protocol PhotoChunkViewModelInput {
+    var tapRequest: () -> () { get }
+    var longPressRequest: () -> () { get }
+    
+    var contextShareRequest: () -> () { get }
+    var contextCopyRequest: () -> () { get }
+    var contextRemoveRequest: () -> () { get }
+}
+
+protocol PhotoChunkViewModelType {
+    var outputs: PhotoChunkViewModelOutput { get }
+    var inputs: PhotoChunkViewModelInput { get }
+}
+
+
+// MARK: Photo Chunk View
 
 
 class PhotoChunkMemoryView: UIView {
@@ -190,7 +245,24 @@ extension PhotoChunkMemoryView: UIContextMenuInteractionDelegate {
 }
 
 
-// MARK: Graffiti View
+// MARK: Graffiti Chunk View Model Declaration
+
+
+protocol GraffitiChunkViewModelOutput {
+    var graffiti: Observable<Data> { get }
+}
+
+protocol GraffitiChunkViewModelInput {
+    
+}
+
+protocol GraffitiChunkViewModelType {
+    var outputs: GraffitiChunkViewModelOutput { get }
+    var inputs: GraffitiChunkViewModelInput { get }
+}
+
+
+// MARK: Graffiti Chunk View
 
 
 class GraffitiChunkMemoryView: UIView {

@@ -18,7 +18,6 @@ protocol MemorizableView: UIView {
 struct ImageMeta {
     let imageUrl: URL?
     let originalImage: Data?
-    let editedImage: Data?
 }
 
 class ImagePicker: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
@@ -47,9 +46,8 @@ class ImagePicker: NSObject, UIImagePickerControllerDelegate, UINavigationContro
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         let originalImage = (info[UIImagePickerController.InfoKey.originalImage] as? UIImage)?.jpegData(compressionQuality: 1)
-        let editedImage = (info[UIImagePickerController.InfoKey.editedImage] as? UIImage)?.jpegData(compressionQuality: 1)
         let imageUrl = info[UIImagePickerController.InfoKey.imageURL] as? URL
-        let imageMeta = ImageMeta(imageUrl: imageUrl, originalImage: originalImage, editedImage: editedImage)
+        let imageMeta = ImageMeta(imageUrl: imageUrl, originalImage: originalImage)
         completion?(imageMeta)
     }
 }

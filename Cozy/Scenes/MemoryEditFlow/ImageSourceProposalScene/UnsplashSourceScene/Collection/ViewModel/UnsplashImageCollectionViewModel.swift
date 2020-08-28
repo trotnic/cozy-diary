@@ -10,21 +10,6 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-protocol UnsplashImageCollectionViewModelOutput {
-    var items: Driver<[UnsplashCollectionSection]> { get }
-    
-    var detailImageRequest: Signal<UnsplashPhoto> { get }
-}
-
-protocol UnsplashImageCollectionViewModelInput {
-    var didScrollToEnd: PublishRelay<Void> { get }
-}
-
-protocol UnsplashImageCollectionViewModelType {
-    var outputs: UnsplashImageCollectionViewModelOutput { get }
-    var inputs: UnsplashImageCollectionViewModelInput { get }
-}
-
 class UnsplashImageCollectionViewModel: UnsplashImageCollectionViewModelType, UnsplashImageCollectionViewModelOutput, UnsplashImageCollectionViewModelInput {
     
     var outputs: UnsplashImageCollectionViewModelOutput { return self }
@@ -39,8 +24,14 @@ class UnsplashImageCollectionViewModel: UnsplashImageCollectionViewModelType, Un
         detailObserver.asSignal()
     }
     
+    var cancelObservable: Observable<Void> {
+        willDisappear.asObservable()
+    }
+    
     // MARK: Inputs
     let didScrollToEnd = PublishRelay<Void>()
+    let willDisappear = PublishRelay<Void>()
+    let searchObserver = PublishRelay<String>()
     
     // MARK: Private
     private let pageCounter = BehaviorRelay<Int>(value: 0)
@@ -69,12 +60,16 @@ class UnsplashImageCollectionViewModel: UnsplashImageCollectionViewModelType, Un
             self.loadData(page: page)
         })
         .disposed(by: disposeBag)
+        
+        setupSearch()
     }
     
     
     // MARK: Private methods
     private func loadData(page: Int) {
-        service.fetch(request: .photos(page: pageCounter.value, limit: 40))
+        
+        let result: Observable<[UnsplashPhoto]> = service.fetch(request: .photos(page: pageCounter.value, limit: 40))
+            result
             .flatMap({ [unowned self] (unsplashPhotos) -> Observable<[UnsplashPhoto]> in
                 var existingPhotos = self.loadedPhotos.value
                 existingPhotos.append(contentsOf: unsplashPhotos)
@@ -98,6 +93,40 @@ class UnsplashImageCollectionViewModel: UnsplashImageCollectionViewModelType, Un
                 .just([.init(items: items)])
             })
             .bind(to: itemsPublisher)
+        .disposed(by: disposeBag)
+    }
+    
+    private func setupSearch() {
+        searchObserver
+        .asObservable()
+            .filter { !$0.isEmpty }
+            .distinctUntilChanged()
+            .throttle(.microseconds(10000), scheduler: MainScheduler.instance)
+            .flatMapLatest { [unowned self] (token) -> Observable<[UnsplashPhoto]> in
+//                if let self = self {
+            let result: Observable<UnsplashSearch> = self.service.fetch(request: .searchPhotos(term: token, page: 0, limit: 20))
+            
+            return result.flatMapLatest { (searchResults) -> Observable<[UnsplashPhoto]> in
+                .just(searchResults.results)
+            }
+        }
+        .map { $0.map { [unowned self] photo -> UnsplashImageCollectionCommonItemViewModel in
+            let viewModel = UnsplashImageCollectionCommonItemViewModel(item: photo)
+            viewModel.outputs.detailRequest
+                .asObservable()
+                .subscribe(onNext: { () in
+                    self.detailObserver.accept(photo)
+                })
+                .disposed(by: self.disposeBag)
+            return viewModel
+            }}
+        .map{ $0.map { viewModel -> UnsplashCollectionItem in
+            .common(viewModel: viewModel)
+        }}
+        .flatMap({ (items) -> Observable<[UnsplashCollectionSection]> in
+            .just([.init(items: items)])
+        })
+        .bind(to: itemsPublisher)
         .disposed(by: disposeBag)
     }
 }

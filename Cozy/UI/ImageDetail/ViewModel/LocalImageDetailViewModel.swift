@@ -1,8 +1,8 @@
 //
-//  UnsplashImageDetailViewModel.swift
+//  ImageDetailViewModel.swift
 //  Cozy
 //
-//  Created by Uladzislau Volchyk on 8/26/20.
+//  Created by Uladzislau Volchyk on 8/19/20.
 //  Copyright © 2020 Uladzislau Volchyk. All rights reserved.
 //
 
@@ -11,7 +11,7 @@ import RxCocoa
 import RxSwift
 
 
-class UnsplashImageDetailViewModel: ImageDetailViewModelType, ImageDetailViewModelOutput, ImageDetailViewModelInput {
+class LocalImageDetailViewModel: ImageDetailViewModelType, ImageDetailViewModelOutput, ImageDetailViewModelInput {
     
     var outputs: ImageDetailViewModelOutput { return self }
     var inputs: ImageDetailViewModelInput { return self }
@@ -25,7 +25,7 @@ class UnsplashImageDetailViewModel: ImageDetailViewModelType, ImageDetailViewMod
         closeObserver.asObservable()
     }
     
-    var shareRequestObservable: Observable<Void> {
+    var moreRequestObservable: Observable<Void> {
         shareObserver.asObservable()
     }
     
@@ -34,14 +34,10 @@ class UnsplashImageDetailViewModel: ImageDetailViewModelType, ImageDetailViewMod
     let shareObserver = PublishRelay<Void>()
     
     // MARK: Private
-    private let imageMeta: UnsplashPhoto
-    private let disposeBag = DisposeBag()
+    private let imageObserver: BehaviorRelay<Data>
     
-    private let imageObserver = PublishRelay<Data>()
-    
-    // MARK: Init
-    init(imageMeta: UnsplashPhoto) {
-        self.imageMeta = imageMeta
-        
+    init(image: Data) {
+        imageObserver = .init(value: image)
     }
+    
 }

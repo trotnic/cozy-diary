@@ -16,7 +16,7 @@ protocol URLRequestConvertible {
 
 enum UnsplashRequest: URLRequestConvertible {
     case photos(page: Int, limit: Int)
-    
+    case searchPhotos(term: String, page: Int, limit: Int)
     
     // MARK: Configurations
     
@@ -32,12 +32,15 @@ enum UnsplashRequest: URLRequestConvertible {
         switch self {
         case .photos:
             return "/photos"
+        case .searchPhotos:
+            return "/search/photos"
         }
     }
     
     var method: String {
         switch self {
-        case .photos:
+        case .photos,
+             .searchPhotos:
             return "GET"
         }
     }
@@ -46,6 +49,12 @@ enum UnsplashRequest: URLRequestConvertible {
         switch self {
         case let .photos(page, limit):
             return [
+                .init(name: "page", value: "\(page)"),
+                .init(name: "per_page", value: "\(limit)")
+            ]
+        case let .searchPhotos(term, page, limit):
+            return [
+                .init(name: "query", value: "\(term)"),
                 .init(name: "page", value: "\(page)"),
                 .init(name: "per_page", value: "\(limit)")
             ]
@@ -70,12 +79,12 @@ enum UnsplashRequest: URLRequestConvertible {
 
 
 protocol UnsplashServiceType {
-    func fetch(request: UnsplashRequest) -> Observable<[UnsplashPhoto]>
+    func fetch<T: Decodable>(request: UnsplashRequest) -> Observable<T>
 }
 
 class UnsplashService: UnsplashServiceType {
     
-    func fetch(request: UnsplashRequest) -> Observable<[UnsplashPhoto]> {
+    func fetch<T: Decodable>(request: UnsplashRequest) -> Observable<T> {
         return .create { observer -> Disposable in
             guard let request = request.urlReqeust() else {
                 observer.onError(URLError(.badURL))
@@ -93,7 +102,7 @@ class UnsplashService: UnsplashServiceType {
                     return
                 }
                 
-                guard let result = try? JSONDecoder().decode([UnsplashPhoto].self, from: data) else {
+                guard let result = try? JSONDecoder().decode(T.self, from: data) else {
                     observer.onError(URLError(.downloadDecodingFailedToComplete))
                     return
                 }

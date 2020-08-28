@@ -17,12 +17,14 @@ protocol ImageProposalViewModelOutput {
     var unsplashObservable: Observable<Void> { get }
     var galleryObservable: Observable<Void> { get }
     var cameraObservable: Observable<Void> { get }
+    var cancelObservable: Observable<Void> { get }
 }
 
 protocol ImageProposalViewModelInput {
     var unsplashAction: () -> () { get }
     var galleryAction: () -> () { get }
     var cameraAction: () -> () { get }
+    var cancelAction: () -> () { get }
 }
 
 protocol ImageProposalViewModelType {
@@ -44,16 +46,19 @@ class ImageProposalViewModel: ImageProposalViewModelType, ImageProposalViewModel
     let unsplashObservable: Observable<Void>
     let galleryObservable: Observable<Void>
     let cameraObservable: Observable<Void>
+    var cancelObservable: Observable<Void> { cancelObserver.asObservable() }
     
     // MARK: Inputs
     lazy var unsplashAction = { { self.unsplashPublisher.onNext(()) } }()
     lazy var galleryAction = { { self.galleryPublisher.onNext(()) } }()
     lazy var cameraAction = { { self.cameraPublisher.onNext(()) } }()
+    lazy var cancelAction = { { self.cancelObserver.onNext(()) } }()
     
     // MARK: Private
     private let unsplashPublisher = PublishSubject<Void>()
     private let galleryPublisher = PublishSubject<Void>()
     private let cameraPublisher = PublishSubject<Void>()
+    private let cancelObserver = PublishSubject<Void>()
     
     // MARK: Init
     init(title: String, message: String) {

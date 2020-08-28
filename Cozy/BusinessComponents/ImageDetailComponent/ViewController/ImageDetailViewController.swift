@@ -11,111 +11,36 @@ import RxSwift
 import RxCocoa
 
 
-private let animationDuration: TimeInterval = 0.3
 
-// MARK: Transitioning
 
-class CustomTransitioningDelegate: NSObject, UIViewControllerTransitioningDelegate {
+// MARK: View Model Declaration
+
+
+protocol ImageDetailViewModelOutput {
+    var image: Observable<Data> { get }
     
-    var shouldDoInteractive = true
-    var interactionTransition = UIPercentDrivenInteractiveTransition()
-    
-    func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-        return CustomTransitionPresent()
-    }
-    
-    func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-        return CustomTransitionDismiss()
-    }
-    
-    func interactionControllerForDismissal(using animator: UIViewControllerAnimatedTransitioning) -> UIViewControllerInteractiveTransitioning? {
-        return shouldDoInteractive ? interactionTransition : nil
-    }
+    var closeRequestObservable: Observable<Void> { get }
+    var moreRequestObservable: Observable<Void> { get }
 }
 
-class CustomTransitionPresent: NSObject, UIViewControllerAnimatedTransitioning {
-    func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
-        return animationDuration
-    }
-    
-    func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
-        guard
-            let toVC = transitionContext.viewController(forKey: .to)
-        else {
-            transitionContext.completeTransition(false)
-            return
-        }
-        
-        let containerView = transitionContext.containerView
-        
-        let fadeView = UIView(frame: toVC.view.frame)
-        fadeView.backgroundColor = .gray
-        fadeView.alpha = 0
-        
-        containerView.addSubview(fadeView)
-        containerView.addSubview(toVC.view)
-        let toRectSize = toVC.view.frame.size
-        
-        toVC.view.transform = .init(translationX: 0, y: toRectSize.height)
-        toVC.view.layer.cornerRadius = 80
-        
-        UIView.animate(withDuration: animationDuration, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 0.2, options: .allowUserInteraction, animations: {
-            toVC.view.transform = .identity
-            toVC.view.layer.cornerRadius = 0
-            fadeView.alpha = 1
-        }) { (success) in
-            transitionContext.completeTransition(!transitionContext.transitionWasCancelled)
-        }
-    }
+protocol ImageDetailViewModelInput {
+    var closeObserver: PublishRelay<Void> { get }
+    var shareObserver: PublishRelay<Void> { get }
 }
 
-class CustomTransitionDismiss: NSObject, UIViewControllerAnimatedTransitioning {
-    func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
-        return animationDuration
-    }
-    
-    func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
-        guard
-            let toVC = transitionContext.viewController(forKey: .to),
-            let fromVC = transitionContext.viewController(forKey: .from)
-        else {
-            transitionContext.completeTransition(false)
-            return
-        }
-        
-        let containerView = transitionContext.containerView
-        
-        let fadeView = UIView(frame: fromVC.view.frame)
-        fadeView.backgroundColor = .gray
-        
-        toVC.view.frame.size = fromVC.view.frame.size
-        containerView.addSubview(toVC.view.snapshotView(afterScreenUpdates: true) ?? toVC.view)
-        containerView.addSubview(fadeView)
-        containerView.addSubview(fromVC.view)
-        
-
-        
-        
-        let toRectSize = fromVC.view.frame.size
-        
-        let transform = CGAffineTransform(translationX: 0, y: toRectSize.height)
-        
-        UIView.animate(withDuration: animationDuration, delay: 0, usingSpringWithDamping: 0.75, initialSpringVelocity: 0.2, options: .allowUserInteraction, animations: {
-            fromVC.view.transform = transform
-            fromVC.view.layer.cornerRadius = 80
-            fadeView.alpha = 0
-        }) { (success) in
-            transitionContext.completeTransition(!transitionContext.transitionWasCancelled)
-        }
-    }
+protocol ImageDetailViewModelType {
+    var outputs: ImageDetailViewModelOutput { get }
+    var inputs: ImageDetailViewModelInput { get }
 }
+
 
 // MARK: Controller
 
+
 class ImageDetailViewController: BaseViewController {
 
-    let viewModel: ImageDetailViewModelType!
-    let transitionDelegate = CustomTransitioningDelegate()
+    let viewModel: ImageDetailViewModelType
+    let transitionDelegate = ImageDetailTransitioningDelegate()
     
     init(_ viewModel: ImageDetailViewModelType) {
         self.viewModel = viewModel
@@ -158,9 +83,9 @@ class ImageDetailViewController: BaseViewController {
         return view
     }()
     
-    lazy var shareButton: UIButton = {
+    lazy var moreButton: UIButton = {
         let view = UIButton()
-        view.setImage(UIImage(systemName: "square.and.arrow.up"), for: .normal)
+        view.setImage(UIImage(systemName: "ellipsis"), for: .normal)
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -202,7 +127,7 @@ class ImageDetailViewController: BaseViewController {
                         self?.imageView.image = image
                         self?.view.backgroundColor = image.averageColor
                         self?.closeButton.backgroundColor = image.averageColor
-                        self?.shareButton.backgroundColor = image.averageColor
+                        self?.moreButton.backgroundColor = image.averageColor
                     }
                 }
             }
@@ -213,7 +138,7 @@ class ImageDetailViewController: BaseViewController {
             self?.viewModel.inputs.closeObserver.accept(())
         }).disposed(by: disposeBag)
         
-        shareButton.rx.tap.subscribe(onNext: { [weak self] in
+        moreButton.rx.tap.subscribe(onNext: { [weak self] in
             self?.viewModel.inputs.shareObserver.accept(())
         }).disposed(by: disposeBag)
         
@@ -232,7 +157,7 @@ class ImageDetailViewController: BaseViewController {
         
         headerView.addSubview(closeButton)
         closeButton.centerYAnchor.constraint(equalTo: headerView.centerYAnchor).isActive = true
-        closeButton.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 40).isActive = true
+        closeButton.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 20).isActive = true
         closeButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         closeButton.widthAnchor.constraint(equalToConstant: 50).isActive = true
         closeButton.layer.cornerRadius = 25
@@ -240,14 +165,14 @@ class ImageDetailViewController: BaseViewController {
         closeButton.tintColor = .white
         
         
-        headerView.addSubview(shareButton)
-        shareButton.trailingAnchor.constraint(equalTo: headerView.trailingAnchor, constant: -40).isActive = true
-        shareButton.centerYAnchor.constraint(equalTo: headerView.centerYAnchor).isActive = true
-        shareButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        shareButton.widthAnchor.constraint(equalToConstant: 50).isActive = true
-        shareButton.layer.cornerRadius = 25
-        shareButton.layer.masksToBounds = true
-        shareButton.tintColor = .white
+        headerView.addSubview(moreButton)
+        moreButton.trailingAnchor.constraint(equalTo: headerView.trailingAnchor, constant: -20).isActive = true
+        moreButton.centerYAnchor.constraint(equalTo: headerView.centerYAnchor).isActive = true
+        moreButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        moreButton.widthAnchor.constraint(equalToConstant: 50).isActive = true
+        moreButton.layer.cornerRadius = 25
+        moreButton.layer.masksToBounds = true
+        moreButton.tintColor = .white
     }
     
     private func setupViewGestureSensitivity() {

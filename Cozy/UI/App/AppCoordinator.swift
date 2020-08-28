@@ -34,32 +34,44 @@ class AppCoordinator: ParentCoordinator {
     func start() {
         tabBarController = PageTabBarController()
         
-        tabBarController.definesPresentationContext = false
-        let createCoordinator = MemoryCreateCoordinator(memoryStore: memoryStore)
-        childCoordinators.append(createCoordinator)
-        createCoordinator.navigationController.tabBarItem = .init(title: "Today", image: UIImage(systemName: "pencil"), tag: 0)
-        createCoordinator.start()
-
-        let collectionCoordinator = MemoryCollectionCoordinator(memoryStore: memoryStore)
-        childCoordinators.append(collectionCoordinator)
-        collectionCoordinator.navigationController.tabBarItem = .init(title: "All memories", image: UIImage(systemName: "tray"), tag: 1)
-        collectionCoordinator.start()
-
-        tabBarController.viewControllers = [
-            createCoordinator.navigationController,
-            collectionCoordinator.navigationController
-        ]
-        
-//        let unsplashCoordinator = UnsplashImageCollectionCoordinator()
-//        unsplashCoordinator.start()
+//        tabBarController.definesPresentationContext = false
+//        let createCoordinator = MemoryCreateCoordinator(memoryStore: memoryStore)
+//        childCoordinators.append(createCoordinator)
+//        createCoordinator.navigationController.tabBarItem = .init(title: "Today", image: UIImage(systemName: "pencil"), tag: 0)
+//        createCoordinator.start()
 //
-//        childCoordinators.append(unsplashCoordinator)
+//        let collectionCoordinator = MemoryCollectionCoordinator(memoryStore: memoryStore)
+//        childCoordinators.append(collectionCoordinator)
+//        collectionCoordinator.navigationController.tabBarItem = .init(title: "All memories", image: UIImage(systemName: "tray"), tag: 1)
+//        collectionCoordinator.start()
 //
 //        tabBarController.viewControllers = [
-//            unsplashCoordinator.viewController
+//            createCoordinator.navigationController,
+//            collectionCoordinator.navigationController
 //        ]
         
-        tabBarController.selectedIndex = 0
+        
+        let unsplashCoordinator = UnsplashImageCollectionCoordinator()
+        
+        unsplashCoordinator.start()
+        let wrapController =  UINavigationController(rootViewController: unsplashCoordinator.viewController)
+        childCoordinators.append(unsplashCoordinator)
+
+        tabBarController.viewControllers = [
+            wrapController
+        ]
+        
+//        let synchro = Synchronizer(calendar: PerfectCalendar())
+//        let memoryEditCoordinator = MemoryEditCoordinator(memory: synchro.relevantMemory.value, memoryStore: memoryStore)
+//        
+//        childCoordinators.append(memoryEditCoordinator)
+//        memoryEditCoordinator.start()
+//        
+//        tabBarController.viewControllers = [
+//            memoryEditCoordinator.navigationController
+//        ]
+//        
+//        tabBarController.selectedIndex = 0
         
         window.rootViewController = tabBarController
         window.makeKeyAndVisible()

@@ -14,7 +14,13 @@ class ImageProposalCoordinator: ParentCoordinator {
     
     var childCoordinators: [Coordinator] = []
     
-    var metaObservable: Observable<ImageMeta>
+    var metaObservable: Observable<ImageMeta> {
+        metaObserver.asObservable()
+    }
+    
+    var cancelObservable: Observable<Void> {
+        cancelObserver.asObservable()
+    }
     
     let imagePicker = ImagePicker()
     var viewController: ImageProposalSheetController!
@@ -24,14 +30,14 @@ class ImageProposalCoordinator: ParentCoordinator {
     
     // MARK: Private
     private let disposeBag = DisposeBag()
-    private let metaPublisher = PublishSubject<ImageMeta>()
+    
+    private let metaObserver = PublishSubject<ImageMeta>()
+    private let cancelObserver = PublishSubject<Void>()
     
     // MARK: Init
     init(presentationController: UIViewController, navigationController: UINavigationController) {
         self.presentationController = presentationController
         self.navigationController = navigationController
-        
-        metaObservable = metaPublisher.asObservable()
     }
     
     func start() {
@@ -50,6 +56,13 @@ class ImageProposalCoordinator: ParentCoordinator {
                     coordinator.viewController.hidesBottomBarWhenPushed = true
                     coordinator.viewController.stubSwipeToLeft()
                     
+                    coordinator.metaObservable
+                        .bind(to: self.metaObserver)
+                        .disposed(by: self.disposeBag)
+                    
+                    coordinator.cancelObservable
+                        .bind(to: self.cancelObserver)
+                        .disposed(by: self.disposeBag)
                     
                     self.navigationController.pushViewController(coordinator.viewController, animated: true)
                     
@@ -62,7 +75,8 @@ class ImageProposalCoordinator: ParentCoordinator {
                     self?.presentationController.present(controller, animated: true)
                 }, completion: { (meta) in
                     self?.presentationController.dismiss(animated: true)
-                    self?.metaPublisher.onNext(meta)
+                    self?.metaObserver.onNext(meta)
+                    self?.cancelObserver.onNext(())
                 })
             })
             .disposed(by: disposeBag)
@@ -72,9 +86,14 @@ class ImageProposalCoordinator: ParentCoordinator {
                     self?.presentationController.present(controller, animated: true)
                 }, completion: { (meta) in
                     self?.presentationController.dismiss(animated: true)
-                    self?.metaPublisher.onNext(meta)
+                    self?.metaObserver.onNext(meta)
+                    self?.cancelObserver.onNext(())
                 })
             })
+            .disposed(by: disposeBag)
+        
+        viewModel.outputs.cancelObservable
+            .bind(to: cancelObserver)
             .disposed(by: disposeBag)
         
         presentationController.present(viewController, animated: true)

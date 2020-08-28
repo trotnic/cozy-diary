@@ -11,41 +11,6 @@ import RxSwift
 import RxCocoa
 
 
-enum MemoryCreateCollectionItem {
-    case TextItem(viewModel: TextChunkViewModelType)
-    case PhotoItem(viewModel: PhotoChunkViewModelType)
-    case GraffitiItem(viewModel: GraffitiChunkViewModelType)
-}
-
-protocol MemoryCreateViewModelOutput {
-    var items: BehaviorRelay<[MemoryCreateCollectionItem]> { get }
-    
-    var photoInsertRequestObservable: Observable<Void> { get }
-    var photoDetailRequestObservable: Observable<Data> { get }
-    var photoShareRequestObservable: Observable<Data> { get }
-    
-    var mapInsertRequestObservable: Observable<Void> { get }
-    
-    var graffitiInsertRequestObservable: Observable<Void> { get }
-}
-
-protocol MemoryCreateViewModelInput {    
-    var saveRequest: () -> () { get }
-    
-    var textChunkInsertRequest: () -> () { get }
-    var photoChunkInsertRequest: () -> () { get }
-    var mapChunkInsertRequest: () -> () { get }
-    var graffitiChunkInsertRequest: () -> () { get }
-    
-    var photoInsertResponse: (ImageMeta) -> () { get }
-    var graffitiInsertResponse: (Data) -> () { get }
-}
-
-protocol MemoryCreateViewModelType {
-    var outputs: MemoryCreateViewModelOutput { get }
-    var inputs: MemoryCreateViewModelInput { get }
-}
-
 class MemoryCreateViewModel: MemoryCreateViewModelType, MemoryCreateViewModelOutput, MemoryCreateViewModelInput {
     
     var outputs: MemoryCreateViewModelOutput { return self }
@@ -203,30 +168,14 @@ class MemoryCreateViewModel: MemoryCreateViewModelType, MemoryCreateViewModelOut
     }
 }
 
+
 // MARK: Text Chunk ViewModel
 
-protocol TextChunkViewModelOutput {
-    var text: BehaviorRelay<NSAttributedString> { get }
-    
-    var removeTextRequest: Observable<Void> { get }
-}
 
-protocol TextCHunkViewModelInput {
-    var tapRequest: () -> () { get }
-    var longPressRequest: () -> () { get }
-    
-    var contextRemoveRequest: () -> () { get }
-}
-
-protocol TextChunkViewModelType {
-    var outputs: TextChunkViewModelOutput { get }
-    var inputs: TextCHunkViewModelInput { get }
-}
-
-class TextChunkViewModel: TextChunkViewModelType, TextChunkViewModelOutput, TextCHunkViewModelInput {
+class TextChunkViewModel: TextChunkViewModelType, TextChunkViewModelOutput, TextChunkViewModelInput {
     
     var outputs: TextChunkViewModelOutput { return self }
-    var inputs: TextCHunkViewModelInput { return self }
+    var inputs: TextChunkViewModelInput { return self }
     
     // MARK: Outputs
     var text: BehaviorRelay<NSAttributedString>
@@ -257,31 +206,9 @@ class TextChunkViewModel: TextChunkViewModelType, TextChunkViewModelOutput, Text
     }
 }
 
+
 // MARK: Photo Chunk ViewModel
 
-protocol PhotoChunkViewModelOutput {
-    var photo: BehaviorRelay<Data> { get }
-    
-    var detailPhotoRequestObservable: Observable<Void> { get }
-    
-    var sharePhotoRequest: Observable<Void> { get }
-    var copyPhotoRequest: Observable<Void> { get }
-    var removePhotoRequest: Observable<Void> { get }
-}
-
-protocol PhotoChunkViewModelInput {
-    var tapRequest: () -> () { get }
-    var longPressRequest: () -> () { get }
-    
-    var contextShareRequest: () -> () { get }
-    var contextCopyRequest: () -> () { get }
-    var contextRemoveRequest: () -> () { get }
-}
-
-protocol PhotoChunkViewModelType {
-    var outputs: PhotoChunkViewModelOutput { get }
-    var inputs: PhotoChunkViewModelInput { get }
-}
 
 class PhotoChunkViewModel: PhotoChunkViewModelType, PhotoChunkViewModelOutput, PhotoChunkViewModelInput {
     var outputs: PhotoChunkViewModelOutput { return self }
@@ -331,20 +258,9 @@ class PhotoChunkViewModel: PhotoChunkViewModelType, PhotoChunkViewModelOutput, P
     }
 }
 
+
 // MARK: Graffiti Chunk View Model
 
-protocol GraffitiChunkViewModelOutput {
-    var graffiti: Observable<Data> { get }
-}
-
-protocol GraffitiChunkViewModelInput {
-    
-}
-
-protocol GraffitiChunkViewModelType {
-    var outputs: GraffitiChunkViewModelOutput { get }
-    var inputs: GraffitiChunkViewModelInput { get }
-}
 
 class GraffitiChunkViewModel: GraffitiChunkViewModelType, GraffitiChunkViewModelOutput, GraffitiChunkViewModelInput {
     
