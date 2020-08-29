@@ -46,8 +46,8 @@ class ImageProposalCoordinator: ParentCoordinator {
         let viewModel = ImageProposalViewModel(title: "Choose image source", message: "")
         viewController.viewModel = viewModel
         
-        viewModel.outputs.unsplashObservable.subscribe(onNext: { [weak self] in
-                if let self = self {
+        viewModel.outputs.unsplashObservable.subscribe(onNext: { _ in
+                
                     let coordinator = UnsplashImageCollectionCoordinator()
                     coordinator.start()
                     
@@ -56,7 +56,7 @@ class ImageProposalCoordinator: ParentCoordinator {
                     coordinator.viewController.hidesBottomBarWhenPushed = true
                     coordinator.viewController.stubSwipeToLeft()
                     
-                    coordinator.metaObservable
+                    coordinator.metaObservable                        
                         .bind(to: self.metaObserver)
                         .disposed(by: self.disposeBag)
                     
@@ -66,7 +66,7 @@ class ImageProposalCoordinator: ParentCoordinator {
                     
                     self.navigationController.pushViewController(coordinator.viewController, animated: true)
                     
-                }
+                
             })
             .disposed(by: disposeBag)
         

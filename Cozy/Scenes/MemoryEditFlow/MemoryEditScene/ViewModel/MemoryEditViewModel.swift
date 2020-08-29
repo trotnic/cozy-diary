@@ -102,6 +102,8 @@ class MemoryEditViewModel: MemoryCreateViewModelType, MemoryCreateViewModelOutpu
         self.memoryStore = memoryStore
         
         bindMemory()
+        
+        memoryStore.seekFor(memory, key: memory.value.date)
     }
     
     

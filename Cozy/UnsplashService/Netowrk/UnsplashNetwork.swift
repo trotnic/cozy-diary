@@ -67,7 +67,9 @@ enum UnsplashRequest: URLRequestConvertible {
         urlComponents.host = host
         urlComponents.path = "\(endPoint)"
         urlComponents.queryItems = queryItems
-        urlComponents.queryItems?.append(.init(name: "client_id", value: "v6gYNEmZzZCBVu_aVTGmHNQduCmZwUdqjQzM_IViH7Q"))
+//        64590bced0328aeeb23ef7fe893c6b6e2e54aa963f383020f6cbf2bddde5fcb4
+//        v6gYNEmZzZCBVu_aVTGmHNQduCmZwUdqjQzM_IViH7Q
+        urlComponents.queryItems?.append(.init(name: "client_id", value: "64590bced0328aeeb23ef7fe893c6b6e2e54aa963f383020f6cbf2bddde5fcb4"))
         
         guard let url = urlComponents.url else { return nil }
         var request = URLRequest(url: url)

@@ -15,10 +15,14 @@ protocol MemoryCollectionViewModelOutput {
     
     var detailRequestObservable: Observable<Memory> { get }
     var searchRequestObservable: Observable<Void> { get }
+    
+    
 }
 
 protocol MemoryCollectionViewModelInput {
     var searchRequest: () -> () { get }
+    
+    var viewWillAppear: PublishRelay<Void> { get }
 }
 
 protocol MemoryCollectionViewModelType {
@@ -33,33 +37,7 @@ class MemoryCollectionViewModel: MemoryCollectionViewModelType, MemoryCollection
     
     // MARK: Outputs
     var items: Driver<[MemoryCollectionViewSection]> {
-        itemsPublisher.asDriver()
-    }
-    
-    let detailRequestObservable: Observable<Memory>
-    let searchRequestObservable: Observable<Void>
-    
-    // MARK: Inputs
-    
-    lazy var searchRequest = { { self.searchRequestPublisher.onNext(()) } }()
-        
-    // MARK: Private
-    private let disposeBag = DisposeBag()
-    private let memoryStore: MemoryStoreType
-    
-    private let detailRequestPublisher = PublishSubject<Memory>()
-    private let searchRequestPublisher = PublishSubject<Void>()
-    
-    private let itemsPublisher = BehaviorRelay<[MemoryCollectionViewSection]>(value: [])
-    
-    // MARK: Init
-    init(memoryStore: MemoryStoreType) {
-        self.memoryStore = memoryStore
-        
-        detailRequestObservable = detailRequestPublisher.asObservable()
-        searchRequestObservable = searchRequestPublisher.asObservable()
-        
-        memoryStore.fetchObservables()
+        itemsPublisher
             .map { [unowned self] memories -> [MemoryCollectionViewSection] in
                 [.init(items: memories.map { memory -> MemoryCollectionViewItem in
                     let viewModel = MemoryCollectionCommonItemViewModel(memory: memory)
@@ -71,10 +49,36 @@ class MemoryCollectionViewModel: MemoryCollectionViewModelType, MemoryCollection
                     return .CommonItem(viewModel: viewModel)
                 })]
         }
-        .subscribe(onNext: { [weak self] (section) in
-            self?.itemsPublisher.accept(section)
-        })
-        .disposed(by: disposeBag)
+        .asDriver(onErrorJustReturn: [])
+    }
+    
+    let detailRequestObservable: Observable<Memory>
+    let searchRequestObservable: Observable<Void>
+    
+    // MARK: Inputs
+    lazy var searchRequest = { { self.searchRequestPublisher.onNext(()) } }()
+    
+    let viewWillAppear = PublishRelay<Void>()
+        
+    // MARK: Private
+    private let disposeBag = DisposeBag()
+    private let memoryStore: MemoryStoreType
+    
+    private let detailRequestPublisher = PublishSubject<Memory>()
+    private let searchRequestPublisher = PublishSubject<Void>()
+    
+    private let itemsPublisher = BehaviorRelay<[Memory]>(value: [])
+    
+    // MARK: Init
+    init(memoryStore: MemoryStoreType) {
+        self.memoryStore = memoryStore
+        
+        detailRequestObservable = detailRequestPublisher.asObservable()
+        searchRequestObservable = searchRequestPublisher.asObservable()
+        
+        memoryStore.fetchBeforeNow()
+            .bind(to: itemsPublisher)
+            .disposed(by: disposeBag)
     }
 }
 

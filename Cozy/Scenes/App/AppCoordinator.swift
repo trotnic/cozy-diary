@@ -51,27 +51,38 @@ class AppCoordinator: ParentCoordinator {
 //        ]
         
         
-        let unsplashCoordinator = UnsplashImageCollectionCoordinator()
+//        let unsplashCoordinator = UnsplashImageCollectionCoordinator()
+//
+//        unsplashCoordinator.start()
+//        let wrapController =  UINavigationController(rootViewController: unsplashCoordinator.viewController)
+//        childCoordinators.append(unsplashCoordinator)
+//
+//        tabBarController.viewControllers = [
+//            wrapController
+//        ]
         
-        unsplashCoordinator.start()
-        let wrapController =  UINavigationController(rootViewController: unsplashCoordinator.viewController)
-        childCoordinators.append(unsplashCoordinator)
-
+        let wrapController = UINavigationController()
+        
+        let memoryEditCoordinator = MemoryEditCoordinator(
+            memory: memoryStore.relevantMemory.value,
+            memoryStore: memoryStore,
+            navigationController: wrapController)
+        
+        childCoordinators.append(memoryEditCoordinator)
+        memoryEditCoordinator.start()
+        wrapController.setViewControllers([memoryEditCoordinator.viewController], animated: true)
+        
+        let memoryCollectionCoordinator = MemoryCollectionCoordinator(memoryStore: memoryStore)
+        
+        childCoordinators.append(memoryCollectionCoordinator)
+        memoryCollectionCoordinator.start()
+        
         tabBarController.viewControllers = [
-            wrapController
+            memoryEditCoordinator.navigationController,
+            memoryCollectionCoordinator.navigationController
         ]
         
-//        let synchro = Synchronizer(calendar: PerfectCalendar())
-//        let memoryEditCoordinator = MemoryEditCoordinator(memory: synchro.relevantMemory.value, memoryStore: memoryStore)
-//        
-//        childCoordinators.append(memoryEditCoordinator)
-//        memoryEditCoordinator.start()
-//        
-//        tabBarController.viewControllers = [
-//            memoryEditCoordinator.navigationController
-//        ]
-//        
-//        tabBarController.selectedIndex = 0
+        tabBarController.selectedIndex = 1
         
         window.rootViewController = tabBarController
         window.makeKeyAndVisible()

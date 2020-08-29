@@ -15,13 +15,13 @@ class MemorySearchCoordinator: ParentCoordinator {
     
     var childCoordinators: [Coordinator] = []
     var viewController: MemorySearchController!
-    let presentationController: UIViewController
+    let presentingController: UIViewController
     
     private let disposeBag = DisposeBag()
     private let memoryStore: MemoryStoreType
     
-    init(presentationController: UIViewController, memoryStore: MemoryStoreType) {
-        self.presentationController = presentationController
+    init(presentingController: UIViewController, memoryStore: MemoryStoreType) {
+        self.presentingController = presentingController
         self.memoryStore = memoryStore
     }
     
@@ -41,7 +41,8 @@ class MemorySearchCoordinator: ParentCoordinator {
             .disposed(by: disposeBag)
         
         
-        presentationController.present(wrapper, animated: true)
+
+        presentingController.present(wrapper, animated: true)
     }
     
 }

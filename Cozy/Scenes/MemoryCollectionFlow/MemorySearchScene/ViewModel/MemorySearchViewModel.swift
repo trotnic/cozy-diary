@@ -64,7 +64,7 @@ class MemorySearchViewModel: MemorySearchViewModelType, MemorySearchViewModelOut
             .distinctUntilChanged()
             .debounce(.microseconds(400), scheduler: MainScheduler.instance)
             .subscribe(onNext: { [unowned self] (search) in
-                    self.memoryStore.fetchObservables()
+                    self.memoryStore.fetchAll()
                     .map({ (memories) -> [MemoryCollectionViewSection] in
                         [
                             .init(items:

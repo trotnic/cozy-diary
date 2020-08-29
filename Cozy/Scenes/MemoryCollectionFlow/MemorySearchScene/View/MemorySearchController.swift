@@ -40,6 +40,12 @@ class MemorySearchController: BaseViewController {
         return view
     }()
     
+    lazy var closeButton: UIButton = {
+        let view = UIButton(type: .system)
+        view.setTitle("Close", for: .normal)
+        return view
+    }()
+    
     let viewModel: MemorySearchViewModelType
     private let disposeBag = DisposeBag()
     
@@ -97,19 +103,18 @@ class MemorySearchController: BaseViewController {
         collectionView.topAnchor.constraint(equalTo: safeGuide.topAnchor).isActive = true
         collectionView.trailingAnchor.constraint(equalTo: safeGuide.trailingAnchor).isActive = true
         collectionView.bottomAnchor.constraint(equalTo: safeGuide.bottomAnchor).isActive = true
-        collectionView.backgroundColor = .red
         
     }
     
     private func setupCloseButton() {
-        let button = UIBarButtonItem(title: "Close", style: .plain, target: nil, action: nil)
-        button.rx.tap
+//        let button = UIBarButtonItem(title: "Close", style: .plain, target: nil, action: nil)
+        closeButton.rx.tap
             .subscribe(onNext: { [weak self] in
                 self?.viewModel.inputs.closeRequest()
             })
             .disposed(by: disposeBag)
         
-        navigationItem.leftBarButtonItem = button
+        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: closeButton)
         
         
     }

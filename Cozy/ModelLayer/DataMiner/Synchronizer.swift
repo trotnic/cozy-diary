@@ -84,7 +84,8 @@ class PerfectCalendar: CalendarType {
 
 protocol MemoryStoreType {
     var relevantMemory: BehaviorRelay<Memory> { get }
-    func fetchObservables() -> Observable<[Memory]>
+    func fetchAll() -> Observable<[Memory]>
+    func fetchBeforeNow() -> Observable<[Memory]>
     @discardableResult func addItem(_ memory: Memory) -> Bool
     @discardableResult func updateItem(_ memory: Memory) -> Bool
     @discardableResult func removeItem(_ memory: Memory) -> Bool
@@ -119,32 +120,42 @@ class Synchronizer: MemoryStoreType {
                     self.blackDayBag.values.forEach { (memory) in
                         self.updateItem(memory.value)
                     }
-                    self.updateItem(self.relevantMemory.value)
                     UIApplication.shared.endBackgroundTask(taskIdentifier)
                 }
             })
         .disposed(by: disposeBag)
     }
     
-    private func fetchData(context: NSManagedObjectContext) -> [CoreMemory] {
-        let request = CoreMemory.memoryFetchRequest()
-        request.returnsDistinctResults = false
-        
-        do {
-            return try context.fetch(request)
-        } catch {
-            return []
-        }
-    }
-    
     private func fetchData() -> [CoreMemory] {
         fetchData(context: self.coreDataManager.viewContext)
     }
     
-    func fetchObservables() -> Observable<[Memory]> {
+    private func fetchData(context: NSManagedObjectContext) -> [CoreMemory] {
+        return fetchData(context: context, predicate: nil)
+    }
+    
+    private func fetchData(context: NSManagedObjectContext, predicate: NSPredicate?) -> [CoreMemory] {
+        let request = CoreMemory.memoryFetchRequest()
+        request.returnsDistinctResults = false
+        request.predicate = predicate
+        
+        do {
+            return try context.fetch(request)
+        } catch {
+            assert(false, "Fetch error, shouldn't ever happen")
+            return []
+        }
+    }
+    
+    func fetchAll() -> Observable<[Memory]> {
         coreDataModels.map { $0.map { $0.selfChunk }}.share(replay: 1, scope: .whileConnected)
     }
     
+    func fetchBeforeNow() -> Observable<[Memory]> {
+        let predicate = NSPredicate(format: "date < %@", calendar.today as NSDate)
+        return .just(fetchData(context: self.coreDataManager.viewContext, predicate: predicate)
+            .map { $0.selfChunk })
+    }
     
     @discardableResult
     func addItem(_ memory: Memory) -> Bool {

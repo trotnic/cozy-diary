@@ -12,7 +12,7 @@ import RxSwift
 import RxCocoa
 
 
-class MemoryCollectionCoordinator: ParentCoordinator {
+class MemoriesCollectionCoordinator: ParentCoordinator {
     
     var childCoordinators: [Coordinator] = []
     
@@ -59,7 +59,7 @@ class MemoryCollectionCoordinator: ParentCoordinator {
     }
     
     func gotosearch() {
-        let coordinator = MemorySearchCoordinator(presentationController: navigationController, memoryStore: memoryStore)
+        let coordinator = MemorySearchCoordinator(presentingController: navigationController, memoryStore: memoryStore)
         childCoordinators.append(coordinator)
         coordinator.start()
     }

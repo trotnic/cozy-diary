@@ -120,27 +120,33 @@ class ImageDetailViewController: BaseViewController {
     
     func bindViewModel() {
         
-        viewModel.outputs.image.subscribe(onNext: { [weak self] (image) in
-            DispatchQueue.global(qos: .userInteractive).async {
-                if let image = UIImage(data: image) {
-                    DispatchQueue.main.async {
-                        self?.imageView.image = image
-                        self?.view.backgroundColor = image.averageColor
-                        self?.closeButton.backgroundColor = image.averageColor
-                        self?.moreButton.backgroundColor = image.averageColor
+        viewModel.outputs.image
+            .subscribe(onNext: { [weak self] (image) in
+                DispatchQueue.global(qos: .userInteractive).async {
+                    if let image = UIImage(data: image) {
+                        DispatchQueue.main.async {
+                            self?.imageView.image = image
+                            self?.view.backgroundColor = image.averageColor
+                            self?.closeButton.backgroundColor = image.averageColor
+                            self?.moreButton.backgroundColor = image.averageColor
+                        }
                     }
                 }
-            }
-        }).disposed(by: disposeBag)
+            })
+            .disposed(by: disposeBag)
         
-        closeButton.rx.tap.subscribe(onNext: { [weak self] in
-            self?.transitionDelegate.shouldDoInteractive = false
-            self?.viewModel.inputs.closeObserver.accept(())
-        }).disposed(by: disposeBag)
+        closeButton.rx.tap
+            .subscribe(onNext: { [weak self] in
+                self?.transitionDelegate.shouldDoInteractive = false
+                self?.viewModel.inputs.closeObserver.accept(())
+            })
+            .disposed(by: disposeBag)
         
-        moreButton.rx.tap.subscribe(onNext: { [weak self] in
-            self?.viewModel.inputs.shareObserver.accept(())
-        }).disposed(by: disposeBag)
+        moreButton.rx.tap
+            .subscribe(onNext: { [weak self] in
+                self?.viewModel.inputs.shareObserver.accept(())
+            })
+            .disposed(by: disposeBag)
         
     }
     

@@ -17,7 +17,26 @@ class UnsplashImageCollectionViewModel: UnsplashImageCollectionViewModelType, Un
     
     // MARK: Outputs
     var items: Driver<[UnsplashCollectionSection]> {
-        itemsPublisher.asDriver()
+        loadedPhotos
+        .map { $0.map { [unowned self] (photo) -> UnsplashImageCollectionCommonItemViewModel in
+            let viewModel = UnsplashImageCollectionCommonItemViewModel(item: photo)
+        
+            viewModel.outputs.detailRequest
+            .asObservable()
+                .subscribe(onNext: {
+                    self.detailObserver.accept(photo)
+                })
+                .disposed(by: self.disposeBag)
+            
+            return viewModel
+        }}
+        .map { $0.map { viewModel -> UnsplashCollectionItem in
+            .common(viewModel: viewModel)
+            }}
+        .flatMapLatest { (items) -> Observable<[UnsplashCollectionSection]> in
+            .just([.init(items: items)])
+        }
+        .asDriver(onErrorJustReturn: [])
     }
     
     var detailImageRequest: Signal<UnsplashPhoto> {
@@ -31,102 +50,86 @@ class UnsplashImageCollectionViewModel: UnsplashImageCollectionViewModelType, Un
     // MARK: Inputs
     let didScrollToEnd = PublishRelay<Void>()
     let willDisappear = PublishRelay<Void>()
+    
     let searchObserver = PublishRelay<String>()
+    let searchCancelObserver = PublishRelay<Void>()
     
     // MARK: Private
-    private let pageCounter = BehaviorRelay<Int>(value: 0)
+    private var currentPage = 1
+    private var maxPageCount = 0
+    private var currentSearchTerm = ""
     
     private let service: UnsplashServiceType
     private let disposeBag = DisposeBag()
     
     private var loadedPhotos = BehaviorRelay<[UnsplashPhoto]>(value: [])
-    
-    private let itemsPublisher = BehaviorRelay<[UnsplashCollectionSection]>(value: [])
     private let detailObserver = PublishRelay<UnsplashPhoto>()
+    
     
     // MARK: Init
     init(service: UnsplashServiceType) {
         self.service = service
         
-        
-        didScrollToEnd.subscribe(onNext: { [weak self] in
-            guard let self = self else { return }
-            self.pageCounter.accept(self.pageCounter.value + 1)
-        })
-        .disposed(by: disposeBag)
-        
-        pageCounter.subscribe(onNext: { [weak self] (page) in
-            guard let self = self else { return }
-            self.loadData(page: page)
-        })
-        .disposed(by: disposeBag)
-        
         setupSearch()
+        didScrollToEnd.subscribe(onNext: { [weak self] () in
+            if let self = self,
+                self.currentPage + 1 < self.maxPageCount {
+                self.currentPage += 1
+                self.loadData(term: self.currentSearchTerm, page: self.currentPage)
+            }
+        })
+        .disposed(by: disposeBag)
     }
     
     
     // MARK: Private methods
-    private func loadData(page: Int) {
+    private func loadData(term: String, page: Int) {
         
-        let result: Observable<[UnsplashPhoto]> = service.fetch(request: .photos(page: pageCounter.value, limit: 40))
-            result
-            .flatMap({ [unowned self] (unsplashPhotos) -> Observable<[UnsplashPhoto]> in
-                var existingPhotos = self.loadedPhotos.value
-                existingPhotos.append(contentsOf: unsplashPhotos)
-                self.loadedPhotos.accept(existingPhotos)
-                return .just(existingPhotos)
+        let result: Observable<UnsplashSearch> = service.fetch(request: .searchPhotos(term: term, page: page, limit: 30))
+        result
+            .flatMapLatest { (searchResults) -> Observable<[UnsplashPhoto]> in
+                .just(searchResults.results)
+            }
+            .subscribe(onNext: { [unowned self] (photos) in
+                var existing = self.loadedPhotos.value
+                existing.append(contentsOf: photos)
+                self.loadedPhotos.accept(existing)
             })
-            .map { $0.map { [unowned self] photo -> UnsplashImageCollectionCommonItemViewModel in
-                let viewModel = UnsplashImageCollectionCommonItemViewModel(item: photo)
-                viewModel.outputs.detailRequest
-                    .asObservable()
-                    .subscribe(onNext: { () in
-                        self.detailObserver.accept(photo)
-                    })
-                    .disposed(by: self.disposeBag)
-                return viewModel
-                }}
-            .map{ $0.map { viewModel -> UnsplashCollectionItem in
-                .common(viewModel: viewModel)
-            }}
-            .flatMap({ (items) -> Observable<[UnsplashCollectionSection]> in
-                .just([.init(items: items)])
-            })
-            .bind(to: itemsPublisher)
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
     }
     
     private func setupSearch() {
+        
         searchObserver
-        .asObservable()
-            .filter { !$0.isEmpty }
-            .distinctUntilChanged()
-            .throttle(.microseconds(10000), scheduler: MainScheduler.instance)
-            .flatMapLatest { [unowned self] (token) -> Observable<[UnsplashPhoto]> in
-//                if let self = self {
-            let result: Observable<UnsplashSearch> = self.service.fetch(request: .searchPhotos(term: token, page: 0, limit: 20))
-            
-            return result.flatMapLatest { (searchResults) -> Observable<[UnsplashPhoto]> in
-                .just(searchResults.results)
-            }
-        }
-        .map { $0.map { [unowned self] photo -> UnsplashImageCollectionCommonItemViewModel in
-            let viewModel = UnsplashImageCollectionCommonItemViewModel(item: photo)
-            viewModel.outputs.detailRequest
-                .asObservable()
-                .subscribe(onNext: { () in
-                    self.detailObserver.accept(photo)
+            .asObservable()
+                .filter { !$0.isEmpty }
+                .distinctUntilChanged()
+                .throttle(.microseconds(10000), scheduler: MainScheduler.instance)
+                .flatMapLatest { [unowned self] (term) -> Observable<(UnsplashSearch, String)> in
+    
+                    let result: Observable<UnsplashSearch> = self.service.fetch(request: .searchPhotos(term: term, page: 1, limit: 30))
+                    
+                    return result.flatMapLatest { (results) -> Observable<(UnsplashSearch, String)> in
+                        .just((results, term))
+                    }
+                }
+                .flatMapLatest({ [weak self] (searchResults, term) -> Observable<[UnsplashPhoto]> in
+                    self?.maxPageCount = searchResults.total_pages
+                    self?.currentPage = 1
+                    self?.currentSearchTerm = term
+                    return .just(searchResults.results)
                 })
-                .disposed(by: self.disposeBag)
-            return viewModel
-            }}
-        .map{ $0.map { viewModel -> UnsplashCollectionItem in
-            .common(viewModel: viewModel)
-        }}
-        .flatMap({ (items) -> Observable<[UnsplashCollectionSection]> in
-            .just([.init(items: items)])
-        })
-        .bind(to: itemsPublisher)
+                .subscribe(onNext: { [unowned self] (photos) in
+                    var existing = self.loadedPhotos.value
+                    existing.append(contentsOf: photos)
+                    self.loadedPhotos.accept(existing)
+                })
+                .disposed(by: disposeBag)
+        searchCancelObserver
+        .asObservable()
+            .subscribe(onNext: { (_) in
+                
+            })
         .disposed(by: disposeBag)
     }
 }

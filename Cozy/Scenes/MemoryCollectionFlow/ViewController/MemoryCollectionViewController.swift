@@ -55,20 +55,6 @@ struct MemoryCollectionViewDataSource {
 class MemoryCollectionViewController: BaseViewController {
     
     var dataSource = MemoryCollectionViewDataSource.dataSource()
-
-    fileprivate func getLayout() -> UICollectionViewCompositionalLayout {
-        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0))
-        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        item.contentInsets = .init(top: 7, leading: 14, bottom: 7, trailing: 14)
-        
-        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(120))
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-        
-        let section = NSCollectionLayoutSection(group: group)
-        let layout = UICollectionViewCompositionalLayout(section: section)
-        
-        return layout
-    }
     
     lazy var collectionView: UICollectionView = {
         let layout = getLayout()
@@ -110,14 +96,20 @@ class MemoryCollectionViewController: BaseViewController {
         setupSearchButton()
     }
     
-    private func setupView() {
-        collectionView.backgroundColor = .init(red: 240/255, green: 240/255, blue: 240/255, alpha: 1.0)
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        viewModel.inputs.viewWillAppear.accept(())
     }
     
+    // MARK: Private methods
     private func bindViewModel() {
         viewModel.outputs.items
             .drive(collectionView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
+    }
+    
+    private func setupView() {
+        collectionView.backgroundColor = .init(red: 240/255, green: 240/255, blue: 240/255, alpha: 1.0)
     }
     
     private func setupCollectionView() {
@@ -138,6 +130,20 @@ class MemoryCollectionViewController: BaseViewController {
             .subscribe(onNext: { [weak self] in
                 self?.viewModel.inputs.searchRequest()
             }).disposed(by: disposeBag)
+    }
+    
+    fileprivate func getLayout() -> UICollectionViewCompositionalLayout {
+        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0))
+        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+        item.contentInsets = .init(top: 7, leading: 14, bottom: 7, trailing: 14)
+        
+        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalWidth(0.3))
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+        
+        let section = NSCollectionLayoutSection(group: group)
+        let layout = UICollectionViewCompositionalLayout(section: section)
+        
+        return layout
     }
 }
 

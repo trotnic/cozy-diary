@@ -17,7 +17,7 @@ class MemoryEditCoordinator: ParentCoordinator {
     var childCoordinators: [Coordinator] = []
     
     var viewController: MemoryEditViewController!
-    var navigationController: UINavigationController!
+    let navigationController: UINavigationController
     
     // MARK: Private
     private let memory: BehaviorRelay<Memory>
@@ -28,9 +28,10 @@ class MemoryEditCoordinator: ParentCoordinator {
     private let imagePicker = ImagePicker()
     
     // MARK: Init
-    init(memory: Memory, memoryStore: MemoryStoreType) {
+    init(memory: Memory, memoryStore: MemoryStoreType, navigationController: UINavigationController) {
         self.memory = .init(value: memory)
         self.memoryStore = memoryStore
+        self.navigationController = navigationController
     }
     
     
@@ -42,7 +43,7 @@ extension MemoryEditCoordinator {
         let viewModel = MemoryEditViewModel(memory: memory, memoryStore: memoryStore)
         
         viewController = .init(viewModel)
-        navigationController = .init(rootViewController: viewController)
+        
      
         processPhotoDetail(viewModel)
         processPhotoInsert(viewModel)
@@ -81,6 +82,9 @@ extension MemoryEditCoordinator {
                     
                     coordinator.start()
                     
+                    
+                    self.childCoordinators.append(coordinator)
+                    
                     coordinator.metaObservable
                         .subscribe(onNext: { (meta) in
                             viewModel.inputs.photoInsertResponse(meta)
@@ -88,12 +92,11 @@ extension MemoryEditCoordinator {
                     .disposed(by: self.disposeBag)
                     
                     coordinator.cancelObservable
-                        .subscribe(onNext: { [weak self] in
-                            self?.childCoordinators.removeLast()
+                        .subscribe(onNext: { _ in
+                            self.childCoordinators.removeLast()
                         })
                     .disposed(by: self.disposeBag)
-                    
-                    self.childCoordinators.append(coordinator)
+
                 }
             })
         .disposed(by: disposeBag)
@@ -131,9 +134,8 @@ extension MemoryEditCoordinator {
     private func processGraffitiInsert(_ viewModel: MemoryCreateViewModelType) {
         viewModel.outputs.graffitiInsertRequestObservable
             .subscribe(onNext: { [weak self] in
-                if let self = self,
-                    let vc = self.navigationController {
-                    
+                if let self = self {
+                    let vc = self.navigationController
                     let coord = GraffitiCreateCoordinator(vc)
                     
                     coord.outputs.saveObservable

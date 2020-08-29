@@ -23,7 +23,7 @@ struct UnsplashPhotoUrls: Decodable {
 }
 
 struct UnsplashSearch: Decodable {
-    let total: Double
-    let total_pages: Double
+    let total: Int
+    let total_pages: Int
     let results: [UnsplashPhoto]
 }

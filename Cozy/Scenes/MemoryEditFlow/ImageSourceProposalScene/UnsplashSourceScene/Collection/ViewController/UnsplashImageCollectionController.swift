@@ -29,7 +29,9 @@ protocol UnsplashImageCollectionViewModelOutput {
 protocol UnsplashImageCollectionViewModelInput {
     var didScrollToEnd: PublishRelay<Void> { get }
     var willDisappear: PublishRelay<Void> { get }
+    
     var searchObserver: PublishRelay<String> { get }
+    var searchCancelObserver: PublishRelay<Void> { get }
 }
 
 protocol UnsplashImageCollectionViewModelType {
@@ -87,7 +89,7 @@ class UnsplashImageCollectionController: BaseViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        viewModel.inputs.willDisappear.accept(())
+//        viewModel.inputs.willDisappear.accept(())
     }
     
     func bindViewModel() {
@@ -144,6 +146,17 @@ class UnsplashImageCollectionController: BaseViewController {
             .bind(to: viewModel.inputs.searchObserver)
         .disposed(by: disposeBag)
         
+        searchController.searchBar.rx
+            .cancelButtonClicked
+            .bind(to: viewModel.inputs.searchCancelObserver)
+        .disposed(by: disposeBag)
+        
+        
+        collectionView.rx.willBeginDragging
+            .subscribe(onNext: { [weak self] in
+                self?.searchController.searchBar.resignFirstResponder()
+            })
+        .disposed(by: disposeBag)
     }
 }
 

@@ -69,8 +69,11 @@ class UnsplashImageCollectionCoordinator: ParentCoordinator {
                     style: .default) { (_) in
                         viewModel.outputs.image
                             .subscribe(onNext: { [weak self] (data) in
-                                let imageMeta = ImageMeta(imageUrl: URL(string: meta.urls.regular), originalImage: data)
-                                self?.metaObserver.onNext(imageMeta)
+                                if let self = self {
+                                    let imageMeta = ImageMeta(imageUrl: URL(string: meta.urls.regular), originalImage: data)
+                                    self.metaObserver.onNext(imageMeta)
+                                    self.cancelObserver.onNext(())
+                                }
                             })
                             .disposed(by: self.disposeBag)
                 }
