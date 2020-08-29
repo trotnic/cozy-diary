@@ -16,6 +16,7 @@ class MemorySearchCoordinator: ParentCoordinator {
     var childCoordinators: [Coordinator] = []
     var viewController: MemorySearchController!
     let presentingController: UIViewController
+    var navigationController: UINavigationController!
     
     private let disposeBag = DisposeBag()
     private let memoryStore: MemoryStoreType
@@ -31,18 +32,31 @@ class MemorySearchCoordinator: ParentCoordinator {
         viewController.hidesBottomBarWhenPushed = true
         viewController.stubSwipeToRight()
         
-        let wrapper = UINavigationController(rootViewController: viewController)
-        wrapper.modalPresentationStyle = .fullScreen
+        navigationController = UINavigationController(rootViewController: viewController)
+        navigationController.modalPresentationStyle = .fullScreen
         
         viewModel.outputs.closeObservable
-            .subscribe(onNext: {
-                wrapper.dismiss(animated: true)
+            .subscribe(onNext: { [weak self] in
+                self?.navigationController.dismiss(animated: true)
             })
             .disposed(by: disposeBag)
         
-        
+        viewModel.outputs.showDetail
+            .subscribe(onNext: { [weak self] (memory) in
+                self?.gotodetail(memory: memory)
+            })
+            .disposed(by: disposeBag)
 
-        presentingController.present(wrapper, animated: true)
+        presentingController.present(navigationController, animated: true)
+    }
+    
+    
+    func gotodetail(memory: Memory) {
+        let editCoordinator = MemoryEditCoordinator(memory: memory, memoryStore: memoryStore, navigationController: navigationController)
+        childCoordinators.append(editCoordinator)
+        editCoordinator.start()
+        navigationController.pushViewController(editCoordinator.viewController, animated: true)
+        
     }
     
 }

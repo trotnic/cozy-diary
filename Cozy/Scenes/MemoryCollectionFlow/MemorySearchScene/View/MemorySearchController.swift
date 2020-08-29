@@ -32,7 +32,7 @@ class MemorySearchController: BaseViewController {
     lazy var collectionView: UICollectionView = {
         let layout = getLayout()
         let view = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        view.backgroundColor = .red
+        view.backgroundColor = .white
         view.showsHorizontalScrollIndicator = false
         view.translatesAutoresizingMaskIntoConstraints = false
         view.register(MemoryCollectionViewCell.self, forCellWithReuseIdentifier: MemoryCollectionViewCell.reuseIdentifier)
@@ -82,11 +82,16 @@ class MemorySearchController: BaseViewController {
     private func setupSearchController() {
         let searchContronller = UISearchController(searchResultsController: nil)
         searchContronller.searchBar.placeholder = "Type something here to search"
-        searchContronller.hidesNavigationBarDuringPresentation = false
+        
         
         searchContronller.searchBar.rx
             .text.orEmpty
             .bind(to: viewModel.inputs.searchObserver)
+            .disposed(by: disposeBag)
+        
+        searchContronller.searchBar.rx
+            .cancelButtonClicked
+            .bind(to: viewModel.inputs.searchCancelObserver)
             .disposed(by: disposeBag)
         
         navigationItem.searchController = searchContronller
@@ -100,9 +105,9 @@ class MemorySearchController: BaseViewController {
         let safeGuide = view.safeAreaLayoutGuide
         
         collectionView.leadingAnchor.constraint(equalTo: safeGuide.leadingAnchor).isActive = true
-        collectionView.topAnchor.constraint(equalTo: safeGuide.topAnchor).isActive = true
+        collectionView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         collectionView.trailingAnchor.constraint(equalTo: safeGuide.trailingAnchor).isActive = true
-        collectionView.bottomAnchor.constraint(equalTo: safeGuide.bottomAnchor).isActive = true
+        collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
         
     }
     

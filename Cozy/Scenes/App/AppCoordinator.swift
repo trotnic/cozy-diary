@@ -34,49 +34,26 @@ class AppCoordinator: ParentCoordinator {
     func start() {
         tabBarController = PageTabBarController()
         
-//        tabBarController.definesPresentationContext = false
-//        let createCoordinator = MemoryCreateCoordinator(memoryStore: memoryStore)
-//        childCoordinators.append(createCoordinator)
-//        createCoordinator.navigationController.tabBarItem = .init(title: "Today", image: UIImage(systemName: "pencil"), tag: 0)
-//        createCoordinator.start()
-//
-//        let collectionCoordinator = MemoryCollectionCoordinator(memoryStore: memoryStore)
-//        childCoordinators.append(collectionCoordinator)
-//        collectionCoordinator.navigationController.tabBarItem = .init(title: "All memories", image: UIImage(systemName: "tray"), tag: 1)
-//        collectionCoordinator.start()
-//
-//        tabBarController.viewControllers = [
-//            createCoordinator.navigationController,
-//            collectionCoordinator.navigationController
-//        ]
-        
-        
-//        let unsplashCoordinator = UnsplashImageCollectionCoordinator()
-//
-//        unsplashCoordinator.start()
-//        let wrapController =  UINavigationController(rootViewController: unsplashCoordinator.viewController)
-//        childCoordinators.append(unsplashCoordinator)
-//
-//        tabBarController.viewControllers = [
-//            wrapController
-//        ]
-        
         let wrapController = UINavigationController()
         
+        wrapController.tabBarItem = UITabBarItem(title: "Today", image: UIImage(systemName: "tortoise"), tag: 0)
+
         let memoryEditCoordinator = MemoryEditCoordinator(
             memory: memoryStore.relevantMemory.value,
             memoryStore: memoryStore,
             navigationController: wrapController)
-        
+
         childCoordinators.append(memoryEditCoordinator)
         memoryEditCoordinator.start()
         wrapController.setViewControllers([memoryEditCoordinator.viewController], animated: true)
-        
+
         let memoryCollectionCoordinator = MemoryCollectionCoordinator(memoryStore: memoryStore)
+
         
         childCoordinators.append(memoryCollectionCoordinator)
         memoryCollectionCoordinator.start()
-        
+        memoryCollectionCoordinator.navigationController.tabBarItem = UITabBarItem(title: "Previous", image: UIImage(systemName: "flame"), tag: 1)
+
         tabBarController.viewControllers = [
             memoryEditCoordinator.navigationController,
             memoryCollectionCoordinator.navigationController
@@ -86,6 +63,7 @@ class AppCoordinator: ParentCoordinator {
         
         window.rootViewController = tabBarController
         window.makeKeyAndVisible()
+        
     }
     
 }
