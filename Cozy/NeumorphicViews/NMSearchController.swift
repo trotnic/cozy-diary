@@ -18,6 +18,7 @@ class NMSearchController: UISearchController {
     override func viewDidLoad() {
         super.viewDidLoad()
 //        searchBar.isTranslucent = false
+//        hidesNavigationBarDuringPresentation = false
 //        searchBar.setBackgroundImage(UIImage(), for: .any, barMetrics: .default)
         bindTheme()
     }
@@ -30,11 +31,20 @@ extension NMSearchController {
         
         theme.bind { [weak self] (theme) in
             guard let self = self else { return }
-            theme.themeColor.bind { (color) in
-                self.searchBar.backgroundColor = color
-            }
+            
+            theme.themeColor
+                .bind(to: self.searchBar.rx.backgroundColor)
+                .disposed(by: self.disposeBag)
+            
+            theme.themeColor
+            .bind(onNext: { (color) in
+                self.searchBar.setBackgroundImage(UIImage(color: color, size: self.searchBar.bounds.size), for: .any, barMetrics: .default)
+                self.searchBar.barTintColor = color
+            })
             .disposed(by: self.disposeBag)
         }
         .disposed(by: disposeBag)
+        
+        
     }
 }

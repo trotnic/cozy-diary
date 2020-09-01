@@ -132,8 +132,8 @@ class MemoryEditViewController: NMViewController {
         setupPanel()
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         isFontEditPanelActive.accept(false)
         isTextPanelActive.accept(false)
     }
@@ -242,10 +242,10 @@ class MemoryEditViewController: NMViewController {
                 let duration = value ? 0.15 : 0.3
                 UIView.animate(withDuration: duration) {
                     self.endEditButton.isHidden = value
-                    self.endEditButton.alpha = value ? 1 : 0
+                    self.endEditButton.alpha = value ? 0 : 1
                     
                     self.textFormatButton.isHidden = value
-                    self.textFormatButton.alpha = value ? 1 : 0
+                    self.textFormatButton.alpha = value ? 0 : 1
                     
                     
                 }

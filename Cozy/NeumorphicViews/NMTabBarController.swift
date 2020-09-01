@@ -69,6 +69,11 @@ extension NMTabBarController {
             }
             .disposed(by: self.disposeBag)
             
+            theme.borderColor.bind { (color) in
+                self.tabBar.unselectedItemTintColor = color.withAlphaComponent(0.7)
+            }
+            .disposed(by: self.disposeBag)
+            
             theme.themeColor
                 .bind(to: self.tabBar.rx.backgroundColor)
                 .disposed(by: self.disposeBag)
@@ -76,6 +81,7 @@ extension NMTabBarController {
             theme.borderColor
                 .bind(to: self.dividerView.rx.backgroundColor)
                 .disposed(by: self.disposeBag)
+            
         }
         .disposed(by: disposeBag)
     }

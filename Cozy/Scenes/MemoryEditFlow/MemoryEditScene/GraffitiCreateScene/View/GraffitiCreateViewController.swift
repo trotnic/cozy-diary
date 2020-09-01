@@ -25,26 +25,8 @@ class GraffitiCreateViewController: NMViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    lazy var drawView: PKCanvasView = {
-        let view = PKCanvasView(frame: .zero)
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
-    lazy var headerView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
-    lazy var closeButton: UIButton = {
-        let view = UIButton()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
-    lazy var saveButton: UIButton = {
-        let view = UIButton()
+    lazy var drawView: NMCanvasView = {
+        let view = NMCanvasView()
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -64,59 +46,26 @@ class GraffitiCreateViewController: NMViewController {
     }
     
     private func setupHeaderView() {
-        view.addSubview(headerView)
-        
-        let safeGuide = view.safeAreaLayoutGuide
-        
-        headerView.leadingAnchor.constraint(equalTo: safeGuide.leadingAnchor).isActive = true
-        headerView.topAnchor.constraint(equalTo: safeGuide.topAnchor).isActive = true
-        headerView.trailingAnchor.constraint(equalTo: safeGuide.trailingAnchor).isActive = true
-        headerView.heightAnchor.constraint(equalToConstant: 60).isActive = true
-        
-        view.addSubview(dividerView)
-        
-        dividerView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
-        dividerView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
-        dividerView.bottomAnchor.constraint(equalTo: headerView.bottomAnchor).isActive = true
-        dividerView.heightAnchor.constraint(equalToConstant: 1.25).isActive = true
-        
-        
-        
         setupCloseButton()
         setupSaveButton()
     }
     
     private func setupCloseButton() {
         
-        headerView.addSubview(closeButton)
-        
-        closeButton.centerYAnchor.constraint(equalTo: headerView.centerYAnchor).isActive = true
-        closeButton.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 20).isActive = true
-        closeButton.heightAnchor.constraint(equalToConstant: 55).isActive = true
-        closeButton.widthAnchor.constraint(equalToConstant: 55).isActive = true
-        
-        closeButton.tintColor = .black
+        let closeButton = NMButton()
         closeButton.setImage(UIImage(systemName: "xmark"), for: .normal)
-        
         closeButton.rx.tap
             .subscribe(onNext: { [weak self] in
                 self?.viewModel.inputs.closeRequest()
             }).disposed(by: disposeBag)
+        
+        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: closeButton)
     }
     
     private func setupSaveButton() {
         
-        headerView.addSubview(saveButton)
-        
-        saveButton.centerYAnchor.constraint(equalTo: headerView.centerYAnchor).isActive = true
-        saveButton.trailingAnchor.constraint(equalTo: headerView.trailingAnchor, constant: -20).isActive = true
-        saveButton.heightAnchor.constraint(equalToConstant: 55).isActive = true
-        saveButton.widthAnchor.constraint(equalToConstant: 55).isActive = true
-        
-        saveButton.tintColor = .black
-        saveButton.backgroundColor = .clear
+        let saveButton = NMButton()
         saveButton.setImage(UIImage(systemName: "checkmark"), for: .normal)
-        
         
         
         saveButton.rx.tap
@@ -132,6 +81,8 @@ class GraffitiCreateViewController: NMViewController {
                     }
                 }
             }).disposed(by: disposeBag)
+        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: saveButton)
     }
     
     private func setupDrawView() {
@@ -142,7 +93,7 @@ class GraffitiCreateViewController: NMViewController {
         let safeGuide = view.safeAreaLayoutGuide
         
         drawView.leadingAnchor.constraint(equalTo: safeGuide.leadingAnchor).isActive = true
-        drawView.topAnchor.constraint(equalTo: headerView.bottomAnchor).isActive = true
+        drawView.topAnchor.constraint(equalTo: safeGuide.topAnchor).isActive = true
         drawView.trailingAnchor.constraint(equalTo: safeGuide.trailingAnchor).isActive = true
         drawView.bottomAnchor.constraint(equalTo: safeGuide.bottomAnchor).isActive = true
         

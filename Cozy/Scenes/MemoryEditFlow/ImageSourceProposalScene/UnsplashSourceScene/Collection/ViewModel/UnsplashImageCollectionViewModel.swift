@@ -104,7 +104,7 @@ class UnsplashImageCollectionViewModel: UnsplashImageCollectionViewModelType, Un
             .asObservable()
                 .filter { !$0.isEmpty }
                 .distinctUntilChanged()
-                .throttle(.microseconds(10000), scheduler: MainScheduler.instance)
+                .throttle(.milliseconds(1000), scheduler: MainScheduler.instance)
                 .flatMapLatest { [unowned self] (term) -> Observable<(UnsplashSearch, String)> in
     
                     let result: Observable<UnsplashSearch> = self.service.fetch(request: .searchPhotos(term: term, page: 1, limit: 30))
@@ -120,6 +120,7 @@ class UnsplashImageCollectionViewModel: UnsplashImageCollectionViewModelType, Un
                     return .just(searchResults.results)
                 })
                 .subscribe(onNext: { [unowned self] (photos) in
+                    self.loadedPhotos.accept([])
                     var existing = self.loadedPhotos.value
                     existing.append(contentsOf: photos)
                     self.loadedPhotos.accept(existing)

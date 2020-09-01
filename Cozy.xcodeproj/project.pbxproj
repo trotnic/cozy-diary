@@ -85,6 +85,7 @@
 		2BFD46E824FDB3B400485231 /* NMCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD46E724FDB3B400485231 /* NMCollectionView.swift */; };
 		2BFD46EA24FDB45100485231 /* NMSearchController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD46E924FDB45100485231 /* NMSearchController.swift */; };
 		2BFD46EC24FDC86F00485231 /* NMLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD46EB24FDC86F00485231 /* NMLabel.swift */; };
+		2BFD46EF24FE71DF00485231 /* NMCanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD46EE24FE71DF00485231 /* NMCanvasView.swift */; };
 		B3B88CF141F8D6A579ECA1EE /* Pods_Cozy.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0FC798F2920457D08D7A46D4 /* Pods_Cozy.framework */; };
 /* End PBXBuildFile section */
 
@@ -170,6 +171,7 @@
 		2BFD46E724FDB3B400485231 /* NMCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NMCollectionView.swift; sourceTree = "<group>"; };
 		2BFD46E924FDB45100485231 /* NMSearchController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NMSearchController.swift; sourceTree = "<group>"; };
 		2BFD46EB24FDC86F00485231 /* NMLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NMLabel.swift; sourceTree = "<group>"; };
+		2BFD46EE24FE71DF00485231 /* NMCanvasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NMCanvasView.swift; sourceTree = "<group>"; };
 		392D86B353E56D3881C36505 /* Pods-Cozy.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Cozy.release.xcconfig"; path = "Target Support Files/Pods-Cozy/Pods-Cozy.release.xcconfig"; sourceTree = "<group>"; };
 		9EA38423ED02106646ABD875 /* Pods-Cozy.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Cozy.debug.xcconfig"; path = "Target Support Files/Pods-Cozy/Pods-Cozy.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -266,9 +268,6 @@
 		2B402C0F24F3D72800B40319 /* GraffitiCreate */ = {
 			isa = PBXGroup;
 			children = (
-				2B402C1324F3D74400B40319 /* Coordinator */,
-				2B402C1224F3D73E00B40319 /* ViewModel */,
-				2B402C1124F3D73A00B40319 /* View */,
 			);
 			path = GraffitiCreate;
 			sourceTree = "<group>";
@@ -574,6 +573,7 @@
 		2B58A37224F921B5002AD76E /* MemoryEditScene */ = {
 			isa = PBXGroup;
 			children = (
+				2BFD46ED24FE6C9C00485231 /* GraffitiCreateScene */,
 				2B58A37B24F9AC37002AD76E /* ImageDetailScene */,
 				2B58A36324F866F5002AD76E /* Views */,
 				2B58A36024F864C2002AD76E /* ViewController */,
@@ -702,6 +702,7 @@
 				2BFD46E724FDB3B400485231 /* NMCollectionView.swift */,
 				2BFD46E924FDB45100485231 /* NMSearchController.swift */,
 				2BFD46EB24FDC86F00485231 /* NMLabel.swift */,
+				2BFD46EE24FE71DF00485231 /* NMCanvasView.swift */,
 			);
 			path = NeumorphicViews;
 			sourceTree = "<group>";
@@ -898,6 +899,16 @@
 			path = ThemeManager;
 			sourceTree = "<group>";
 		};
+		2BFD46ED24FE6C9C00485231 /* GraffitiCreateScene */ = {
+			isa = PBXGroup;
+			children = (
+				2B402C1324F3D74400B40319 /* Coordinator */,
+				2B402C1224F3D73E00B40319 /* ViewModel */,
+				2B402C1124F3D73A00B40319 /* View */,
+			);
+			path = GraffitiCreateScene;
+			sourceTree = "<group>";
+		};
 		6E3DB1B36F17ADB64E364AEA /* Pods */ = {
 			isa = PBXGroup;
 			children = (
@@ -1076,6 +1087,7 @@
 				2BFD46E024FD78E200485231 /* UIColor+Extensions.swift in Sources */,
 				2BFD46D224FBF5E000485231 /* NMView.swift in Sources */,
 				2B5C578924F67E87009C2285 /* UnsplashModels.swift in Sources */,
+				2BFD46EF24FE71DF00485231 /* NMCanvasView.swift in Sources */,
 				2BFD46EC24FDC86F00485231 /* NMLabel.swift in Sources */,
 				2B6DF78B24EB0C4D00B94C21 /* CorePhotoChunk+CoreDataClass.swift in Sources */,
 				2BD4CD9B24EF104600BCA0D5 /* ImagesProposalCoordinator.swift in Sources */,

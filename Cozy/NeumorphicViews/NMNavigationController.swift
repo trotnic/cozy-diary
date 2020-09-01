@@ -61,13 +61,6 @@ class NMNavigationController: UINavigationController {
 
     }
     
-    override func viewWillLayoutSubviews() {
-        super.viewWillLayoutSubviews()
-        let insetSize = navigationBar.safeAreaInsets
-        
-        dividerLeadingConstraint.constant = insetSize.left
-        dividerTrailingConstraint.constant = -insetSize.right
-    }
 }
 
 extension NMNavigationController {
@@ -96,6 +89,10 @@ extension NMNavigationController {
                 .bind { (color) in
                     self.navigationBar.tintColor = color
                 }
+                .disposed(by: self.disposeBag)
+            
+            theme.backgroundColor
+                .bind(to: self.view.rx.backgroundColor)
                 .disposed(by: self.disposeBag)
         })
         .disposed(by: self.disposeBag)

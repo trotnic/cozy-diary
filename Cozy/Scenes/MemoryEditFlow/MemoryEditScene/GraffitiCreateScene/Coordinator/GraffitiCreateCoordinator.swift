@@ -29,12 +29,12 @@ class GraffitiCreateCoordinator: Coordinator, GraffitiCreateCoordinatorOutput {
     private let closePublisher = PublishSubject<Void>()
     
     var viewController: GraffitiCreateViewController!
-    let presentationController: UIViewController
+    let presentingController: UIViewController
     
     private let disposeBag = DisposeBag()
     
-    init(_ presentationController: UIViewController) {
-        self.presentationController = presentationController
+    init(_ presentingController: UIViewController) {
+        self.presentingController = presentingController
         
         saveObservable = savePublisher.asObservable()
         closeObservable = closePublisher.asObservable()
@@ -43,9 +43,11 @@ class GraffitiCreateCoordinator: Coordinator, GraffitiCreateCoordinatorOutput {
     func start() {
         let viewModel = GraffitiCreateViewModel()
         viewController = .init(viewModel: viewModel)
-        viewController.modalPresentationStyle = .fullScreen
-        presentationController.present(viewController, animated: true)
         
+        let wrapController = NMNavigationController()
+        wrapController.setViewControllers([viewController], animated: true)
+
+        wrapController.modalPresentationStyle = .fullScreen
         
         
         viewModel.outputs.saveRequestObservable
@@ -60,7 +62,7 @@ class GraffitiCreateCoordinator: Coordinator, GraffitiCreateCoordinatorOutput {
             }).disposed(by: disposeBag)
         
         
-        
+        presentingController.present(wrapController, animated: true)
         
     }
 }

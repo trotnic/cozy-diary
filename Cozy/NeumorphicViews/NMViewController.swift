@@ -44,16 +44,8 @@ extension NMViewController {
                 self.navigationController?.navigationBar.backgroundColor = color
             }
             .disposed(by: self.disposeBag)
-//            theme.mainColor.bind(to: self.view.rx.backgroundColor).disposed(by: self.disposeBag)
             
-//            theme.textColor.bind { (color) in
-//
-//                if let item = self.navigationItem.leftBarButtonItem {
-//                    item.tintColor = color
-//                }
-////                self.navigationItem.backBarButtonItem?.tintColor = color
-//            }
-//            .disposed(by: self.disposeBag)
+            
         }
         .disposed(by: disposeBag)
     }

@@ -76,8 +76,19 @@ class MemoryCollectionViewCell: NMCollectionViewCell {
         
         
         
-        layer.masksToBounds = true
-        layer.cornerRadius = 12
+//        layer.masksToBounds = true
+//        layer.cornerRadius = 12
+//
+
+        layer.shadowColor = UIColor.lightGray.cgColor
+        layer.shadowRadius = 3
+        layer.shadowOpacity = 1
+        layer.shadowOffset = CGSize(width: 0, height: 2)
+       
+        
+        contentView.layer.cornerRadius = 12
+        contentView.layer.masksToBounds = true
+//        shadowLayer.shadowOffset =
     }
     
     func bindViewModel() {
@@ -110,7 +121,7 @@ class MemoryCollectionViewCell: NMCollectionViewCell {
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         UIView.animate(withDuration: 0.15) {
-            self.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
+            self.transform = CGAffineTransform(scaleX: 0.97, y: 0.97)
             self.contentView.backgroundColor = self.contentView.backgroundColor?.withAlphaComponent(0.8)
         }
     }

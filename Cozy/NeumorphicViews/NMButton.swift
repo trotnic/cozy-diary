@@ -53,7 +53,16 @@ extension NMButton {
         
         theme.bind { [weak self] (theme) in
             guard let self = self else { return }
-            theme.tintColor.bind(to: self.rxTintColor).disposed(by: self.disposeBag)
+            theme.tintColor
+                .bind(to: self.rxTintColor)
+                .disposed(by: self.disposeBag)
+            
+            theme.tintColor
+                .bind { (color) in
+                    self.setTitleColor(color, for: .normal)
+                    self.setTitleColor(color.withAlphaComponent(0.7), for: .highlighted)
+                }
+                .disposed(by: self.disposeBag)
         }
         .disposed(by: self.disposeBag)
     }

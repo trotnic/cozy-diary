@@ -71,9 +71,14 @@ class UnsplashImageCollectionController: NMViewController {
         return view
     }()
     
-    lazy var searchController: UISearchController = {
+    lazy var searchController: NMSearchController = {
         let controller = NMSearchController(searchResultsController: nil)
         controller.obscuresBackgroundDuringPresentation = false
+        controller.hidesNavigationBarDuringPresentation = false
+        controller.searchBar.showsCancelButton = false
+        controller.searchBar.placeholder = "Search for a photo"
+        
+        
         return controller
     }()
     
@@ -83,7 +88,13 @@ class UnsplashImageCollectionController: NMViewController {
         super.viewDidLoad()
         setupCollectionView()
         setupSearchController()
+        setupBackButton()
         bindViewModel()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        searchController.searchBar.resignFirstResponder()
     }
     
     func bindViewModel() {
@@ -91,6 +102,7 @@ class UnsplashImageCollectionController: NMViewController {
             .drive(collectionView.rx.items(dataSource: dataSource))
         .disposed(by: disposeBag)
     }
+    
     
     // MARK: Private Methods
     private func getLayout() -> UICollectionViewLayout {
@@ -133,6 +145,7 @@ class UnsplashImageCollectionController: NMViewController {
     private func setupSearchController() {
         navigationItem.searchController = searchController
         navigationItem.hidesSearchBarWhenScrolling = false
+        
         searchController.searchBar.rx
             .text.orEmpty
             .bind(to: viewModel.inputs.searchObserver)
@@ -143,12 +156,37 @@ class UnsplashImageCollectionController: NMViewController {
             .bind(to: viewModel.inputs.searchCancelObserver)
         .disposed(by: disposeBag)
         
+        let tapReco = UITapGestureRecognizer()
+        tapReco.rx.event
+            .subscribe(onNext: { [weak self] _ in
+                self?.searchController.searchBar.resignFirstResponder()
+            })
+            .disposed(by: disposeBag)
+        
+        collectionView.addGestureRecognizer(tapReco)
         
         collectionView.rx.willBeginDragging
             .subscribe(onNext: { [weak self] in
                 self?.searchController.searchBar.resignFirstResponder()
             })
         .disposed(by: disposeBag)
+    }
+    
+    private func setupBackButton() {
+        let button = NMButton()
+        button.setTitle("Close", for: .normal)
+        
+        button.rx.tap
+            .subscribe(onNext: { [weak self] in
+                self?.searchController.searchBar.resignFirstResponder()
+                if let controller = self?.navigationItem.searchController {
+                    controller.dismiss(animated: true)
+                }
+                self?.dismiss(animated: true)
+            })
+            .disposed(by: disposeBag)
+        
+        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: button)
     }
 }
 

@@ -48,12 +48,9 @@ class ImageProposalCoordinator: ParentCoordinator {
         
         viewModel.outputs.unsplashObservable.subscribe(onNext: { _ in
                 
-                let coordinator = UnsplashImageCollectionCoordinator()
-                coordinator.start()
-                
+            let coordinator = UnsplashImageCollectionCoordinator(presentingController: self.presentationController)
+            
                 self.childCoordinators.append(coordinator)
-                
-                coordinator.viewController.hidesBottomBarWhenPushed = true
                 
                 coordinator.metaObservable
                     .bind(to: self.metaObserver)
@@ -63,7 +60,7 @@ class ImageProposalCoordinator: ParentCoordinator {
                     .bind(to: self.cancelObserver)
                     .disposed(by: self.disposeBag)
                 
-                self.navigationController.pushViewController(coordinator.viewController, animated: true)
+                coordinator.start()
                 
                 
             })

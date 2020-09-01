@@ -32,13 +32,8 @@ class NMImageView: UIImageView {
 
 extension NMImageView {
     func bindTheme() {
-        let theme = ThemeManager.shared.currentTheme
+//        let theme = ThemeManager.shared.currentTheme
         
-        theme.bind { [weak self] (theme) in
-            guard let self = self else { return }
-            theme.backgroundColor.bind(to: self.rx.backgroundColor).disposed(by: self.disposeBag)
-        }
-        .disposed(by: disposeBag)
     }
     
 }

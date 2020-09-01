@@ -87,40 +87,24 @@ protocol UnsplashServiceType {
 class UnsplashService: UnsplashServiceType {
     
     func fetch<T: Decodable>(request: UnsplashRequest) -> Observable<T> {
-        return .create { observer -> Disposable in
             guard let request = request.urlReqeust() else {
-                observer.onError(URLError(.badURL))
-                return Disposables.create()
+                return .create { (observer) -> Disposable in
+                    observer.onError(URLError(.badURL))
+                    return Disposables.create()
+                }                
             }
             
-            let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
-                guard error == nil else {
-                    observer.onError(error!)
-                    return
+            return URLSession.shared.rx.data(request: request).flatMap { (data) -> Observable<T> in
+                .create { (observer) -> Disposable in
+                    if let result = try? JSONDecoder().decode(T.self, from: data) {
+                        observer.onNext(result)
+                        observer.onCompleted()
+                    } else {
+                        observer.onError(URLError(.downloadDecodingFailedToComplete))
+                    }
+                    return Disposables.create()
                 }
-                
-                guard let data = data else {
-                    observer.onError(URLError(.downloadDecodingFailedMidStream))
-                    return
-                }
-                
-                guard let result = try? JSONDecoder().decode(T.self, from: data) else {
-                    observer.onError(URLError(.downloadDecodingFailedToComplete))
-                    return
-                }
-                
-                observer.onNext(result)
-                observer.onCompleted()
             }
-            
-            task.resume()
-            
-            return Disposables.create {
-                task.cancel()
-            }
-            
-            
-        }
     }
     
 }

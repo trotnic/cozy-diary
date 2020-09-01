@@ -24,12 +24,17 @@ class UnsplashImageCollectionCoordinator: ParentCoordinator {
     }
     
     var viewController: UnsplashImageCollectionController!
+    let presentingController: UIViewController
     var viewModel: UnsplashImageCollectionViewModel!
     
     private let disposeBag = DisposeBag()
     
     private let cancelObserver = PublishSubject<Void>()
     private let metaObserver = PublishSubject<ImageMeta>()
+    
+    init(presentingController: UIViewController) {
+        self.presentingController = presentingController
+    }
     
     func start() {
         
@@ -46,7 +51,12 @@ class UnsplashImageCollectionCoordinator: ParentCoordinator {
             .bind(to: cancelObserver)
             .disposed(by: disposeBag)
         
-        viewController = UnsplashImageCollectionController(viewModel: viewModel)        
+        viewController = UnsplashImageCollectionController(viewModel: viewModel)
+        
+        let wrapController = NMNavigationController(rootViewController: viewController)
+        wrapController.modalPresentationStyle = .fullScreen
+        
+        presentingController.present(wrapController, animated: true)
     }
     
     private func gotodetail(meta: UnsplashPhoto) {

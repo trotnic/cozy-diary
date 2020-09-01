@@ -134,8 +134,9 @@ extension MemoryEditCoordinator {
     private func processGraffitiInsert(_ viewModel: MemoryCreateViewModelType) {
         viewModel.outputs.graffitiInsertRequestObservable
             .subscribe(onNext: { [weak self] in
-                if let self = self {
-                    let vc = self.navigationController
+                if let self = self,
+                    let vc = self.viewController {
+                    
                     let coord = GraffitiCreateCoordinator(vc)
                     
                     coord.outputs.saveObservable
