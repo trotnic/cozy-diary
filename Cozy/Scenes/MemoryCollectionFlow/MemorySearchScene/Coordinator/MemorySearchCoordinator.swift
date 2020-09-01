@@ -29,11 +29,10 @@ class MemorySearchCoordinator: ParentCoordinator {
     func start() {
         let viewModel = MemorySearchViewModel(memoryStore: memoryStore)
         viewController = MemorySearchController(viewModel: viewModel)
-        viewController.hidesBottomBarWhenPushed = true
-        viewController.stubSwipeToRight()
         
-        navigationController = UINavigationController(rootViewController: viewController)
-        navigationController.modalPresentationStyle = .fullScreen
+        navigationController = NMNavigationController()
+        navigationController.pushViewController(viewController, animated: true)
+        navigationController.modalPresentationStyle = .overFullScreen
         
         viewModel.outputs.closeObservable
             .subscribe(onNext: { [weak self] in

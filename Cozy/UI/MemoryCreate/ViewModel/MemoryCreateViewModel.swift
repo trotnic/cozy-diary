@@ -12,6 +12,10 @@ import RxCocoa
 
 
 class MemoryCreateViewModel: MemoryCreateViewModelType, MemoryCreateViewModelOutput, MemoryCreateViewModelInput {
+    var title: Driver<String> {
+        Observable.just("").asDriver(onErrorJustReturn: "")
+    }
+    
     
     var outputs: MemoryCreateViewModelOutput { return self }
     var inputs: MemoryCreateViewModelInput { return self }
@@ -165,121 +169,6 @@ class MemoryCreateViewModel: MemoryCreateViewModelType, MemoryCreateViewModelOut
     
     deinit {
         memoryStore.updateItem(currentMemory.value)
-    }
-}
-
-
-// MARK: Text Chunk ViewModel
-
-
-class TextChunkViewModel: TextChunkViewModelType, TextChunkViewModelOutput, TextChunkViewModelInput {
-    
-    var outputs: TextChunkViewModelOutput { return self }
-    var inputs: TextChunkViewModelInput { return self }
-    
-    // MARK: Outputs
-    var text: BehaviorRelay<NSAttributedString>
-    
-    var removeTextRequest: Observable<Void>
-    
-    // MARK: Inputs
-    lazy var tapRequest = { {} }()
-    lazy var longPressRequest = { {} }()
-    lazy var contextRemoveRequest = { { self.removeRequestPublisher.onNext(()) } }()
-    
-    // MARK: Private
-    private let chunk: TextChunk
-    private let disposeBag = DisposeBag()
-    
-    private let removeRequestPublisher = PublishSubject<Void>()
-    
-    // MARK: Init
-    init(_ chunk: TextChunk) {
-        self.chunk = chunk
-        text = .init(value: chunk.text)
-        
-        removeTextRequest = removeRequestPublisher.asObservable()
-        
-        text.bind { [weak self] text in
-            self?.chunk.text = text
-        }.disposed(by: disposeBag)
-    }
-}
-
-
-// MARK: Photo Chunk ViewModel
-
-
-class PhotoChunkViewModel: PhotoChunkViewModelType, PhotoChunkViewModelOutput, PhotoChunkViewModelInput {
-    var outputs: PhotoChunkViewModelOutput { return self }
-    var inputs: PhotoChunkViewModelInput { return self }
-    
-    // MARK: Outputs
-    var photo: BehaviorRelay<Data>
-    
-    var detailPhotoRequestObservable: Observable<Void>
-    
-    var sharePhotoRequest: Observable<Void>
-    var copyPhotoRequest: Observable<Void>
-    var removePhotoRequest: Observable<Void>
-    
-    // MARK: Inputs
-    lazy var tapRequest = { { self.tapRequestPublisher.onNext(()) } }()
-    lazy var longPressRequest = { {} }()
-    
-    lazy var contextShareRequest = { { self.shareRequestPublisher.onNext(()) } }()
-    lazy var contextCopyRequest = { { self.copyRequestPublisher.onNext(()) } }()
-    lazy var contextRemoveRequest = { { self.removeRequestPublisher.onNext(()) } }()
-    
-    // MARK: Private
-    private let chunk: PhotoChunk
-    private let disposeBag = DisposeBag()
-    
-    private let tapRequestPublisher = PublishSubject<Void>()
-    
-    private let shareRequestPublisher = PublishSubject<Void>()
-    private let copyRequestPublisher = PublishSubject<Void>()
-    private let removeRequestPublisher = PublishSubject<Void>()
-    
-    // MARK: Init
-    init(_ chunk: PhotoChunk) {
-        self.chunk = chunk
-        photo = .init(value: chunk.photo)
-        
-        detailPhotoRequestObservable = tapRequestPublisher.asObservable()
-        
-        sharePhotoRequest = shareRequestPublisher.asObservable()
-        copyPhotoRequest = copyRequestPublisher.asObservable()
-        removePhotoRequest = removeRequestPublisher.asObservable()
-        
-        photo.bind { [weak self] photo in
-            self?.chunk.photo = photo
-        }.disposed(by: disposeBag)
-    }
-}
-
-
-// MARK: Graffiti Chunk View Model
-
-
-class GraffitiChunkViewModel: GraffitiChunkViewModelType, GraffitiChunkViewModelOutput, GraffitiChunkViewModelInput {
-    
-    var outputs: GraffitiChunkViewModelOutput { return self }
-    var inputs: GraffitiChunkViewModelInput { return self }
-    
-    // MARK: Outputs
-    let graffiti: Observable<Data>
-    
-    // MARK: Inputs
-    
-    // MARK: Private
-    private let chunk: GraffitiChunk
-    private let disposeBag = DisposeBag()
-    
-    // MARK: Init
-    init(_ chunk: GraffitiChunk) {
-        self.chunk = chunk
-        graffiti = .just(chunk.graffiti)
     }
 }
 

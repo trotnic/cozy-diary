@@ -19,7 +19,7 @@ public class CoreMemory: NSManagedObject {
     
     var selfChunk: Memory {
         Memory(
-            date: date!,
+            date: date ?? Date(),
             index: Int(increment),
             texts: textChunks,
             photos: photoChunks,

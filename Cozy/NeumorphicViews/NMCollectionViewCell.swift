@@ -1,0 +1,41 @@
+//
+//  NMCollectionViewCell.swift
+//  Cozy
+//
+//  Created by Uladzislau Volchyk on 8/30/20.
+//  Copyright © 2020 Uladzislau Volchyk. All rights reserved.
+//
+
+import UIKit
+import RxSwift
+import RxCocoa
+
+class NMCollectionViewCell: UICollectionViewCell {
+    
+    private let disposeBag = DisposeBag()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        bindTheme()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+}
+
+
+extension NMCollectionViewCell {
+    func bindTheme() {
+        let theme = ThemeManager.shared.currentTheme
+        
+        theme.bind { [weak self] (theme) in
+            guard let self = self else { return }
+            theme.themeColor
+                .bind(to: self.contentView.rx.backgroundColor)
+                .disposed(by: self.disposeBag)
+        }
+        .disposed(by: self.disposeBag)
+    }
+}

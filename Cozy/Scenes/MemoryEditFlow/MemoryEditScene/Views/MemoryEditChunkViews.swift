@@ -47,8 +47,8 @@ class TextChunkMemoryView: UIView {
         }
     }
     
-    lazy var textView: UITextView = {
-        let view = UITextView()
+    lazy var textView: NMTextView = {
+        let view = NMTextView()
         view.delegate = self
         view.isScrollEnabled = false
         view.sizeToFit()
@@ -65,7 +65,6 @@ class TextChunkMemoryView: UIView {
         textView.topAnchor.constraint(equalTo: topAnchor).isActive = true
         textView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
         textView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
-        textView.backgroundColor = UIColor.red.withAlphaComponent(0.3)
     }
     
     func bindViewModel() {
@@ -151,36 +150,58 @@ class PhotoChunkMemoryView: UIView {
     private let disposeBag = DisposeBag()
     private let tapObserver = PublishRelay<Void>()
     
+    var imageViewLeadingAnchor: NSLayoutConstraint!
+    var imageViewTrailingAnchor: NSLayoutConstraint!
+    
     var viewModel: PhotoChunkViewModelType! {
         didSet {
             bindViewModel()
         }
     }
     
-    lazy var contentView: UIView = {
-        let view = UIView()
+    lazy var contentView: NMView = {
+        let view = NMView()
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
-    lazy var imageView: UIImageView = {
-        let view = UIImageView()
+    lazy var imageView: NMImageView = {
+        let view = NMImageView()
         view.contentMode = .scaleAspectFit
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
-    override func layoutSubviews() {
-        super.layoutSubviews()
+    init() {
+        super.init(frame: .zero)
+        
         let interaction = UIContextMenuInteraction(delegate: self)
         addInteraction(interaction)
-        addSubview(imageView)
         
-        heightAnchor.constraint(lessThanOrEqualToConstant: 250).isActive = true
-        imageView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
-        imageView.topAnchor.constraint(equalTo: topAnchor).isActive = true
-        imageView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
-        imageView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
+        addSubview(contentView)
+        contentView.addSubview(imageView)
+        contentView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
+        contentView.topAnchor.constraint(equalTo: topAnchor).isActive = true
+        contentView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
+        contentView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
+        
+        
+        imageViewLeadingAnchor = imageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor)
+        imageViewTrailingAnchor = imageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor)
+        
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        imageView.topAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
+        imageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor).isActive = true
+        imageViewLeadingAnchor.isActive = true
+        imageViewTrailingAnchor.isActive = true
+        
     }
     
     func bindViewModel() {
@@ -189,12 +210,10 @@ class PhotoChunkMemoryView: UIView {
             .disposed(by: disposeBag)
         
         viewModel.outputs.photo.map { UIImage(data: $0)?.size }
-            .subscribe(onNext: { [weak self] size in
-                if let size = size {
-                    self?.imageView.invalidateIntrinsicContentSize()
-                    self?.contentView.invalidateIntrinsicContentSize()
-                    self?.imageView.heightAnchor.constraint(equalToConstant: size.height).isActive = true
-                    self?.imageView.widthAnchor.constraint(equalToConstant: size.width).isActive = true
+            .subscribe(onNext: { [weak contentView] size in
+                if let contentView = contentView,
+                    let size = size {
+                    contentView.heightAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: size.height/size.width).isActive = true
                 }
             }).disposed(by: disposeBag)
         
@@ -250,10 +269,17 @@ extension PhotoChunkMemoryView: UIContextMenuInteractionDelegate {
 
 protocol GraffitiChunkViewModelOutput {
     var graffiti: Observable<Data> { get }
+    
+    var sharePhotoRequest: Observable<Void> { get }
+    var copyPhotoRequest: Observable<Void> { get }
+    var removePhotoRequest: Observable<Void> { get }
 }
 
 protocol GraffitiChunkViewModelInput {
     
+    var contextShareRequest: () -> () { get }
+    var contextCopyRequest: () -> () { get }
+    var contextRemoveRequest: () -> () { get }
 }
 
 protocol GraffitiChunkViewModelType {
@@ -280,21 +306,30 @@ class GraffitiChunkMemoryView: UIView {
         return view
     }()
     
-    lazy var graffitiView: UIImageView = {
-        let view = UIImageView()
+    lazy var graffitiView: NMImageView = {
+        let view = NMImageView()
         view.contentMode = .scaleAspectFit
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
-    override func layoutSubviews() {
-        super.layoutSubviews()
+    init() {
+        super.init(frame: .zero)
+        
+        let interaction = UIContextMenuInteraction(delegate: self)
+        addInteraction(interaction)
+        
         addSubview(graffitiView)
         
         graffitiView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
         graffitiView.topAnchor.constraint(equalTo: topAnchor).isActive = true
         graffitiView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
         graffitiView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
+        
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     func bindViewModel() {
@@ -302,5 +337,41 @@ class GraffitiChunkMemoryView: UIView {
             .map { data in UIImage(data: data) }
             .bind(to: graffitiView.rx.image)
             .disposed(by: disposeBag)
+    }
+}
+
+extension GraffitiChunkMemoryView: UIContextMenuInteractionDelegate {
+    func contextMenuInteraction(_ interaction: UIContextMenuInteraction,
+                                configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
+        
+        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ -> UIMenu? in
+            return self.createContextMenu()
+        }
+    }
+    
+    func createContextMenu() -> UIMenu {
+
+        let shareAction = UIAction(
+            title: "Share",
+            image: UIImage(systemName: "square.and.arrow.up"),
+            handler: { [weak self] _ in
+                self?.viewModel.inputs.contextShareRequest()
+        })
+        
+        let copy = UIAction(
+            title: "Copy",
+            image: UIImage(systemName: "doc.on.doc"),
+            handler: { [weak self] _ in
+                self?.viewModel.inputs.contextCopyRequest()
+        })
+        
+        let remove = UIAction(
+            title: "Remove",
+            image: UIImage(systemName: "trash")?.withTintColor(.red),
+            handler: { [weak self] _ in
+                self?.viewModel.inputs.contextRemoveRequest()
+        })
+        
+        return UIMenu(title: "", children: [shareAction, copy, remove])
     }
 }

@@ -24,3 +24,17 @@ extension UIImage {
         return UIColor(red: CGFloat(bitmap[0]) / 255, green: CGFloat(bitmap[1]) / 255, blue: CGFloat(bitmap[2]) / 255, alpha: CGFloat(bitmap[3]) / 255)
     }
 }
+
+public extension UIImage {
+    convenience init?(color: UIColor, size: CGSize = CGSize(width: 1, height: 1)) {
+        let rect = CGRect(origin: .zero, size: size)
+        UIGraphicsBeginImageContextWithOptions(rect.size, false, 0.0)
+        color.setFill()
+        UIRectFill(rect)
+        let image = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        guard let cgImage = image?.cgImage else { return nil }
+        self.init(cgImage: cgImage)
+    }
+}

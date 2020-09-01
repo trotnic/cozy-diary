@@ -52,13 +52,13 @@ struct MemoryCollectionViewDataSource {
 // MARK: Controller
 
 
-class MemoryCollectionViewController: BaseViewController {
+class MemoryCollectionViewController: NMViewController {
     
     var dataSource = MemoryCollectionViewDataSource.dataSource()
     
-    lazy var collectionView: UICollectionView = {
+    lazy var collectionView: NMCollectionView = {
         let layout = getLayout()
-        let view = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        let view = NMCollectionView(frame: .zero, collectionViewLayout: layout)
         view.register(MemoryCollectionViewCell.self, forCellWithReuseIdentifier: MemoryCollectionViewCell.reuseIdentifier)
         view.translatesAutoresizingMaskIntoConstraints = false
         view.showsHorizontalScrollIndicator = false
@@ -86,12 +86,10 @@ class MemoryCollectionViewController: BaseViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
-        navigationItem.title = "Lolkek cheburek"
+        navigationItem.title = "Previous memories"
         view.addSubview(collectionView)
         setupCollectionView()
         bindViewModel()
-        setupView()
         
         setupSearchButton()
     }
@@ -108,23 +106,20 @@ class MemoryCollectionViewController: BaseViewController {
             .disposed(by: disposeBag)
     }
     
-    private func setupView() {
-        collectionView.backgroundColor = .init(red: 240/255, green: 240/255, blue: 240/255, alpha: 1.0)
-    }
-    
     private func setupCollectionView() {
         
         collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
         collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
-        
-        collectionView.backgroundColor = .white
     }
     
     private func setupSearchButton() {
-        let button = UIBarButtonItem(image: UIImage(systemName: "magnifyingglass"), style: .plain, target: nil, action: nil)
-        navigationItem.rightBarButtonItem = button
+        let button = NMButton(frame: .init(x: 0, y: 0, width: 35, height: 35))
+        button.setImage(UIImage(systemName: "magnifyingglass"), for: .normal)
+        
+        
+        navigationItem.rightBarButtonItem = .init(customView: button)
         
         button.rx.tap
             .subscribe(onNext: { [weak self] in

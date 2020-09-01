@@ -37,7 +37,7 @@ protocol ImageDetailViewModelType {
 // MARK: Controller
 
 
-class ImageDetailViewController: BaseViewController {
+class ImageDetailViewController: NMViewController {
 
     let viewModel: ImageDetailViewModelType
     let transitionDelegate = ImageDetailTransitioningDelegate()

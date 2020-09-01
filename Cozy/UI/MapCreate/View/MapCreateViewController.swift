@@ -10,7 +10,7 @@ import UIKit
 import MapKit
 import RxSwift
 
-class MapCreateViewController: BaseViewController, MKMapViewDelegate {
+class MapCreateViewController: NMViewController, MKMapViewDelegate {
 
     let viewModel: MapCreateViewModelType
     let locationManager = CLLocationManager()

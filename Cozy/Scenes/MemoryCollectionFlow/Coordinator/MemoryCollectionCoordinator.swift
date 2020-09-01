@@ -17,7 +17,7 @@ class MemoryCollectionCoordinator: ParentCoordinator {
     var childCoordinators: [Coordinator] = []
     
     var viewController: MemoryCollectionViewController!
-    var navigationController: UINavigationController!
+    var navigationController: NMNavigationController!
     
     
     // MARK: Private
@@ -35,8 +35,8 @@ class MemoryCollectionCoordinator: ParentCoordinator {
         let viewModel = MemoryCollectionViewModel(memoryStore: memoryStore)
         viewController = .init(viewModel: viewModel)
         
-        navigationController = UINavigationController(rootViewController: viewController)
-        
+        navigationController = NMNavigationController(rootViewController: viewController)
+//        navigationController.setViewControllers([viewController], animated: true)
         // SELFCOMM: Opens detail for selected memory
         viewModel.outputs.detailRequestObservable
             .subscribe(onNext: { [weak self] memory in

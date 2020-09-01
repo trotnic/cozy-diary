@@ -24,6 +24,8 @@ enum MemoryCreateCollectionItem {
 
 protocol MemoryCreateViewModelOutput {
     var items: BehaviorRelay<[MemoryCreateCollectionItem]> { get }
+    var title: Driver<String> { get }
+    
     
     var photoInsertRequestObservable: Observable<Void> { get }
     var photoDetailRequestObservable: Observable<Data> { get }
@@ -55,16 +57,20 @@ protocol MemoryCreateViewModelType {
 // MARK: Controller
 
 
-class MemoryEditViewController: BaseViewController {
+class MemoryEditViewController: NMViewController {
 
     let viewModel: MemoryCreateViewModelType!
     
     private var buttonsPanelBottomConstraint: NSLayoutConstraint!
-    private lazy var isTextPanelActive = BehaviorRelay<Bool>(value: false)
+    private let isTextPanelActive = BehaviorRelay<Bool>(value: false)
+    private let isFontEditPanelActive = BehaviorRelay<Bool>(value: false)
     
     // MARK: Transition
     private var imageViewToPresent: UIImageView!
     private var rectToPresent: CGRect!
+    
+    private var commonButtons: [NMButton] = []
+    private var textEditButtons: [NMButton] = []
     
     // MARK: Init
     init(_ viewModel: MemoryCreateViewModelType) {
@@ -102,21 +108,17 @@ class MemoryEditViewController: BaseViewController {
         return view
     }()
     
-    lazy var endEditButton: UIButton = {
-        let button = UIButton(frame: .zero)
+    lazy var endEditButton: NMButton = {
+        let button = NMButton(frame: .zero)
         button.setImage(UIImage(systemName: "chevron.down.circle"), for: .normal)
-        button.tintColor = .white
         button.backgroundColor = .clear
-        button.isHidden = true
         return button
     }()
     
-    lazy var textFormatButton: UIButton = {
-        let button = UIButton(frame: .zero)
+    lazy var textFormatButton: NMButton = {
+        let button = NMButton(frame: .zero)
         button.setImage(UIImage(systemName: "a"), for: .normal)
-        button.tintColor = .white
         button.backgroundColor = .clear
-        button.isHidden = true
         return button
     }()
     
@@ -125,23 +127,20 @@ class MemoryEditViewController: BaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        navigationItem.title = "Current item"
-        definesPresentationContext = true
-        view.backgroundColor = .white
-        
         setupScrollView()
         bindViewModel()
         setupPanel()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        isFontEditPanelActive.accept(false)
+        isTextPanelActive.accept(false)
+    }
+    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         viewModel.inputs.saveRequest()
-    }
-    
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        isTextPanelActive.accept(isTextPanelActive.value)
     }
     
     func bindViewModel() {
@@ -183,21 +182,25 @@ class MemoryEditViewController: BaseViewController {
                 if self.contentView.childFirstResponder() != nil {
                     self.view.endEditing(true)
                     self.isTextPanelActive.accept(false)
+                    self.isFontEditPanelActive.accept(false)
                 } else {
                     self.viewModel.inputs.textChunkInsertRequest()
                     self.contentView.arrangedSubviews.last?.becomeFirstResponder()
                 }
         }
         .disposed(by: disposeBag)
+        
+        viewModel.outputs.title
+            .drive(navigationItem.rx.title)
+        .disposed(by: disposeBag)
     }
     
-    private func panelButtonBuilder(_ image: String, _ action: @escaping () -> ()) -> UIButton {
-        let button = UIButton()
+    private func panelButtonBuilder(_ image: String, _ action: @escaping () -> ()) -> NMButton {
+        let button = NMButton()
         button.rx.tap
         .bind(onNext: action)
         .disposed(by: disposeBag)
         button.setImage(UIImage(systemName: image), for: .normal)
-        button.tintColor = .white
         button.backgroundColor = .clear
         return button
     }
@@ -205,19 +208,82 @@ class MemoryEditViewController: BaseViewController {
     private func setupPanel() {
         view.addSubview(buttonsPanel)
         
-        let commonButtons: [UIButton] = [
-            panelButtonBuilder("plus", { [weak self] in
-                self?.viewModel.inputs.photoChunkInsertRequest()
-            }),
-            panelButtonBuilder("mappin", { [weak self] in
-                self?.viewModel.inputs.mapChunkInsertRequest()
-            }),
-            panelButtonBuilder("paintbrush", { [weak self] in
-                self?.viewModel.inputs.graffitiChunkInsertRequest()
-            })
-        ]
+        setupPanelButtons()
         
-        let textEditButtons: [UIButton] = [
+        textEditButtons.forEach { button in
+            isFontEditPanelActive
+            .map { !$0 }
+            .bind(onNext: { (value) in
+                button.isHidden = value
+                button.alpha = value ? 0 : 1
+            })
+            .disposed(by: disposeBag)
+        }
+        
+        commonButtons.forEach { button in
+            isFontEditPanelActive
+            .bind(onNext: { (value) in
+                button.isHidden = value
+                button.alpha = value ? 0 : 1
+            })
+            .disposed(by: disposeBag)
+        }
+        
+        commonButtons.forEach {
+            isTextPanelActive
+            .bind(to: $0.rx.isHidden)
+            .disposed(by: disposeBag)
+        }
+                
+        isTextPanelActive
+            .map { !$0 }
+            .bind { [weak self] (value) in
+                guard let self = self else { return }
+                let duration = value ? 0.15 : 0.3
+                UIView.animate(withDuration: duration) {
+                    self.endEditButton.isHidden = value
+                    self.endEditButton.alpha = value ? 1 : 0
+                    
+                    self.textFormatButton.isHidden = value
+                    self.textFormatButton.alpha = value ? 1 : 0
+                    
+                    
+                }
+        }
+        .disposed(by: disposeBag)
+        
+        buttonsPanel.buttons.accept(
+            commonButtons + textEditButtons + [
+            textFormatButton,
+            endEditButton
+        ])
+        
+        textFormatButton.rx.tap
+            .subscribe(onNext: { [weak self] in
+                if let current = self?.isFontEditPanelActive.value {
+                    UIView.animate(withDuration: 0.15) {
+                        self?.isFontEditPanelActive.accept(!current)
+                    }
+                }
+            })
+            .disposed(by: disposeBag)
+        
+        endEditButton.rx.tap
+            .subscribe(onNext: { [weak self] in
+                self?.isFontEditPanelActive.accept(false)
+                self?.isTextPanelActive.accept(false)
+                self?.view.endEditing(true)
+            }).disposed(by: disposeBag)
+
+        
+        
+        buttonsPanel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        buttonsPanelBottomConstraint = buttonsPanel.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10)
+        buttonsPanelBottomConstraint.isActive = true
+    }
+    
+    private func setupPanelButtons() {
+        let textEditButtons: [NMButton] = [
             panelButtonBuilder("bold", { [weak self] in
                 if let view = self?.contentView.childFirstResponder() as? UITextView,
                     let font = view.typingAttributes[.font] as? UIFont {
@@ -260,46 +326,22 @@ class MemoryEditViewController: BaseViewController {
                     }
                 }
             })
-            ]
+        ]
         
-        textEditButtons.forEach {
-            isTextPanelActive
-            .map { !$0 }
-            .bind(to: $0.rx.isHidden)
-            .disposed(by: disposeBag)
-        }
-        
-        commonButtons.forEach { button in
-            isTextPanelActive
-            .bind(to: button.rx.isHidden)
-            .disposed(by: disposeBag)
-        }
-        
-        buttonsPanel.buttons.accept(commonButtons + textEditButtons + [
-            textFormatButton,
-            endEditButton
-        ])
-        
-        textFormatButton.rx.tap
-            .subscribe(onNext: { [weak self] in
-                UIView.animate(withDuration: 0.3) {
-                    if let current = self?.isTextPanelActive.value {
-                        self?.isTextPanelActive.accept(!current)
-                    }
-                }
+        let commonButtons: [NMButton] = [
+            panelButtonBuilder("plus", { [weak self] in
+                self?.viewModel.inputs.photoChunkInsertRequest()
+            }),
+            panelButtonBuilder("mappin", { [weak self] in
+                self?.viewModel.inputs.mapChunkInsertRequest()
+            }),
+            panelButtonBuilder("paintbrush", { [weak self] in
+                self?.viewModel.inputs.graffitiChunkInsertRequest()
             })
-            .disposed(by: disposeBag)
+        ]
         
-        endEditButton.rx.tap
-            .subscribe(onNext: { [unowned self] in
-                self.view.endEditing(true)
-                self.isTextPanelActive.accept(false)
-            }).disposed(by: disposeBag)
-        
-        buttonsPanel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        buttonsPanelBottomConstraint = buttonsPanel.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10)
-        buttonsPanelBottomConstraint.isActive = true
-        buttonsPanel.backgroundColor = UIColor.black.withAlphaComponent(0.6)
+        self.textEditButtons.append(contentsOf: textEditButtons)
+        self.commonButtons.append(contentsOf: commonButtons)
     }
     
     func setupScrollView() {
@@ -311,50 +353,55 @@ class MemoryEditViewController: BaseViewController {
         scrollView.topAnchor.constraint(equalTo: safeGuide.topAnchor).isActive = true
         scrollView.trailingAnchor.constraint(equalTo: safeGuide.trailingAnchor).isActive = true
         scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
-        scrollView.contentInset.bottom = 75
         
-        contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor).isActive = true
+        scrollView.contentInset.bottom = 150
+        scrollView.contentInset.top = 10
+        
+        contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: kSideInset).isActive = true
         contentView.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
-        contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor).isActive = true
+        contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -kSideInset).isActive = true
         contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor).isActive = true
-        contentView.widthAnchor.constraint(equalTo: view.safeAreaLayoutGuide.widthAnchor).isActive = true
+        contentView.widthAnchor.constraint(equalTo: view.safeAreaLayoutGuide.widthAnchor, constant: -2*kSideInset).isActive = true
+        
+        contentView.insetsLayoutMarginsFromSafeArea = true
         
         scrollView.contentSize = contentView.bounds.size
         scrollView.sizeToFit()
         
-        scrollView.backgroundColor = UIColor.white
+//        scrollView.backgroundColor = UIColor.white
         
-        keyboardHeight().subscribe(onNext: { [weak self] (inset) in
+        keyboardHeight().subscribe(onNext: { [weak self] (rect) in
             if let self = self {
-                let additionalInset: CGFloat = inset == 0 ? 75 : 0
-                let panelInset: CGFloat = inset == 0 ? 10 : -self.view.safeAreaInsets.bottom + 10
-                self.buttonsPanelBottomConstraint.constant = (-inset - panelInset)
+                let safeInset = self.view.safeAreaInsets
+                let additionalInset: CGFloat = rect.height == 0 ? 150 : 50
+                let panelInset: CGFloat = rect.height == 0 ? -10 : safeInset.bottom - 10
+                self.buttonsPanelBottomConstraint.constant = (-rect.height + panelInset)
                 UIView.animate(withDuration: 0.3) {
-                    if inset == 0 {
+                    if rect.height == 0 {
                         self.isTextPanelActive.accept(false)
                     }
                     self.view.layoutIfNeeded()
                     self.textFormatButton.isHidden.toggle()
                     self.endEditButton.isHidden.toggle()
                 }
-                self.scrollView.contentInset = .init(top: 0, left: 0, bottom: inset + additionalInset, right: 0)
+                self.scrollView.contentInset = .init(top: 0, left: 0, bottom: rect.height + additionalInset, right: 0)
             }
         }).disposed(by: disposeBag)
         
     }
     
-    func keyboardHeight() -> Observable<CGFloat> {
+    func keyboardHeight() -> Observable<CGRect> {
         return Observable
                 .from([
                     NotificationCenter.default
                         .rx.notification(UIResponder.keyboardWillShowNotification)
-                        .map { notification -> CGFloat in
-                            (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue.height ?? 0
+                        .map { notification -> CGRect in
+                            (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue ?? .zero
                         },
                     NotificationCenter.default
                         .rx.notification(UIResponder.keyboardWillHideNotification)
-                        .map { _ -> CGFloat in
-                            0
+                        .map { _ -> CGRect in
+                            .zero
                         }
                 ])
                 .merge()

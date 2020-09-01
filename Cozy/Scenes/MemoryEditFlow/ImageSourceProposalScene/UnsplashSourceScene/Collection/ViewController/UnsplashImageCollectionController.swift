@@ -43,7 +43,7 @@ protocol UnsplashImageCollectionViewModelType {
 // MARK: Controller
 
 
-class UnsplashImageCollectionController: BaseViewController {
+class UnsplashImageCollectionController: NMViewController {
     
     let viewModel: UnsplashImageCollectionViewModelType
     
@@ -65,14 +65,14 @@ class UnsplashImageCollectionController: BaseViewController {
     
     
     // MARK: Views
-    lazy var collectionView: UICollectionView = {
-        let view = UICollectionView(frame: .zero, collectionViewLayout: getLayout())
+    lazy var collectionView: NMCollectionView = {
+        let view = NMCollectionView(frame: .zero, collectionViewLayout: getLayout())
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
     lazy var searchController: UISearchController = {
-        let controller = UISearchController(searchResultsController: nil)
+        let controller = NMSearchController(searchResultsController: nil)
         controller.obscuresBackgroundDuringPresentation = false
         return controller
     }()
@@ -81,15 +81,9 @@ class UnsplashImageCollectionController: BaseViewController {
     // MARK: Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .red
         setupCollectionView()
         setupSearchController()
         bindViewModel()
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-//        viewModel.inputs.willDisappear.accept(())
     }
     
     func bindViewModel() {
@@ -97,7 +91,6 @@ class UnsplashImageCollectionController: BaseViewController {
             .drive(collectionView.rx.items(dataSource: dataSource))
         .disposed(by: disposeBag)
     }
-
     
     // MARK: Private Methods
     private func getLayout() -> UICollectionViewLayout {
@@ -114,7 +107,6 @@ class UnsplashImageCollectionController: BaseViewController {
     
     private func setupCollectionView() {
         collectionView.register(UnsplashCollectionCommonCell.self, forCellWithReuseIdentifier: UnsplashCollectionCommonCell.reuseIdentifier)
-        collectionView.backgroundColor = .white
         
         view.addSubview(collectionView)
         
@@ -140,7 +132,7 @@ class UnsplashImageCollectionController: BaseViewController {
     
     private func setupSearchController() {
         navigationItem.searchController = searchController
-        
+        navigationItem.hidesSearchBarWhenScrolling = false
         searchController.searchBar.rx
             .text.orEmpty
             .bind(to: viewModel.inputs.searchObserver)

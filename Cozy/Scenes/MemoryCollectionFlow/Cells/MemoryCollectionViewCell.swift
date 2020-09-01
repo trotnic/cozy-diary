@@ -11,7 +11,7 @@ import RxCocoa
 import RxSwift
 
 
-class MemoryCollectionViewCell: UICollectionViewCell {
+class MemoryCollectionViewCell: NMCollectionViewCell {
     static let reuseIdentifier: String = "MemoryCollectionViewCell"
     
     private let disposeBag = DisposeBag()
@@ -22,16 +22,26 @@ class MemoryCollectionViewCell: UICollectionViewCell {
         }
     }
     
-    lazy var dateLabel: UILabel = {
-        let view = UILabel()
-        view.font = .boldSystemFont(ofSize: 17)
+    lazy var dateLabel: NMLabel = {
+        let view = NMLabel()
+        view.font = UIFont.systemFont(ofSize: 15, weight: .light)
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
-    lazy var textLabel: UILabel = {
-        let view = UILabel()
+    lazy var textLabel: NMLabel = {
+        let view = NMLabel()
+        view.lineBreakMode = .byWordWrapping
+        view.numberOfLines = 3
         view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    lazy var imageView: NMImageView = {
+        let view = NMImageView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.contentMode = .scaleAspectFill
+        view.clipsToBounds = true
         return view
     }()
     
@@ -46,26 +56,28 @@ class MemoryCollectionViewCell: UICollectionViewCell {
     }
     
     func setupView() {
-        backgroundColor = .white
         let safeGuide = contentView.safeAreaLayoutGuide
         
         contentView.addSubview(dateLabel)
-        dateLabel.leadingAnchor.constraint(equalTo: safeGuide.leadingAnchor, constant: 20).isActive = true
-        dateLabel.topAnchor.constraint(equalTo: safeGuide.topAnchor, constant: 5).isActive = true
+        dateLabel.leadingAnchor.constraint(equalTo: safeGuide.leadingAnchor, constant: 10).isActive = true
+        dateLabel.topAnchor.constraint(equalTo: safeGuide.topAnchor, constant: 10).isActive = true
+        
+        contentView.addSubview(imageView)
+        imageView.heightAnchor.constraint(equalTo: contentView.heightAnchor, constant: -20).isActive = true
+        imageView.widthAnchor.constraint(equalTo: imageView.heightAnchor).isActive = true
+        imageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10).isActive = true
+        imageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10).isActive = true
         
         contentView.addSubview(textLabel)
         textLabel.leadingAnchor.constraint(equalTo: safeGuide.leadingAnchor, constant: 10).isActive = true
         textLabel.topAnchor.constraint(equalTo: dateLabel.bottomAnchor, constant: 5).isActive = true
-        textLabel.trailingAnchor.constraint(equalTo: safeGuide.trailingAnchor, constant: -10).isActive = true
-        textLabel.bottomAnchor.constraint(equalTo: safeGuide.bottomAnchor, constant: -10).isActive = true
-        
-        // Shadow
-        layer.cornerRadius = 10
-        layer.shadowOpacity = 0.2
-        layer.shadowColor = UIColor.lightGray.cgColor
-        layer.shadowRadius = 3
+        textLabel.trailingAnchor.constraint(equalTo: imageView.leadingAnchor, constant: -10).isActive = true
+        textLabel.bottomAnchor.constraint(lessThanOrEqualTo: safeGuide.bottomAnchor, constant: -10).isActive = true
         
         
+        
+        layer.masksToBounds = true
+        layer.cornerRadius = 12
     }
     
     func bindViewModel() {
@@ -76,6 +88,12 @@ class MemoryCollectionViewCell: UICollectionViewCell {
         viewModel.outputs.text
             .bind(to: textLabel.rx.text)
             .disposed(by: disposeBag)
+        
+        viewModel.outputs.image
+            .filter { $0 != nil }
+            .map { UIImage(data: $0!) }
+            .bind(to: imageView.rx.image)
+            .disposed(by: self.disposeBag)
         
         bindGestures()
     }
@@ -88,6 +106,27 @@ class MemoryCollectionViewCell: UICollectionViewCell {
             .subscribe(onNext: { [weak self] (recognizer) in
                 self?.viewModel.inputs.tapRequest()
         }).disposed(by: disposeBag)
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        UIView.animate(withDuration: 0.15) {
+            self.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
+            self.contentView.backgroundColor = self.contentView.backgroundColor?.withAlphaComponent(0.8)
+        }
+    }
+    
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        UIView.animate(withDuration: 0.15) {
+            self.transform = .identity
+            self.contentView.backgroundColor = self.contentView.backgroundColor?.withAlphaComponent(1)
+        }
+    }
+    
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        UIView.animate(withDuration: 0.15) {
+            self.transform = .identity
+            self.contentView.backgroundColor = self.contentView.backgroundColor?.withAlphaComponent(1)
+        }
     }
     
 }

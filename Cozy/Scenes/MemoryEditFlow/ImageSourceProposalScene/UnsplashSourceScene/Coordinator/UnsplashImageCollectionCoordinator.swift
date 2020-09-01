@@ -62,7 +62,7 @@ class UnsplashImageCollectionCoordinator: ParentCoordinator {
         
         viewModel.outputs.moreRequestObservable
             .subscribe(onNext: {
-                let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+                let alertController = NMAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
                 
                 let addAction = UIAlertAction(
                     title: "Add",
@@ -99,7 +99,7 @@ class UnsplashImageCollectionCoordinator: ParentCoordinator {
                 
                 let cancelAction = UIAlertAction(
                     title: "Cancel",
-                    style: .cancel,
+                    style: .destructive,
                     handler: nil)
                 alertController.addAction(cancelAction)
                 

@@ -11,7 +11,7 @@ import RxSwift
 import RxCocoa
 
 
-class MemorySearchController: BaseViewController {
+class MemorySearchController: NMViewController {
     
     var dataSource = MemoryCollectionViewDataSource.dataSource()
 
@@ -29,10 +29,9 @@ class MemorySearchController: BaseViewController {
         return layout
     }
     
-    lazy var collectionView: UICollectionView = {
+    lazy var collectionView: NMCollectionView = {
         let layout = getLayout()
-        let view = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        view.backgroundColor = .white
+        let view = NMCollectionView(frame: .zero, collectionViewLayout: layout)
         view.showsHorizontalScrollIndicator = false
         view.translatesAutoresizingMaskIntoConstraints = false
         view.register(MemoryCollectionViewCell.self, forCellWithReuseIdentifier: MemoryCollectionViewCell.reuseIdentifier)
@@ -40,10 +39,16 @@ class MemorySearchController: BaseViewController {
         return view
     }()
     
-    lazy var closeButton: UIButton = {
-        let view = UIButton(type: .system)
+    lazy var closeButton: NMButton = {
+        let view = NMButton(type: .system)
         view.setTitle("Close", for: .normal)
         return view
+    }()
+    
+    lazy var searchController: UISearchController = {
+        let controller = NMSearchController(searchResultsController: nil)
+        controller.obscuresBackgroundDuringPresentation = false
+        return controller
     }()
     
     let viewModel: MemorySearchViewModelType
@@ -62,7 +67,7 @@ class MemorySearchController: BaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = .white
+        
         definesPresentationContext = true
         setupSearchController()
         setupCloseButton()
@@ -80,39 +85,42 @@ class MemorySearchController: BaseViewController {
     }
     
     private func setupSearchController() {
-        let searchContronller = UISearchController(searchResultsController: nil)
-        searchContronller.searchBar.placeholder = "Type something here to search"
+        searchController = NMSearchController(searchResultsController: nil)
+        searchController.obscuresBackgroundDuringPresentation = false
+        navigationItem.searchController = searchController
+        navigationItem.hidesSearchBarWhenScrolling = false
+        
+        searchController.searchBar.placeholder = "Type something here to search"
         
         
-        searchContronller.searchBar.rx
+        searchController.searchBar.rx
             .text.orEmpty
             .bind(to: viewModel.inputs.searchObserver)
             .disposed(by: disposeBag)
         
-        searchContronller.searchBar.rx
+        searchController.searchBar.rx
             .cancelButtonClicked
             .bind(to: viewModel.inputs.searchCancelObserver)
             .disposed(by: disposeBag)
         
-        navigationItem.searchController = searchContronller
+        collectionView.rx.willBeginDragging
+            .subscribe(onNext: { [weak self] in
+                self?.searchController.searchBar.resignFirstResponder()
+            })
+        .disposed(by: disposeBag)
+        
     }
     
     private func setupCollectionView() {
-        
         view.addSubview(collectionView)
         
-        
-        let safeGuide = view.safeAreaLayoutGuide
-        
-        collectionView.leadingAnchor.constraint(equalTo: safeGuide.leadingAnchor).isActive = true
+        collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         collectionView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
-        collectionView.trailingAnchor.constraint(equalTo: safeGuide.trailingAnchor).isActive = true
+        collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
-        
     }
     
     private func setupCloseButton() {
-//        let button = UIBarButtonItem(title: "Close", style: .plain, target: nil, action: nil)
         closeButton.rx.tap
             .subscribe(onNext: { [weak self] in
                 self?.viewModel.inputs.closeRequest()

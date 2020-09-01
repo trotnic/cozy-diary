@@ -22,7 +22,7 @@ class AppCoordinator: ParentCoordinator {
         
     let window: UIWindow
     var childCoordinators: [Coordinator] = []
-    var tabBarController: UITabBarController!
+    var tabBarController: NMTabBarController!
     
     let memoryStore: MemoryStoreType
     
@@ -32,9 +32,9 @@ class AppCoordinator: ParentCoordinator {
     }
     
     func start() {
-        tabBarController = PageTabBarController()
+        tabBarController = NMTabBarController()
         
-        let wrapController = UINavigationController()
+        let wrapController = NMNavigationController()
         
         wrapController.tabBarItem = UITabBarItem(title: "Today", image: UIImage(systemName: "tortoise"), tag: 0)
 
@@ -49,7 +49,7 @@ class AppCoordinator: ParentCoordinator {
 
         let memoryCollectionCoordinator = MemoryCollectionCoordinator(memoryStore: memoryStore)
 
-        
+
         childCoordinators.append(memoryCollectionCoordinator)
         memoryCollectionCoordinator.start()
         memoryCollectionCoordinator.navigationController.tabBarItem = UITabBarItem(title: "Previous", image: UIImage(systemName: "flame"), tag: 1)
@@ -58,7 +58,13 @@ class AppCoordinator: ParentCoordinator {
             memoryEditCoordinator.navigationController,
             memoryCollectionCoordinator.navigationController
         ]
-        
+//        let coordinator = UnsplashImageCollectionCoordinator()
+//        childCoordinators.append(coordinator)
+//        coordinator.start()
+//
+//        wrapController.setViewControllers([coordinator.viewController], animated: true)
+//
+//        tabBarController.viewControllers = [wrapController]
         tabBarController.selectedIndex = 1
         
         window.rootViewController = tabBarController

@@ -10,7 +10,7 @@ import UIKit
 import RxSwift
 import PencilKit
 
-class GraffitiCreateViewController: BaseViewController {
+class GraffitiCreateViewController: NMViewController {
 
     let viewModel: GraffitiCreateViewModelType
     

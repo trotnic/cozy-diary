@@ -88,6 +88,7 @@ class MemoryCollectionViewModel: MemoryCollectionViewModelType, MemoryCollection
 protocol MemoryCollectionCommonItemViewModelOutput {
     var date: Observable<String> { get }
     var text: Observable<String> { get }
+    var image: Observable<Data?> { get }
     
     var tapRequestObservable: Observable<Void> { get }
 }
@@ -115,9 +116,14 @@ class MemoryCollectionCommonItemViewModel: MemoryCollectionCommonItemViewModelTy
     }()
     
     lazy var text: Observable<String> = {
-        let result = memory.texts.first?.text.string ?? ""
-        
-        return .just(result)
+        if let result = memory.texts.first?.text.string {
+            return .just(result)
+        }
+        return .just("")
+    }()
+    
+    lazy var image: Observable<Data?> = {        
+        .just(memory.photos.first?.photo)
     }()
     
     var tapRequestObservable: Observable<Void>

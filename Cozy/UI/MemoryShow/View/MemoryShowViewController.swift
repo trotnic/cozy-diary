@@ -16,7 +16,7 @@ protocol MemoryShowViewModelType {
     
 }
 
-class MemoryShowViewController: BaseViewController {
+class MemoryShowViewController: NMViewController {
 
     let viewModel: MemoryShowViewModelType
     private let disposeBag = DisposeBag()

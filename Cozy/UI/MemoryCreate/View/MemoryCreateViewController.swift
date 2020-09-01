@@ -11,7 +11,7 @@ import RxCocoa
 import RxSwift
 
 
-class MemoryCreateViewController: BaseViewController {
+class MemoryCreateViewController: NMViewController {
 
     let viewModel: MemoryCreateViewModelType!
     

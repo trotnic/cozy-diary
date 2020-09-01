@@ -28,7 +28,7 @@ extension Reactive where Base: UIAlertController {
 }
 
 
-class ImageProposalSheetController: UIAlertController {
+class ImageProposalSheetController: NMAlertController {
 
     var viewModel: ImageProposalViewModelType!
     
@@ -46,10 +46,6 @@ class ImageProposalSheetController: UIAlertController {
         
         outputs.title
             .bind(to: self.rx.title)
-            .disposed(by: disposeBag)
-        
-        outputs.message
-            .bind(to: self.rx.message)
             .disposed(by: disposeBag)
         
         let unsplashAction = UIAlertAction(
@@ -72,7 +68,7 @@ class ImageProposalSheetController: UIAlertController {
         
         let cancelAction = UIAlertAction(
             title: "Cancel",
-            style: .cancel,
+            style: .destructive,
             handler: { _ in inputs.cancelAction()})
         addAction(cancelAction)
     }
