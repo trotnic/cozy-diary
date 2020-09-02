@@ -48,14 +48,6 @@ class NMTabBarController: UITabBarController {
         dividerLeadingConstraint.isActive = true
         dividerTrailingConstraint.isActive = true
     }
-    
-    override func viewWillLayoutSubviews() {
-        super.viewWillLayoutSubviews()
-        let insetSize = tabBar.safeAreaInsets
-        
-        dividerLeadingConstraint.constant = insetSize.left
-        dividerTrailingConstraint.constant = -insetSize.right
-    }
 }
 
 extension NMTabBarController {

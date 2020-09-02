@@ -8,6 +8,8 @@
 
 import Foundation
 import RxSwift
+import Alertift
+
 
 class ImageProposalCoordinator: ParentCoordinator {
     
@@ -25,8 +27,7 @@ class ImageProposalCoordinator: ParentCoordinator {
     let imagePicker = ImagePicker()
     var viewController: ImageProposalSheetController!
     
-    let navigationController: UINavigationController
-    let presentationController: UIViewController
+    let presentingController: UIViewController
     
     // MARK: Private
     private let disposeBag = DisposeBag()
@@ -35,21 +36,16 @@ class ImageProposalCoordinator: ParentCoordinator {
     private let cancelObserver = PublishSubject<Void>()
     
     // MARK: Init
-    init(presentationController: UIViewController, navigationController: UINavigationController) {
-        self.presentationController = presentationController
-        self.navigationController = navigationController
+    init(presentingController: UIViewController) {
+        self.presentingController = presentingController
     }
     
     func start() {
-        viewController = .init()
-        
-        let viewModel = ImageProposalViewModel(title: "Choose image source", message: "")
-        viewController.viewModel = viewModel
-        
-        viewModel.outputs.unsplashObservable.subscribe(onNext: { _ in
+        Alertift.actionSheet()
+            .action(.default("Pick on Unsplash")) { [weak self] (action, tag) in
+                guard let self = self else { return }
+                let coordinator = UnsplashImageCollectionCoordinator(presentingController: self.presentingController)
                 
-            let coordinator = UnsplashImageCollectionCoordinator(presentingController: self.presentationController)
-            
                 self.childCoordinators.append(coordinator)
                 
                 coordinator.metaObservable
@@ -61,38 +57,28 @@ class ImageProposalCoordinator: ParentCoordinator {
                     .disposed(by: self.disposeBag)
                 
                 coordinator.start()
-                
-                
-            })
-            .disposed(by: disposeBag)
-        
-        viewModel.outputs.galleryObservable.subscribe(onNext: { [weak self] (_) in
+            }
+            .action(.default("Photo Library")) { [weak self] (action, tag) in
                 self?.imagePicker.prepareGallery({ (controller) in
-                    self?.presentationController.present(controller, animated: true)
+                    self?.presentingController.present(controller, animated: true)
                 }, completion: { (meta) in
-                    self?.presentationController.dismiss(animated: true)
+                    self?.presentingController.dismiss(animated: true)
                     self?.metaObserver.onNext(meta)
                     self?.cancelObserver.onNext(())
                 })
-            })
-            .disposed(by: disposeBag)
-        
-        viewModel.outputs.cameraObservable.subscribe(onNext: { [weak self] (_) in
+                
+            }
+            .action(.default("Take Photo")) { [weak self] (action, tag) in
                 self?.imagePicker.prepareCamera({ (controller) in
-                    self?.presentationController.present(controller, animated: true)
+                    self?.presentingController.present(controller, animated: true)
                 }, completion: { (meta) in
-                    self?.presentationController.dismiss(animated: true)
+                    self?.presentingController.dismiss(animated: true)
                     self?.metaObserver.onNext(meta)
                     self?.cancelObserver.onNext(())
                 })
-            })
-            .disposed(by: disposeBag)
-        
-        viewModel.outputs.cancelObservable
-            .bind(to: cancelObserver)
-            .disposed(by: disposeBag)
-        
-        presentationController.present(viewController, animated: true)
+            }
+            .action(.cancel("Cancel"))
+            .show(on: presentingController)
     }
     
 }

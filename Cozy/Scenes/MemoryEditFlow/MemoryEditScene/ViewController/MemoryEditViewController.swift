@@ -31,7 +31,7 @@ protocol MemoryCreateViewModelOutput {
     var photoDetailRequestObservable: Observable<Data> { get }
     var photoShareRequestObservable: Observable<Data> { get }
     
-    var mapInsertRequestObservable: Observable<Void> { get }
+    var tagAddRequestObservable: Observable<Memory> { get }
     
     var graffitiInsertRequestObservable: Observable<Void> { get }
 }
@@ -41,8 +41,9 @@ protocol MemoryCreateViewModelInput {
     
     var textChunkInsertRequest: () -> () { get }
     var photoChunkInsertRequest: () -> () { get }
-    var mapChunkInsertRequest: () -> () { get }
     var graffitiChunkInsertRequest: () -> () { get }
+    
+    var tagAddRequest: () -> () { get }
     
     var photoInsertResponse: (ImageMeta) -> () { get }
     var graffitiInsertResponse: (Data) -> () { get }
@@ -332,8 +333,8 @@ class MemoryEditViewController: NMViewController {
             panelButtonBuilder("plus", { [weak self] in
                 self?.viewModel.inputs.photoChunkInsertRequest()
             }),
-            panelButtonBuilder("mappin", { [weak self] in
-                self?.viewModel.inputs.mapChunkInsertRequest()
+            panelButtonBuilder("bookmark", { [weak self] in
+                self?.viewModel.inputs.tagAddRequest()
             }),
             panelButtonBuilder("paintbrush", { [weak self] in
                 self?.viewModel.inputs.graffitiChunkInsertRequest()

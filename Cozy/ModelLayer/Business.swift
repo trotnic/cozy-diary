@@ -27,12 +27,14 @@ protocol GraffitiChunkable: Chunkable {
 }
 // structs
 
-class Memory {
+final class Memory: Taggable {
     let date: Date
     private(set) var index: Int
     private(set) var texts: Array<TextChunk>
     private(set) var photos: Array<PhotoChunk>
     private(set) var graffities: Array<GraffitiChunk>
+    
+    var tags: Tags = []
     
     private var total: Int {
         texts.count + photos.count
@@ -43,18 +45,21 @@ class Memory {
         index: Int,
         texts: Array<TextChunk>,
         photos: Array<PhotoChunk>,
-        graffities: Array<GraffitiChunk>
+        graffities: Array<GraffitiChunk>,
+        tags: Array<String>
     ) {
         self.date = date
         self.index = index
         self.texts = texts
         self.photos = photos
         self.graffities = graffities
+        self.tags = tags.map { item -> Tag<Memory> in .init(stringLiteral: item) }
     }
     
     func insertTextChunk(_ text: String) {
         texts.append(TextChunk(text: NSAttributedString(string: text), index: index))
         index += 1
+        
     }
     
     func insertPhoto(_ photo: Data) {
@@ -110,7 +115,8 @@ extension Memory {
             index: 0,
             texts: [],
             photos: [],
-            graffities: []
+            graffities: [],
+            tags: []
         )
     }
 }

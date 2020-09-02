@@ -36,7 +36,7 @@ struct MemoryCollectionViewDataSource {
     
     static func dataSource() -> DataSource<MemoryCollectionViewSection> {
         return .init(configureCell: { (dataSource, collectionView, indexPath, item) -> UICollectionViewCell in
-            switch dataSource[indexPath] {
+            switch item {
             case let .CommonItem(viewModel):
                 if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MemoryCollectionViewCell.reuseIdentifier, for: indexPath) as? MemoryCollectionViewCell {
                     cell.viewModel = viewModel
@@ -99,13 +99,13 @@ class MemoryCollectionViewController: NMViewController {
         viewModel.inputs.viewWillAppear.accept(())
     }
     
-    // MARK: Private methods
-    private func bindViewModel() {
+    func bindViewModel() {
         viewModel.outputs.items
             .drive(collectionView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
     }
     
+    // MARK: Private methods
     private func setupCollectionView() {
         
         collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true

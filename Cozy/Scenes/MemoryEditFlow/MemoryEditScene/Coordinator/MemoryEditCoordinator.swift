@@ -9,6 +9,7 @@
 import Foundation
 import RxSwift
 import RxCocoa
+import Alertift
 
 
 class MemoryEditCoordinator: ParentCoordinator {
@@ -42,14 +43,16 @@ extension MemoryEditCoordinator {
     func start() {
         let viewModel = MemoryEditViewModel(memory: memory, memoryStore: memoryStore)
         
-        viewController = .init(viewModel)
+        
         
      
         processPhotoDetail(viewModel)
         processPhotoInsert(viewModel)
         processPhotoShare(viewModel)
-        processMapInsert(viewModel)
+        processTagAdd(viewModel)
         processGraffitiInsert(viewModel)
+        
+        viewController = .init(viewModel)
     }
     
     
@@ -65,7 +68,18 @@ extension MemoryEditCoordinator {
                         .subscribe(onNext: {
                             viewController.dismiss(animated: true)
                         })
-                    .disposed(by: self.disposeBag)
+                        .disposed(by: self.disposeBag)
+                    
+                    viewModel.outputs.moreRequestObservable
+                        .subscribe(onNext: {
+                            Alertift.actionSheet()
+                                .action(.default("Share"))
+                                .action(.destructive("Delete"))
+                                .action(.cancel("Cancel"))
+                                .show(on: viewController)
+                            
+                        })
+                        .disposed(by: self.disposeBag)
                     
                     viewController.modalPresentationStyle = .fullScreen
                     self.viewController.present(viewController, animated: true)
@@ -78,7 +92,7 @@ extension MemoryEditCoordinator {
         viewModel.outputs.photoInsertRequestObservable
             .subscribe(onNext: { [weak self] in
                 if let self = self {
-                    let coordinator = ImageProposalCoordinator(presentationController: self.viewController, navigationController: self.navigationController)
+                    let coordinator = ImageProposalCoordinator(presentingController: self.viewController)
                     
                     coordinator.start()
                     
@@ -118,15 +132,16 @@ extension MemoryEditCoordinator {
         .disposed(by: disposeBag)
     }
     
-    private func processMapInsert(_ viewModel: MemoryCreateViewModelType) {
-        viewModel.outputs.mapInsertRequestObservable
-            .subscribe(onNext: {
-//                [weak self] in
-//                if let vc = self?.navigationController {
-//                    let coord = MapCreateCoordinator(vc)
-//                    self?.childCoordinators.append(coord)
-//                    coord.start()
-//                }
+    private func processTagAdd(_ viewModel: MemoryCreateViewModelType) {
+        viewModel.outputs.tagAddRequestObservable
+            .subscribe(onNext: { [weak self] memory in
+                if let self = self {
+                    let coordinator = TagsListCoordinator(presentingController: self.viewController,
+                                                          manager: .init(with: memory),
+                                                          memoryStore: self.memoryStore)
+                    self.childCoordinators.append(coordinator)
+                    coordinator.start()
+                }
             })
         .disposed(by: disposeBag)
     }

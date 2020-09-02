@@ -35,7 +35,7 @@ class MemoryEditViewModel: MemoryCreateViewModelType, MemoryCreateViewModelOutpu
     var photoDetailRequestObservable: Observable<Data> { photoDetailObserver.asObservable() }
     var photoShareRequestObservable: Observable<Data> { photoShareObserver.asObservable() }
     
-    var mapInsertRequestObservable: Observable<Void> { mapInsertObserver.asObservable() }
+    var tagAddRequestObservable: Observable<Memory> { tagAddObserver.asObservable() }
     
     var graffitiInsertRequestObservable: Observable<Void> { graffitiInsertObserver.asObservable() }
     
@@ -53,23 +53,9 @@ class MemoryEditViewModel: MemoryCreateViewModelType, MemoryCreateViewModelOutpu
         }
     }()
     
-    lazy var photoChunkInsertRequest: () -> () = {
-        {
-            self.photoInsertObserver.onNext(())
-        }
-    }()
-    
-    lazy var mapChunkInsertRequest: () -> () = {
-        {
-            self.mapInsertObserver.onNext(())
-        }
-    }()
-    
-    lazy var graffitiChunkInsertRequest: () -> () = {
-        {
-            self.graffitiInsertObserver.onNext(())
-        }
-    }()
+    lazy var photoChunkInsertRequest: () -> () = { { self.photoInsertObserver.onNext(()) } }()
+    lazy var tagAddRequest: () -> () = { { self.tagAddObserver.onNext(self.memory.value) } }()
+    lazy var graffitiChunkInsertRequest: () -> () = { { self.graffitiInsertObserver.onNext(()) } }()
     
     lazy var photoInsertResponse: (ImageMeta) -> () = {
         { meta in
@@ -94,7 +80,7 @@ class MemoryEditViewModel: MemoryCreateViewModelType, MemoryCreateViewModelOutpu
     private let photoInsertObserver = PublishSubject<Void>()
     private let photoDetailObserver = PublishSubject<Data>()
     private let photoShareObserver = PublishSubject<Data>()
-    private let mapInsertObserver = PublishSubject<Void>()
+    private let tagAddObserver = PublishSubject<Memory>()
     private let graffitiInsertObserver = PublishSubject<Void>()
     
     private let memory: BehaviorRelay<Memory>

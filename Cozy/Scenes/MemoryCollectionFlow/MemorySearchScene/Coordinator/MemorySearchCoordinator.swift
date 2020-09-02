@@ -27,14 +27,14 @@ class MemorySearchCoordinator: ParentCoordinator {
     }
     
     func start() {
-        let viewModel = MemorySearchViewModel(memoryStore: memoryStore)
+        let viewModel = MemorySearchViewModel(memoryStore: memoryStore, filterManager: FilterManager())
         viewController = MemorySearchController(viewModel: viewModel)
         
         navigationController = NMNavigationController()
         navigationController.pushViewController(viewController, animated: true)
         navigationController.modalPresentationStyle = .overFullScreen
         
-        viewModel.outputs.closeObservable
+        viewModel.outputs.dismissCurrentController
             .subscribe(onNext: { [weak self] in
                 self?.navigationController.dismiss(animated: true)
             })
@@ -45,7 +45,13 @@ class MemorySearchCoordinator: ParentCoordinator {
                 self?.gotodetail(memory: memory)
             })
             .disposed(by: disposeBag)
-
+        
+        viewModel.outputs.showFilter
+            .subscribe(onNext: { [weak self] (manager) in
+                self?.presentFilterScreen(filterManager: manager)
+            })
+            .disposed(by: disposeBag)
+        
         presentingController.present(navigationController, animated: true)
     }
     
@@ -54,8 +60,14 @@ class MemorySearchCoordinator: ParentCoordinator {
         let editCoordinator = MemoryEditCoordinator(memory: memory, memoryStore: memoryStore, navigationController: navigationController)
         childCoordinators.append(editCoordinator)
         editCoordinator.start()
-        navigationController.pushViewController(editCoordinator.viewController, animated: true)
+        navigationController.pushViewController(editCoordinator.viewController, animated: true)  
+    }
+    
+    func presentFilterScreen(filterManager: FilterManagerType) {
+        let viewModel = MemorySearchFilterViewModel(manager: filterManager)
+        let controller = MemorySearchFilterController(viewModel: viewModel)
         
+        self.viewController.present(controller, animated: true)
     }
     
 }

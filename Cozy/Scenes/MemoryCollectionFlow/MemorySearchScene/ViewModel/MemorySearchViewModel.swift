@@ -12,18 +12,22 @@ import RxCocoa
 
 
 protocol MemorySearchViewModelOutput {
-    var closeObservable: Observable<Void> { get }
-    
     var items: Driver<[MemoryCollectionViewSection]> { get }
     
-    var showDetail: PublishRelay<Memory> { get }
+    var dismissCurrentController: Observable<Void> { get }
+    var showFilter: Observable<FilterManagerType> { get }
+    var showDetail: Observable<Memory> { get }
 }
 
 protocol MemorySearchViewModelInput {
-    var closeRequest: () -> () { get }
+    var searchButtonTap: PublishRelay<Void> { get }
     
     var searchObserver: PublishRelay<String> { get }
     var searchCancelObserver: PublishRelay<Void> { get }
+    
+    var filterButtonTap: PublishRelay<Void> { get } // some service as pushed object
+    var closeButtonTap: PublishRelay<Void> { get }
+    var didSelectItem: PublishRelay<Memory> { get }
 }
 
 protocol MemorySearchViewModelType {
@@ -44,7 +48,7 @@ class MemorySearchViewModel: MemorySearchViewModelType, MemorySearchViewModelOut
                     let viewModel = MemoryCollectionCommonItemViewModel(memory: memory)
                     viewModel.outputs.tapRequestObservable
                         .subscribe(onNext: { [weak self] in
-                            self?.showDetail.accept(memory)
+                            self?.inputs.didSelectItem.accept(memory)
                         })
                         .disposed(by: self.disposeBag)
                     return .CommonItem(viewModel: viewModel)
@@ -53,14 +57,27 @@ class MemorySearchViewModel: MemorySearchViewModelType, MemorySearchViewModelOut
         .asDriver(onErrorJustReturn: [])
     }
     
-    let closeObservable: Observable<Void>
-    let showDetail = PublishRelay<Memory>()
+    
+    
+    
+    // MARK: Coordinator output
+    var showFilter: Observable<FilterManagerType> {
+        filterButtonTap.flatMap { [unowned self] (_) -> Observable<FilterManagerType> in
+            .just(self.filterManager)
+        }
+    }
+    var showDetail: Observable<Memory> { didSelectItem.asObservable() }
+    var dismissCurrentController: Observable<Void> { closeButtonTap.asObservable() }
     
     // MARK: Inputs
-    lazy var closeRequest = { { self.closePublisher.onNext(()) } }()
+    let filterButtonTap = PublishRelay<Void>()
+    let closeButtonTap = PublishRelay<Void>()
+    let didSelectItem = PublishRelay<Memory>()
+    
+    let searchButtonTap = PublishRelay<Void>()
+    
     let searchObserver = PublishRelay<String>()
     let searchCancelObserver = PublishRelay<Void>()
-    
     
     // MARK: Private
     private let disposeBag = DisposeBag()
@@ -71,19 +88,16 @@ class MemorySearchViewModel: MemorySearchViewModelType, MemorySearchViewModelOut
     
     private let memoryStore: MemoryStoreType
     
+    private let filterManager: FilterManagerType
+    
     // MARK: Init
-    init(memoryStore: MemoryStoreType) {
+    init(memoryStore: MemoryStoreType, filterManager: FilterManagerType) {
         self.memoryStore = memoryStore
-        
-        closeObservable = closePublisher.asObservable()
-        
-        
+        self.filterManager = filterManager
         
         memoryStore.fetchAll()
             .bind(to: itemsPublisher)
             .disposed(by: disposeBag)
-        
-        
         
         searchObserver
             .flatMapLatest({ [unowned self] (string) -> Observable<String> in

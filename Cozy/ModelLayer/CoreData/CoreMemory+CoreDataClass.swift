@@ -23,7 +23,8 @@ public class CoreMemory: NSManagedObject {
             index: Int(increment),
             texts: textChunks,
             photos: photoChunks,
-            graffities: graffitiChunks
+            graffities: graffitiChunks,
+            tags: tagsRepresentation
         )
     }
     
@@ -51,6 +52,15 @@ public class CoreMemory: NSManagedObject {
         }
         set {
             graffities = NSSet(array: newValue)
+        }
+    }
+    
+    var tagsRepresentation: Array<String> {
+        get {
+            tags?.map { String($0) } ?? []
+        }
+        set {
+            tags = newValue.map { NSString(string: $0) }
         }
     }
     
@@ -82,6 +92,8 @@ public class CoreMemory: NSManagedObject {
             graffitiEntity.graffiti = $0.graffiti
             return graffitiEntity
         })
+        
+        tagsRepresentation = memory.tags.map { $0.rawValue }
     }
     
     static func update(_ memory: Memory) {
@@ -114,6 +126,8 @@ public class CoreMemory: NSManagedObject {
                     graffityEntity.graffiti = $0.graffiti
                     return graffityEntity
                 })
+                
+                entity?.tagsRepresentation = memory.tags.map { $0.rawValue }
                 
                 entity?.increment = Int64(copy.index)
                 

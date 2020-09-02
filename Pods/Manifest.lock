@@ -1,4 +1,5 @@
 PODS:
+  - Alertift (4.1.1)
   - Differentiator (4.0.1)
   - Kingfisher (5.15.0):
     - Kingfisher/Core (= 5.15.0)
@@ -15,6 +16,7 @@ PODS:
   - RxSwift (5.1.1)
 
 DEPENDENCIES:
+  - Alertift (~> 4.1)
   - Kingfisher
   - RxCocoa
   - RxDataSources
@@ -22,6 +24,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - Alertift
     - Differentiator
     - Kingfisher
     - RxCocoa
@@ -30,6 +33,7 @@ SPEC REPOS:
     - RxSwift
 
 SPEC CHECKSUMS:
+  Alertift: 950483ca193717cc8bb508a7dbbe34f4af321daf
   Differentiator: 886080237d9f87f322641dedbc5be257061b0602
   Kingfisher: 1acb67597a520c2d0310677e66d6e0af455ef757
   RxCocoa: 32065309a38d29b5b0db858819b5bf9ef038b601
@@ -37,6 +41,6 @@ SPEC CHECKSUMS:
   RxRelay: d77f7d771495f43c556cbc43eebd1bb54d01e8e9
   RxSwift: 81470a2074fa8780320ea5fe4102807cb7118178
 
-PODFILE CHECKSUM: 94f445e42de37d68996bc7ede7a5dcc0e19c6d1d
+PODFILE CHECKSUM: 240fb48adca236f245f57c808ee64f324fbe8111
 
 COCOAPODS: 1.9.3

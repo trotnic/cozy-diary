@@ -9,6 +9,7 @@ target 'Cozy' do
   pod 'RxCocoa'
   pod 'RxDataSources'
   pod 'Kingfisher'
+  pod 'Alertift', '~> 4.1'
     
   # Pods for Cozy
 

@@ -5,9 +5,10 @@
         <attribute name="index" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <relationship name="model" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CoreMemory" inverseName="graffities" inverseEntity="CoreMemory"/>
     </entity>
-    <entity name="CoreMemory" representedClassName="CoreMemory" syncable="YES" codeGenerationType="category">
+    <entity name="CoreMemory" representedClassName="CoreMemory" syncable="YES">
         <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="increment" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="tags" optional="YES" attributeType="Transformable"/>
         <relationship name="graffities" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CoreGraffitiChunk" inverseName="model" inverseEntity="CoreGraffitiChunk"/>
         <relationship name="photos" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CorePhotoChunk" inverseName="model" inverseEntity="CorePhotoChunk"/>
         <relationship name="texts" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CoreTextChunk" inverseName="model" inverseEntity="CoreTextChunk"/>
@@ -24,7 +25,7 @@
     </entity>
     <elements>
         <element name="CoreGraffitiChunk" positionX="-36" positionY="54" width="128" height="88"/>
-        <element name="CoreMemory" positionX="-45" positionY="0" width="128" height="28"/>
+        <element name="CoreMemory" positionX="-45" positionY="0" width="128" height="133"/>
         <element name="CorePhotoChunk" positionX="-27" positionY="45" width="128" height="88"/>
         <element name="CoreTextChunk" positionX="-18" positionY="36" width="128" height="88"/>
     </elements>

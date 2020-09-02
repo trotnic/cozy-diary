@@ -45,6 +45,12 @@ class MemorySearchController: NMViewController {
         return view
     }()
     
+    lazy var filterButton: NMButton = {
+        let view = NMButton()
+        view.setImage(UIImage(systemName: "line.horizontal.3.decrease"), for: .normal)
+        return view
+    }()
+    
     lazy var searchController: UISearchController = {
         let controller = NMSearchController(searchResultsController: nil)
         controller.obscuresBackgroundDuringPresentation = false
@@ -67,12 +73,12 @@ class MemorySearchController: NMViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        
         definesPresentationContext = true
+        
         setupSearchController()
         setupCloseButton()
+        setupFilterButton()
         setupCollectionView()
-        
         bindViewModel()
     }
     
@@ -81,17 +87,16 @@ class MemorySearchController: NMViewController {
             .items
             .drive(collectionView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
-            
     }
     
+    // MARK: Private methods
     private func setupSearchController() {
         searchController = NMSearchController(searchResultsController: nil)
         searchController.obscuresBackgroundDuringPresentation = false
         navigationItem.searchController = searchController
         navigationItem.hidesSearchBarWhenScrolling = false
         
-        searchController.searchBar.placeholder = "Type something here to search"
-        
+        searchController.searchBar.placeholder = "Search for memories"
         
         searchController.searchBar.rx
             .text.orEmpty
@@ -122,13 +127,17 @@ class MemorySearchController: NMViewController {
     
     private func setupCloseButton() {
         closeButton.rx.tap
-            .subscribe(onNext: { [weak self] in
-                self?.viewModel.inputs.closeRequest()
-            })
+            .bind(to: viewModel.inputs.closeButtonTap)
             .disposed(by: disposeBag)
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: closeButton)
+    }
+    
+    private func setupFilterButton() {
+        filterButton.rx.tap
+            .bind(to: viewModel.inputs.filterButtonTap)
+            .disposed(by: disposeBag)
         
-        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: filterButton)
     }
 }

@@ -9,10 +9,48 @@
 import Foundation
 import RxSwift
 import RxCocoa
+import Alertift
 
 
 class ThemeManager {
     static let shared = ThemeManager()
+    
+    private let disposeBag = DisposeBag()
+    
+    private init() {
+        
+        
+        currentTheme.bind { (color) in
+            color.backgroundColor.bind { (color) in
+                Alertift.Alert.backgroundColor = color
+                
+                Alertift.ActionSheet.backgroundColor = color
+            }
+            .disposed(by: self.disposeBag)
+            
+            color.textColor.bind { (color) in
+                Alertift.Alert.titleTextColor = color
+                Alertift.Alert.messageTextColor = color
+                
+                
+                Alertift.ActionSheet.titleTextColor = color
+                Alertift.ActionSheet.messageTextColor = color
+                
+                
+                
+            }
+            .disposed(by: self.disposeBag)
+            
+            color.tintColor.bind { (color) in
+                Alertift.Alert.buttonTextColor = color
+                
+                Alertift.ActionSheet.buttonTextColor = color
+            }
+            .disposed(by: self.disposeBag)
+        }
+        .disposed(by: self.disposeBag)
+    }
+    
     let currentTheme = BehaviorRelay<Theme>(value: LightTheme())
 }
 
