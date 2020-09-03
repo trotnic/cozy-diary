@@ -1,30 +1,27 @@
 //
-//  MemorySearchFilterCollectionCell.swift
+//  MemorySearchFilterDateCell.swift
 //  Cozy
 //
-//  Created by Uladzislau Volchyk on 9/2/20.
+//  Created by Uladzislau Volchyk on 9/3/20.
 //  Copyright © 2020 Uladzislau Volchyk. All rights reserved.
 //
 
 import UIKit
-import RxCocoa
 import RxSwift
-import RxDataSources
-
-// MARK: Tags
+import RxCocoa
 
 
-class MemorySearchFilterTagCell: NMCollectionViewCell {
-    static let reuseIdentifier = "MemorySearchFilterTagCell"
+class MemorySearchFilterDateCell: NMCollectionViewCell {
+    static let reuseIdentifier = "MemorySearchFilterDateCell"
     
-    private var viewModel: MemorySearchFilterTagsViewModelType!
+    private var viewModel: MemorySearchFilterMonthsViewModelType!
     private let disposeBag = DisposeBag()
     
     lazy var collectionView: NMCollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.estimatedItemSize = .init(width: 10, height: 10)
         let view = NMCollectionView(frame: .zero, collectionViewLayout: layout)
-        view.register(FilterTagCell.self, forCellWithReuseIdentifier: FilterTagCell.reuseIdentifier)
+        view.register(FilterMonthCell.self, forCellWithReuseIdentifier: FilterMonthCell.reuseIdentifier)
         view.delegate = nil
         view.dataSource = nil
         view.showsHorizontalScrollIndicator = false
@@ -41,11 +38,11 @@ class MemorySearchFilterTagCell: NMCollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func bindViewModel(_ viewModel: MemorySearchFilterTagsViewModelType) {
+    func bindViewModel(_ viewModel: MemorySearchFilterMonthsViewModelType) {
         self.viewModel = viewModel
         
         viewModel.outputs.items
-            .bind(to: collectionView.rx.items(cellIdentifier: FilterTagCell.reuseIdentifier, cellType: FilterTagCell.self)) { item, model, cell in
+            .bind(to: collectionView.rx.items(cellIdentifier: FilterMonthCell.reuseIdentifier, cellType: FilterMonthCell.self)) { item, model, cell in
                 cell.bindModel(model)
         }
         .disposed(by: disposeBag)
@@ -63,10 +60,11 @@ class MemorySearchFilterTagCell: NMCollectionViewCell {
     }
 }
 
-class FilterTagCell: NMCollectionViewCell {
-    static let reuseIdentifier = "FilterTagCell"
+
+class FilterMonthCell: NMCollectionViewCell {
+    static let reuseIdentifier = "FilterMonthCell"
     
-    private var tagModel: BehaviorRelay<TagModel>! {
+    private var monthModel: BehaviorRelay<MonthModel>! {
         didSet {
             bindBehavior()
         }
@@ -76,7 +74,6 @@ class FilterTagCell: NMCollectionViewCell {
     
     lazy var textLabel: NMLabel = {
         let view = NMLabel()
-        view.textAlignment = .center
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -91,17 +88,32 @@ class FilterTagCell: NMCollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func bindModel(_ tagModel: BehaviorRelay<TagModel>) {
-        self.tagModel = tagModel
+    func bindModel(_ model: BehaviorRelay<MonthModel>) {
+        self.monthModel = model
     }
     
     private func bindBehavior() {
-        tagModel.bind { [weak self] (tagModel) in
-            self?.textLabel.text = tagModel.value
-            self?.isSelected = tagModel.isSelected
+        monthModel.bind { [weak self] (monthModel) in
+            switch monthModel.value {
+            case let .january(value, _),
+                 let .february(value, _),
+                 let .march(value, _),
+                 let .april(value, _),
+                 let .may(value, _),
+                 let .june(value, _),
+                 let .july(value, _),
+                 let .august(value, _),
+                 let .september(value, _),
+                 let .october(value, _),
+                 let .november(value, _),
+                 let .december(value, _):
+                self?.textLabel.text = value
+            }
             
-            if tagModel.isSelected {
-                self?.layer.shadowOffset = CGSize(width: -2, height: -2)                
+            self?.isSelected = monthModel.isSelected
+            
+            if monthModel.isSelected {
+                self?.layer.shadowOffset = CGSize(width: -2, height: -2)
             } else {
                 self?.layer.shadowOffset = CGSize(width: 2, height: 2)
             }
@@ -130,40 +142,9 @@ class FilterTagCell: NMCollectionViewCell {
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        let value = tagModel.value
+        let value = monthModel.value
         value.isSelected.toggle()
-        tagModel.accept(value)
-    }
-    
-}
-
-// MARK: Dates
-
-class MemorySearchFilterDateCell: NMCollectionViewCell {
-    static let reuseIdentifier = "MemorySearchFilterDateCell"
-    
-    lazy var valueLabel: NMLabel = {
-        let view = NMLabel()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setupLabel()
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    private func setupLabel() {
-        contentView.addSubview(valueLabel)
-        
-        valueLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor).isActive = true
-        valueLabel.topAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
-        valueLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor).isActive = true
-        valueLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor).isActive = true
+        monthModel.accept(value)
     }
     
     

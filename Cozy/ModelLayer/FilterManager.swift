@@ -10,10 +10,24 @@ import Foundation
 import RxSwift
 import RxCocoa
 
+enum Months: Equatable, Hashable {
+    case january(value: String = "January", num: Int = 1)
+    case february(value: String = "February", num: Int = 2)
+    case march(value: String = "March", num: Int = 3)
+    case april(value: String = "April", num: Int = 4)
+    case may(value: String = "May", num: Int = 5)
+    case june(value: String = "June", num: Int = 6)
+    case july(value: String = "July", num: Int = 7)
+    case august(value: String = "August", num: Int = 8)
+    case september(value: String = "September", num: Int = 9)
+    case october(value: String = "October", num: Int = 10)
+    case november(value: String = "November", num: Int = 11)
+    case december(value: String = "December", num: Int = 12)
+}
 
 enum Filter: Equatable, Hashable {
     case tag(_ value: String)
-    case date(_ value: Date)
+    case date(_ value: Months)
 }
 
 protocol FilterManagerType: class {
@@ -30,7 +44,7 @@ protocol FilterManagerType: class {
 class FilterManager: FilterManagerType {
     
     private let selectedFiltersBag = BehaviorRelay<Set<Filter>>(value: [])
-    private let allFiltersBag = BehaviorRelay<Set<Filter>>(value: [])
+    private let allFiltersBag = BehaviorRelay<Set<Filter>>(value: defaultFilters())
     
     func allFilters() -> Set<Filter> {
         allFiltersBag.value
@@ -41,7 +55,7 @@ class FilterManager: FilterManagerType {
     }
     
     func refillInitialFiltersWith(_ filters: [Filter]) {
-        allFiltersBag.accept(Set(filters))
+        allFiltersBag.accept(Set(filters).union(FilterManager.defaultFilters()))
     }
     
     func allFiltersObservable() -> Observable<Set<Filter>> {
@@ -65,5 +79,24 @@ class FilterManager: FilterManagerType {
     
     func clearFilters() {
         selectedFiltersBag.accept([])
+    }
+}
+
+extension FilterManager {
+    private static func defaultFilters() -> Set<Filter> {
+        Set([
+            .date(.january()),
+            .date(.february()),
+            .date(.march()),
+            .date(.april()),
+            .date(.may()),
+            .date(.june()),
+            .date(.july()),
+            .date(.august()),
+            .date(.september()),
+            .date(.october()),
+            .date(.november()),
+            .date(.december())
+        ])
     }
 }

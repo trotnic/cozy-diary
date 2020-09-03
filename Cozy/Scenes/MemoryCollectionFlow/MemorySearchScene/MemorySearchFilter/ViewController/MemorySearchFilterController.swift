@@ -16,7 +16,7 @@ import RxDataSources
 
 enum MemorySearchFilterCollectionItem {
     case tagsItem(viewModel: MemorySearchFilterTagsViewModelType)
-    case monthsItem(value: String)
+    case monthsItem(viewModel: MemorySearchFilterMonthsViewModelType)
 }
 
 struct MemorySearchFilterCollectionSection {
@@ -43,11 +43,11 @@ struct MemorySearchFilterCollectionDataSource {
                     return cell
                 }
                 return .init()
-            case let .monthsItem(value):
-//                if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MemorySearchFilterDateCell.reuseIdentifier, for: indexPath) as? MemorySearchFilterDateCell {
-//                    cell.valueLabel.text = value
-//                    return cell
-//                }
+            case let .monthsItem(viewModel):
+                if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MemorySearchFilterDateCell.reuseIdentifier, for: indexPath) as? MemorySearchFilterDateCell {
+                    cell.bindViewModel(viewModel)
+                    return cell
+                }
                 return .init()
             }
         })
@@ -127,7 +127,7 @@ class MemorySearchFilterController: NMViewController {
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         item.contentInsets = .init(top: 7, leading: 14, bottom: 7, trailing: 14)
         
-        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(120))
+        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(200))
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         
         let section = NSCollectionLayoutSection(group: group)

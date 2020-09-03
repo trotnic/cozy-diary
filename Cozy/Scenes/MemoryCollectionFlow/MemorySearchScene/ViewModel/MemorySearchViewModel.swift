@@ -58,9 +58,6 @@ class MemorySearchViewModel: MemorySearchViewModelType, MemorySearchViewModelOut
         .asDriver(onErrorJustReturn: [])
     }
     
-    
-    
-    
     // MARK: Coordinator output
     var showFilter: Observable<FilterManagerType> {
         filterButtonTap.flatMap { [unowned self] (_) -> Observable<FilterManagerType> in
@@ -114,27 +111,51 @@ class MemorySearchViewModel: MemorySearchViewModelType, MemorySearchViewModelOut
                     .filter {term.isEmpty ? true : $0.value.contains(term: term)
                     }, filters)
             })
-            .map { (memories, filters) -> ([BehaviorRelay<Memory>], Array<String>) in
-                var tags: [String] = []
+            .map { (memories, filters) -> ([BehaviorRelay<Memory>], Array<String>, Array<Int>) in
+                var tags = [String]()
+                var months = [Int]()
                 filters.forEach { (filter) in
                     switch filter {
                     case let .tag(value):
                         tags.append(value)
-                    default:
-                        return
+                    case let .date(month):
+                        switch month {
+                        case let .january(_, num),
+                            let .february(_, num),
+                            let .march(_, num),
+                            let .april(_, num),
+                            let .may(_, num),
+                            let .june(_, num),
+                            let .july(_, num),
+                            let .august(_, num),
+                            let .september(_, num),
+                            let .october(_, num),
+                            let .november(_, num),
+                            let .december(_, num):
+                            months.append(num)
+                        }
                     }
                 }
-                return (memories, tags)
+                return (memories, tags, months)
             }
-            .map { (memories, tags) -> [BehaviorRelay<Memory>] in
+            .map { (memories, tags, months) -> ([BehaviorRelay<Memory>], Array<Int>) in
                 var probableResult = memories
                 
                 tags.forEach { (tag) in
                     probableResult = probableResult.filter { $0.value.taggedWith(term: tag) }
                 }
                 
-                return probableResult
+                return (probableResult, months)
             }
+            .map({ (memories, months) -> [BehaviorRelay<Memory>] in
+                var probableResult = memories
+                
+                months.forEach { (month) in
+                    probableResult = probableResult.filter { Calendar.current.component(.month, from: $0.value.date) == month}
+                }
+                
+                return probableResult
+            })
             .flatMap { (memories) -> Observable<[BehaviorRelay<Memory>]> in
                 .just(memories)
             }

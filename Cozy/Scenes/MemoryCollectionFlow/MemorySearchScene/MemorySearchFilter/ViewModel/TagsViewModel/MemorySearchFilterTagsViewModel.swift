@@ -13,7 +13,6 @@ import RxCocoa
 
 class MemorySearchFilterTagsViewModel: MemorySearchFilterTagsViewModelType, MemorySearchFilterTagsViewModelOutput, MemorySearchFilterTagsViewModelInput {
     
-    
     // MARK: Outputs & Inputs
     var outputs: MemorySearchFilterTagsViewModelOutput { return self }
     var inputs: MemorySearchFilterTagsViewModelInput { return self }

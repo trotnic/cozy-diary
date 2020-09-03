@@ -10,15 +10,7 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-class TagModel {
-    var isSelected: Bool
-    let value: String
-    
-    init(value: String, isSelected: Bool = false) {
-        self.value = value
-        self.isSelected = isSelected
-    }
-}
+
 
 class MemorySearchFilterViewModel: MemorySearchFilterViewModelType, MemorySearchFilterViewModelOutput, MemorySearchFilterViewModelInput {
     
@@ -50,14 +42,15 @@ class MemorySearchFilterViewModel: MemorySearchFilterViewModelType, MemorySearch
         let allFilters = manager.allFilters()
         let selectedFilters = manager.currentFilters()
         
-        var tags: [TagModel] = []
+        var tags = [TagModel]()
+        var months = [MonthModel]()
                         
         selectedFilters.forEach { (filter) in
             switch filter {
             case let .tag(value):
                 tags.append(.init(value: value, isSelected: true))
-            default:
-                return
+            case let .date(month):
+                months.append(.init(value: month, isSelected: true))
             }
         }
         
@@ -67,8 +60,8 @@ class MemorySearchFilterViewModel: MemorySearchFilterViewModelType, MemorySearch
             switch filter {
             case let .tag(value):
                 tags.append(.init(value: value))
-            default:
-                return
+            case let .date(month):
+                months.append(.init(value: month))
             }
         }
         
@@ -86,7 +79,24 @@ class MemorySearchFilterViewModel: MemorySearchFilterViewModelType, MemorySearch
             })
             .disposed(by: self.disposeBag)
         
-        let result: [MemorySearchFilterCollectionSection] = [.init(items: [.tagsItem(viewModel: tagsViewModel)])]
+        let monthsViewModel = MemorySearchFilterMonthsViewModel(months: months)
+        
+        monthsViewModel.outputs.appendItem
+            .subscribe(onNext: { [weak self] (month) in
+                self?.manager.insertFilter(.date(month.value))
+            })
+            .disposed(by: self.disposeBag)
+        
+        monthsViewModel.outputs.removeItem
+            .subscribe(onNext: { [weak self] (month) in
+                self?.manager.removeFilter(.date(month.value))
+            })
+            .disposed(by: self.disposeBag)
+        
+        let result: [MemorySearchFilterCollectionSection] = [
+            .init(items: [.tagsItem(viewModel: tagsViewModel)]),
+            .init(items: [.monthsItem(viewModel: monthsViewModel)])
+        ]
         itemsObserver.accept(result)
     }
 }
