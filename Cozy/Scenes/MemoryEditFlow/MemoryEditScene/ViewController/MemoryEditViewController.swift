@@ -11,50 +11,6 @@ import RxCocoa
 import RxSwift
 
 
-
-
-// MARK: View Model Declaration
-
-
-enum MemoryCreateCollectionItem {
-    case TextItem(viewModel: TextChunkViewModelType)
-    case PhotoItem(viewModel: PhotoChunkViewModelType)
-    case GraffitiItem(viewModel: GraffitiChunkViewModelType)
-}
-
-protocol MemoryCreateViewModelOutput {
-    var items: BehaviorRelay<[MemoryCreateCollectionItem]> { get }
-    var title: Driver<String> { get }
-    
-    
-    var photoInsertRequestObservable: Observable<Void> { get }
-    var photoDetailRequestObservable: Observable<Data> { get }
-    var photoShareRequestObservable: Observable<Data> { get }
-    
-    var tagAddRequestObservable: Observable<Memory> { get }
-    
-    var graffitiInsertRequestObservable: Observable<Void> { get }
-}
-
-protocol MemoryCreateViewModelInput {
-    var saveRequest: () -> () { get }
-    
-    var textChunkInsertRequest: () -> () { get }
-    var photoChunkInsertRequest: () -> () { get }
-    var graffitiChunkInsertRequest: () -> () { get }
-    
-    var tagAddRequest: () -> () { get }
-    
-    var photoInsertResponse: (ImageMeta) -> () { get }
-    var graffitiInsertResponse: (Data) -> () { get }
-}
-
-protocol MemoryCreateViewModelType {
-    var outputs: MemoryCreateViewModelOutput { get }
-    var inputs: MemoryCreateViewModelInput { get }
-}
-
-
 // MARK: Controller
 
 
@@ -133,6 +89,11 @@ class MemoryEditViewController: NMViewController {
         setupPanel()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        viewModel.inputs.viewWillAppear.accept(())
+    }
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         isFontEditPanelActive.accept(false)
@@ -141,7 +102,7 @@ class MemoryEditViewController: NMViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        viewModel.inputs.saveRequest()
+        viewModel.inputs.viewWillDisappear.accept(())
     }
     
     func bindViewModel() {
@@ -185,7 +146,7 @@ class MemoryEditViewController: NMViewController {
                     self.isTextPanelActive.accept(false)
                     self.isFontEditPanelActive.accept(false)
                 } else {
-                    self.viewModel.inputs.textChunkInsertRequest()
+                    self.viewModel.inputs.textChunkAdd.accept(())
                     self.contentView.arrangedSubviews.last?.becomeFirstResponder()
                 }
         }
@@ -331,13 +292,13 @@ class MemoryEditViewController: NMViewController {
         
         let commonButtons: [NMButton] = [
             panelButtonBuilder("plus", { [weak self] in
-                self?.viewModel.inputs.photoChunkInsertRequest()
+                self?.viewModel.inputs.photoChunkAdd.accept(())
             }),
             panelButtonBuilder("bookmark", { [weak self] in
-                self?.viewModel.inputs.tagAddRequest()
+                self?.viewModel.inputs.tagAdd.accept(())
             }),
             panelButtonBuilder("paintbrush", { [weak self] in
-                self?.viewModel.inputs.graffitiChunkInsertRequest()
+                self?.viewModel.inputs.graffitiChunkAdd.accept(())
             })
         ]
         
@@ -369,7 +330,6 @@ class MemoryEditViewController: NMViewController {
         scrollView.contentSize = contentView.bounds.size
         scrollView.sizeToFit()
         
-//        scrollView.backgroundColor = UIColor.white
         
         keyboardHeight().subscribe(onNext: { [weak self] (rect) in
             if let self = self {

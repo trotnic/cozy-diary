@@ -7,13 +7,27 @@
 //
 
 import UIKit
+import RxCocoa
+import RxSwift
+import RxDataSources
+
+// MARK: Tags
 
 
 class MemorySearchFilterTagCell: NMCollectionViewCell {
     static let reuseIdentifier = "MemorySearchFilterTagCell"
     
-    lazy var valueLabel: NMLabel = {
-        let view = NMLabel()
+    private var viewModel: MemorySearchFilterTagsViewModelType!
+    private let disposeBag = DisposeBag()
+    
+    lazy var collectionView: NMCollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.estimatedItemSize = .init(width: 10, height: 10)
+        let view = NMCollectionView(frame: .zero, collectionViewLayout: layout)
+        view.register(FilterTagCell.self, forCellWithReuseIdentifier: FilterTagCell.reuseIdentifier)
+        view.delegate = nil
+        view.dataSource = nil
+        view.showsHorizontalScrollIndicator = false
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -27,15 +41,103 @@ class MemorySearchFilterTagCell: NMCollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func setupLabel() {
-        contentView.addSubview(valueLabel)
+    func bindViewModel(_ viewModel: MemorySearchFilterTagsViewModelType) {
+        self.viewModel = viewModel
         
-        valueLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor).isActive = true
-        valueLabel.topAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
-        valueLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor).isActive = true
-        valueLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor).isActive = true
+        viewModel.outputs.items
+            .bind(to: collectionView.rx.items(cellIdentifier: FilterTagCell.reuseIdentifier, cellType: FilterTagCell.self)) { item, model, cell in
+                cell.bindModel(model)
+        }
+        .disposed(by: disposeBag)
+    }
+    
+    private func setupLabel() {
+        contentView.addSubview(collectionView)
+        
+        collectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor).isActive = true
+        collectionView.topAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
+        collectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor).isActive = true
+        collectionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor).isActive = true
+        
+        collectionView.contentInset = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
     }
 }
+
+class FilterTagCell: NMCollectionViewCell {
+    static let reuseIdentifier = "FilterTagCell"
+    
+    private var tagModel: BehaviorRelay<TagModel>! {
+        didSet {
+            bindBehavior()
+        }
+    }
+    
+    private let disposeBag = DisposeBag()
+    
+    lazy var textLabel: NMLabel = {
+        let view = NMLabel()
+        view.textAlignment = .center
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupTextLabel()
+        setupView()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func bindModel(_ tagModel: BehaviorRelay<TagModel>) {
+        self.tagModel = tagModel
+    }
+    
+    private func bindBehavior() {
+        tagModel.bind { [weak self] (tagModel) in
+            self?.textLabel.text = tagModel.value
+            self?.isSelected = tagModel.isSelected
+            
+            if tagModel.isSelected {
+                self?.layer.shadowOffset = CGSize(width: -2, height: -2)                
+            } else {
+                self?.layer.shadowOffset = CGSize(width: 2, height: 2)
+            }
+        }
+        .disposed(by: disposeBag)
+    }
+    
+    private func setupTextLabel() {
+        contentView.addSubview(textLabel)
+        
+        textLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10).isActive = true
+        textLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10).isActive = true
+        textLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10).isActive = true
+        textLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10).isActive = true
+    }
+    
+    private func setupView() {
+        
+        layer.shadowColor = UIColor.lightGray.cgColor
+        layer.shadowRadius = 3
+        layer.shadowOpacity = 1
+        layer.shadowOffset = CGSize(width: 0, height: 2)
+
+        contentView.layer.cornerRadius = 12
+        contentView.layer.masksToBounds = true
+    }
+    
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        let value = tagModel.value
+        value.isSelected.toggle()
+        tagModel.accept(value)
+    }
+    
+}
+
+// MARK: Dates
 
 class MemorySearchFilterDateCell: NMCollectionViewCell {
     static let reuseIdentifier = "MemorySearchFilterDateCell"

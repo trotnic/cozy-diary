@@ -100,6 +100,10 @@ final class Memory: Taggable {
         }
     }
     
+    func taggedWith(term: String) -> Bool {
+        tags.contains(.init(rawValue: term))
+    }
+    
     func contains(term: String) -> Bool {
         !texts.filter { (chunk) -> Bool in
             chunk.text.string.contains(term)

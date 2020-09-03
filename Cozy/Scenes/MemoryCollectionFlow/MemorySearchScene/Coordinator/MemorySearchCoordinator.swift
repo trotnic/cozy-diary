@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import RxSwift
+import RxCocoa
 
 
 class MemorySearchCoordinator: ParentCoordinator {
@@ -32,7 +33,7 @@ class MemorySearchCoordinator: ParentCoordinator {
         
         navigationController = NMNavigationController()
         navigationController.pushViewController(viewController, animated: true)
-        navigationController.modalPresentationStyle = .overFullScreen
+        navigationController.modalPresentationStyle = .fullScreen
         
         viewModel.outputs.dismissCurrentController
             .subscribe(onNext: { [weak self] in
@@ -56,7 +57,7 @@ class MemorySearchCoordinator: ParentCoordinator {
     }
     
     
-    func gotodetail(memory: Memory) {
+    func gotodetail(memory: BehaviorRelay<Memory>) {
         let editCoordinator = MemoryEditCoordinator(memory: memory, memoryStore: memoryStore, navigationController: navigationController)
         childCoordinators.append(editCoordinator)
         editCoordinator.start()

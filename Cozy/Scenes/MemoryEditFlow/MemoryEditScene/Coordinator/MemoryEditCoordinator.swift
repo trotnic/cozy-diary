@@ -29,8 +29,8 @@ class MemoryEditCoordinator: ParentCoordinator {
     private let imagePicker = ImagePicker()
     
     // MARK: Init
-    init(memory: Memory, memoryStore: MemoryStoreType, navigationController: UINavigationController) {
-        self.memory = .init(value: memory)
+    init(memory: BehaviorRelay<Memory>, memoryStore: MemoryStoreType, navigationController: UINavigationController) {
+        self.memory = memory
         self.memoryStore = memoryStore
         self.navigationController = navigationController
     }
@@ -44,7 +44,14 @@ extension MemoryEditCoordinator {
         let viewModel = MemoryEditViewModel(memory: memory, memoryStore: memoryStore)
         
         
-        
+        viewModel.outputs.shouldClearStack
+            .subscribe(onNext: { [weak self] (_) in
+                guard let self = self else { return }
+                if !self.childCoordinators.isEmpty {
+                    self.childCoordinators.removeAll()
+                }
+            })
+            .disposed(by: disposeBag)
      
         processPhotoDetail(viewModel)
         processPhotoInsert(viewModel)

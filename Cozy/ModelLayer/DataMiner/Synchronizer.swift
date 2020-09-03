@@ -84,8 +84,8 @@ class PerfectCalendar: CalendarType {
 
 protocol MemoryStoreType {
     var relevantMemory: BehaviorRelay<Memory> { get }
-    func fetchAll() -> Observable<[Memory]>
-    func fetchBeforeNow() -> Observable<[Memory]>
+    func fetchAll() -> Observable<[BehaviorRelay<Memory>]>
+    func fetchBeforeNow() -> Observable<[BehaviorRelay<Memory>]>
     @discardableResult func addItem(_ memory: Memory) -> Bool
     @discardableResult func updateItem(_ memory: Memory) -> Bool
     @discardableResult func removeItem(_ memory: Memory) -> Bool
@@ -98,10 +98,14 @@ class Synchronizer: MemoryStoreType {
     
     private var blackDayBag: [Date: BehaviorRelay<Memory>] = [:]
     
-    private var coreDataModels = BehaviorSubject<[CoreMemory]>(value: [])
+    private var coreDataModels = BehaviorRelay<[BehaviorRelay<Memory>]>(value: [])
     private let coreDataManager: CoreDataManagerType = CoreDataManager()
     
-    let relevantMemory: BehaviorRelay<Memory> = .init(value: .init())
+    var relevantMemory: BehaviorRelay<Memory> {
+        get {
+            fetchRelevantOrCreate()
+        }
+    }
     
     private let disposeBag = DisposeBag()
     
@@ -109,8 +113,7 @@ class Synchronizer: MemoryStoreType {
     
     init(calendar: CalendarType) {
         self.calendar = calendar
-        coreDataModels.onNext(fetchData())
-        relevantMemory.accept(fetchRelevantOrCreate())
+        coreDataModels.accept(fetchData().map { .init(value: $0.selfChunk) })
         
         NotificationCenter.default.rx
             .notification(UIApplication.willResignActiveNotification)
@@ -147,14 +150,14 @@ class Synchronizer: MemoryStoreType {
         }
     }
     
-    func fetchAll() -> Observable<[Memory]> {
-        coreDataModels.map { $0.map { $0.selfChunk }}.share(replay: 1, scope: .whileConnected)
+    func fetchAll() -> Observable<[BehaviorRelay<Memory>]> {
+        coreDataModels.asObservable()
     }
     
-    func fetchBeforeNow() -> Observable<[Memory]> {
-        let predicate = NSPredicate(format: "date < %@", calendar.today as NSDate)
-        return .just(fetchData(context: self.coreDataManager.viewContext, predicate: predicate)
-            .map { $0.selfChunk })
+    func fetchBeforeNow() -> Observable<[BehaviorRelay<Memory>]> {
+        coreDataModels.flatMap { (memories) -> Observable<[BehaviorRelay<Memory>]> in
+            .just(memories.filter { $0.value.date < self.calendar.today })
+        }
     }
     
     @discardableResult
@@ -165,7 +168,7 @@ class Synchronizer: MemoryStoreType {
         
         do {
             try context.save()
-            coreDataModels.onNext(fetchData())
+            coreDataModels.accept(fetchData().map { .init(value: $0.selfChunk) })
             return true
         } catch {
             print(error)
@@ -186,7 +189,7 @@ class Synchronizer: MemoryStoreType {
                 let entity = fetchResult.last {
                 entity.updateSelfWith(memory, on: context)
                 try context.save()
-                coreDataModels.onNext(fetchData(context: context))
+                coreDataModels.accept(fetchData(context: context).map { .init(value: $0.selfChunk) })
                 return true
             }
         } catch {
@@ -205,7 +208,7 @@ class Synchronizer: MemoryStoreType {
             
             do {
                 try context.execute(batchRequest)
-                coreDataModels.onNext(fetchData())
+                coreDataModels.accept(fetchData().map { .init(value: $0.selfChunk) })
                 return true
             } catch  {
                 print(error)
@@ -219,29 +222,29 @@ class Synchronizer: MemoryStoreType {
     }
     
     func leaveAway(key: Date) {
+        if let value = blackDayBag[key]?.value {
+            updateItem(value)
+        }
         blackDayBag.removeValue(forKey: key)
     }
     
     
-    private func getRelevantMemory() -> CoreMemory? {
-        let context = coreDataManager.viewContext
-        let request = CoreMemory.memoryFetchRequest()
-        request.returnsObjectsAsFaults = false
-        request.predicate = .init(format: "(date >= %@) AND (date < %@)", calendar.today as NSDate, calendar.tomorrow as NSDate)
-        
-        let result = try? context.fetch(request)
-        return result?.first
+    private func getRelevantMemory() -> BehaviorRelay<Memory>? {
+        coreDataModels.value.filter { [unowned self] memory -> Bool in
+            let date = memory.value.date
+            return date < self.calendar.tomorrow && date >= self.calendar.today
+        }.last
     }
     
     
-    private func fetchRelevantOrCreate() -> Memory {
+    private func fetchRelevantOrCreate() -> BehaviorRelay<Memory> {
         guard let memory = getRelevantMemory() else {
             return createEmpty()
         }
-        return memory.selfChunk
+        return memory
     }
     
-    private func createEmpty() -> Memory {
+    private func createEmpty() -> BehaviorRelay<Memory> {
         let context = coreDataManager.backgroundContext
         let entity = CoreMemory(context: context)
         entity.date = calendar.today
@@ -249,9 +252,9 @@ class Synchronizer: MemoryStoreType {
         do {
             try context.save()
         } catch {
-            fatalError("ohm, emrorm :(")
+            assert(false, "ohm, emrorm :(")
         }
-        return entity.selfChunk
+        return .init(value: entity.selfChunk)
     }
     
     

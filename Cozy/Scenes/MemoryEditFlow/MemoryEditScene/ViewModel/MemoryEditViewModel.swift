@@ -15,11 +15,9 @@ import RxCocoa
 
 class MemoryEditViewModel: MemoryCreateViewModelType, MemoryCreateViewModelOutput, MemoryCreateViewModelInput {
     
-    
     // MARK: Outputs & Inputs
     var outputs: MemoryCreateViewModelOutput { return self }
     var inputs: MemoryCreateViewModelInput { return self }
-    
     
     // MARK: Outputs
     let items = BehaviorRelay<[MemoryCreateCollectionItem]>(value: [])
@@ -31,31 +29,28 @@ class MemoryEditViewModel: MemoryCreateViewModelType, MemoryCreateViewModelOutpu
         return Observable.just(result).asDriver(onErrorJustReturn: "")
     }()
     
-    var photoInsertRequestObservable: Observable<Void> { photoInsertObserver.asObservable() }
+    var photoInsertRequestObservable: Observable<Void> { photoChunkAdd.asObservable() }
     var photoDetailRequestObservable: Observable<Data> { photoDetailObserver.asObservable() }
     var photoShareRequestObservable: Observable<Data> { photoShareObserver.asObservable() }
     
-    var tagAddRequestObservable: Observable<Memory> { tagAddObserver.asObservable() }
+    var tagAddRequestObservable: Observable<Memory> {
+        tagAdd.flatMap({ [unowned self] (_) -> Observable<Memory> in
+            .just(self.memory.value)
+        })
+    }
     
-    var graffitiInsertRequestObservable: Observable<Void> { graffitiInsertObserver.asObservable() }
+    var graffitiInsertRequestObservable: Observable<Void> { graffitiChunkAdd.asObservable() }
     
+    var shouldClearStack: Observable<Void> { shouldClearStackObserver.asObservable() }
     
     // MARK: Inputs
-    lazy var saveRequest: () -> () = { {} }()
+    let viewWillAppear = PublishRelay<Void>()
+    let viewWillDisappear = PublishRelay<Void>()
     
-    lazy var textChunkInsertRequest: () -> () = {
-        {
-            let value = self.memory.value
-            if (value.sortedChunks.last as? TextChunkable) == nil {
-                value.insertTextChunk("")
-                self.memory.accept(value)
-            }
-        }
-    }()
-    
-    lazy var photoChunkInsertRequest: () -> () = { { self.photoInsertObserver.onNext(()) } }()
-    lazy var tagAddRequest: () -> () = { { self.tagAddObserver.onNext(self.memory.value) } }()
-    lazy var graffitiChunkInsertRequest: () -> () = { { self.graffitiInsertObserver.onNext(()) } }()
+    let textChunkAdd = PublishRelay<Void>()
+    let photoChunkAdd = PublishRelay<Void>()
+    let graffitiChunkAdd = PublishRelay<Void>()
+    let tagAdd = PublishRelay<Void>()
     
     lazy var photoInsertResponse: (ImageMeta) -> () = {
         { meta in
@@ -75,7 +70,6 @@ class MemoryEditViewModel: MemoryCreateViewModelType, MemoryCreateViewModelOutpu
         }
     }()
     
-    
     // MARK: Private
     private let photoInsertObserver = PublishSubject<Void>()
     private let photoDetailObserver = PublishSubject<Data>()
@@ -83,11 +77,12 @@ class MemoryEditViewModel: MemoryCreateViewModelType, MemoryCreateViewModelOutpu
     private let tagAddObserver = PublishSubject<Memory>()
     private let graffitiInsertObserver = PublishSubject<Void>()
     
+    private let shouldClearStackObserver = PublishRelay<Void>()
+    
     private let memory: BehaviorRelay<Memory>
     private let memoryStore: MemoryStoreType
     
     private let disposeBag = DisposeBag()
-    
     
     // MARK: Init
     init(memory: BehaviorRelay<Memory>, memoryStore: MemoryStoreType) {
@@ -95,10 +90,24 @@ class MemoryEditViewModel: MemoryCreateViewModelType, MemoryCreateViewModelOutpu
         self.memoryStore = memoryStore
         
         bindMemory()
+        setupTextChunkAdd()
         
-        memoryStore.seekFor(memory, key: memory.value.date)
+        viewWillAppear.subscribe(onNext: { [weak self] (_) in
+            self?.memoryStore.seekFor(memory, key: memory.value.date)
+            self?.shouldClearStackObserver.accept(())
+        })
+        .disposed(by: disposeBag)
+        
+        viewWillDisappear
+            .map { [unowned self] _ -> Date in
+                self.memory.value.date
+            }
+            .subscribe(onNext: { [weak self] (date) in
+                self?.memoryStore.leaveAway(key: date)
+            })
+            .disposed(by: disposeBag)
+        
     }
-    
     
     // MARK: Private methods
     private func bindMemory() {
@@ -107,66 +116,86 @@ class MemoryEditViewModel: MemoryCreateViewModelType, MemoryCreateViewModelOutpu
                 memory.sortedChunks.map { chunk -> MemoryCreateCollectionItem in
 
                     if let textChunk = chunk as? TextChunk {
-                        let viewModel = TextChunkViewModel(textChunk)
-                        
-                        viewModel.outputs.removeTextRequest.subscribe(onNext: { [weak self] in
-
-                            if let value = self?.memory.value {
-                                value.removeChunk(textChunk)
-                                self?.memory.accept(value)
-                            }
-                        }).disposed(by: self.disposeBag)
-                        
-                        return .TextItem(viewModel: viewModel)
+                        return self.textChunkItem(textChunk)
                     } else if let graffitiChunk = chunk as? GraffitiChunk {
-                        let viewModel = GraffitiChunkViewModel(graffitiChunk)
-                        return .GraffitiItem(viewModel: viewModel)
+                        return self.graffitiCHunkItem(graffitiChunk)
                     } else {
                         let photoChunk = chunk as! PhotoChunk
-                        let viewModel = PhotoChunkViewModel(photoChunk)
-                        
-                        viewModel.outputs
-                            .detailPhotoRequestObservable
-                            .subscribe(onNext: { [weak self] in
-
-                                self?.photoDetailObserver
-                                    .onNext(photoChunk.photo)
-                        }).disposed(by: self.disposeBag)
-                        
-                        viewModel.outputs
-                            .copyPhotoRequest
-                            .subscribe(onNext: { (_) in
-                                
-                                DispatchQueue.global(qos: .utility).async {
-                                    UIPasteboard.general.image = UIImage(data: photoChunk.photo)
-                                }
-                        }).disposed(by: self.disposeBag)
-                        
-                        viewModel.outputs
-                            .sharePhotoRequest
-                            .subscribe(onNext: { [weak self] in
-
-                                self?.photoShareObserver
-                                    .onNext(photoChunk.photo)
-                        }).disposed(by: self.disposeBag)
-                        
-                        viewModel.outputs
-                            .removePhotoRequest
-                            .subscribe(onNext: { [weak self] in
-
-                                if let value = self?.memory.value {
-                                    value.removeChunk(photoChunk)
-                                    self?.memory.accept(value)
-                                }
-                        }).disposed(by: self.disposeBag)
-                        
-                        return .PhotoItem(viewModel: viewModel)
+                        return self.photoChunkItem(photoChunk)
                     }
                 }
             )
         }).disposed(by: disposeBag)
     }
+    
+    private func setupTextChunkAdd() {
+        textChunkAdd.subscribe(onNext: { [weak self] (_) in
+            guard let self = self else { return }
+            let value = self.memory.value
+            if (value.sortedChunks.last as? TextChunkable) == nil {
+                value.insertTextChunk("")
+                self.memory.accept(value)
+            }
+        })
+        .disposed(by: disposeBag)
+    }
 
+    private func textChunkItem(_ textChunk: TextChunk) -> MemoryCreateCollectionItem {
+        let viewModel = TextChunkViewModel(textChunk)
+        viewModel.outputs.removeTextRequest
+            .subscribe(onNext: { [weak self] in
+                if let value = self?.memory.value {
+                    value.removeChunk(textChunk)
+                    self?.memory.accept(value)
+                }
+        }).disposed(by: self.disposeBag)
+        return .TextItem(viewModel: viewModel)
+    }
+    
+    private func graffitiCHunkItem(_ graffitiChunk: GraffitiChunk) -> MemoryCreateCollectionItem {
+        let viewModel = GraffitiChunkViewModel(graffitiChunk)
+        return .GraffitiItem(viewModel: viewModel)
+    }
+    
+    private func photoChunkItem(_ photoChunk: PhotoChunk) -> MemoryCreateCollectionItem {
+        let viewModel = PhotoChunkViewModel(photoChunk)
+        
+        viewModel.outputs
+            .detailPhotoRequestObservable
+            .subscribe(onNext: { [weak self] in
+
+                self?.photoDetailObserver.onNext(photoChunk.photo)
+        }).disposed(by: self.disposeBag)
+        
+        viewModel.outputs
+            .copyPhotoRequest
+            .subscribe(onNext: { (_) in
+                
+                DispatchQueue.global(qos: .utility).async {
+                    UIPasteboard.general.image = UIImage(data: photoChunk.photo)
+                }
+        }).disposed(by: self.disposeBag)
+        
+        viewModel.outputs
+            .sharePhotoRequest
+            .subscribe(onNext: { [weak self] in
+
+                self?.photoShareObserver
+                    .onNext(photoChunk.photo)
+        }).disposed(by: self.disposeBag)
+        
+        viewModel.outputs
+            .removePhotoRequest
+            .subscribe(onNext: { [weak self] in
+
+                if let value = self?.memory.value {
+                    value.removeChunk(photoChunk)
+                    self?.memory.accept(value)
+                }
+        }).disposed(by: self.disposeBag)
+        
+        return .PhotoItem(viewModel: viewModel)
+    }
 }
 
 

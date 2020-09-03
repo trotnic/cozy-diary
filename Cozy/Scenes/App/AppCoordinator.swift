@@ -39,7 +39,7 @@ class AppCoordinator: ParentCoordinator {
         wrapController.tabBarItem = UITabBarItem(title: "Today", image: UIImage(systemName: "tortoise"), tag: 0)
 
         let memoryEditCoordinator = MemoryEditCoordinator(
-            memory: memoryStore.relevantMemory.value,
+            memory: memoryStore.relevantMemory,
             memoryStore: memoryStore,
             navigationController: wrapController)
 
@@ -58,13 +58,7 @@ class AppCoordinator: ParentCoordinator {
             memoryEditCoordinator.navigationController,
             memoryCollectionCoordinator.navigationController
         ]
-//        let coordinator = UnsplashImageCollectionCoordinator()
-//        childCoordinators.append(coordinator)
-//        coordinator.start()
-//
-//        wrapController.setViewControllers([coordinator.viewController], animated: true)
-//
-//        tabBarController.viewControllers = [wrapController]
+        
         tabBarController.selectedIndex = 1
         
         window.rootViewController = tabBarController

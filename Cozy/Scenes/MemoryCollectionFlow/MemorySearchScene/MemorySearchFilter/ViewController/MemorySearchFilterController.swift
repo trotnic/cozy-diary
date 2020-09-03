@@ -15,8 +15,8 @@ import RxDataSources
 // MARK: DataSource declaration
 
 enum MemorySearchFilterCollectionItem {
-    case tagItem(value: String)
-    case monthItem(value: String)
+    case tagsItem(viewModel: MemorySearchFilterTagsViewModelType)
+    case monthsItem(value: String)
 }
 
 struct MemorySearchFilterCollectionSection {
@@ -37,17 +37,17 @@ struct MemorySearchFilterCollectionDataSource {
     static func dataSource() -> DataSource<MemorySearchFilterCollectionSection> {
         return .init(configureCell: { (dataSource, collectionView, indexPath, item) -> UICollectionViewCell in
             switch item {
-            case let .tagItem(value):
+            case let .tagsItem(viewModel):
                 if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MemorySearchFilterTagCell.reuseIdentifier, for: indexPath) as? MemorySearchFilterTagCell {
-                    cell.valueLabel.text = value
+                    cell.bindViewModel(viewModel)
                     return cell
                 }
                 return .init()
-            case let .monthItem(value):
-                if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MemorySearchFilterDateCell.reuseIdentifier, for: indexPath) as? MemorySearchFilterDateCell {
-                    cell.valueLabel.text = value
-                    return cell
-                }
+            case let .monthsItem(value):
+//                if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MemorySearchFilterDateCell.reuseIdentifier, for: indexPath) as? MemorySearchFilterDateCell {
+//                    cell.valueLabel.text = value
+//                    return cell
+//                }
                 return .init()
             }
         })
@@ -57,7 +57,7 @@ struct MemorySearchFilterCollectionDataSource {
 // MARK: View Model declaration
 
 protocol MemorySearchFilterViewModelOutput {
-    var items: Driver<[MemorySearchFilterCollectionSection]> { get }
+    var items: Observable<[MemorySearchFilterCollectionSection]> { get }
 }
 
 protocol MemorySearchFilterViewModelInput {
@@ -95,6 +95,8 @@ class MemorySearchFilterController: NMViewController {
         view.register(MemorySearchFilterTagCell.self, forCellWithReuseIdentifier: MemorySearchFilterTagCell.reuseIdentifier)
         view.translatesAutoresizingMaskIntoConstraints = false
         view.showsHorizontalScrollIndicator = false
+        view.delegate = nil
+        view.dataSource = nil
         return view
     }()
     
@@ -106,7 +108,7 @@ class MemorySearchFilterController: NMViewController {
     
     func bindViewModel() {
         viewModel.outputs.items
-            .drive(collectionView.rx.items(dataSource: dataSource))
+            .bind(to: collectionView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
     }
     

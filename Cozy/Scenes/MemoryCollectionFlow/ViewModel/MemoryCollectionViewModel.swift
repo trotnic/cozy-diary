@@ -13,7 +13,7 @@ import RxCocoa
 protocol MemoryCollectionViewModelOutput {
     var items: Driver<[MemoryCollectionViewSection]> { get }
     
-    var detailRequestObservable: Observable<Memory> { get }
+    var detailRequestObservable: Observable<BehaviorRelay<Memory>> { get }
     var searchRequestObservable: Observable<Void> { get }
     
     
@@ -52,7 +52,7 @@ class MemoryCollectionViewModel: MemoryCollectionViewModelType, MemoryCollection
         .asDriver(onErrorJustReturn: [])
     }
     
-    let detailRequestObservable: Observable<Memory>
+    let detailRequestObservable: Observable<BehaviorRelay<Memory>>
     let searchRequestObservable: Observable<Void>
     
     // MARK: Inputs
@@ -64,10 +64,10 @@ class MemoryCollectionViewModel: MemoryCollectionViewModelType, MemoryCollection
     private let disposeBag = DisposeBag()
     private let memoryStore: MemoryStoreType
     
-    private let detailRequestPublisher = PublishSubject<Memory>()
+    private let detailRequestPublisher = PublishSubject<BehaviorRelay<Memory>>()
     private let searchRequestPublisher = PublishSubject<Void>()
     
-    private let itemsPublisher = BehaviorRelay<[Memory]>(value: [])
+    private let itemsPublisher = BehaviorRelay<[BehaviorRelay<Memory>]>(value: [])
     
     // MARK: Init
     init(memoryStore: MemoryStoreType) {
@@ -109,21 +109,24 @@ class MemoryCollectionCommonItemViewModel: MemoryCollectionCommonItemViewModelTy
     
     // MARK: Outputs
     lazy var date: Observable<String> = {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MMM d, yyyy"
-        let result = dateFormatter.string(from: memory.date)
-        return .just(result)
+        memory.map { (memory) -> String in
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "MMM d, yyyy"
+            let result = dateFormatter.string(from: memory.date)
+            return result
+        }
     }()
     
     lazy var text: Observable<String> = {
-        if let result = memory.texts.first?.text.string {
-            return .just(result)
+        memory.map { (memory) -> String in
+            memory.texts.first?.text.string ?? ""
         }
-        return .just("")
     }()
     
-    lazy var image: Observable<Data?> = {        
-        .just(memory.photos.first?.photo)
+    lazy var image: Observable<Data?> = {
+        memory.map({ (memory) -> Data? in
+            memory.photos.first?.photo
+        })
     }()
     
     var tapRequestObservable: Observable<Void>
@@ -132,12 +135,12 @@ class MemoryCollectionCommonItemViewModel: MemoryCollectionCommonItemViewModelTy
     lazy var tapRequest = { { self.tapRequestPublisher.onNext(()) } }()
     
     // MARK: Private
-    private let memory: Memory
+    private let memory: BehaviorRelay<Memory>
     
     private let tapRequestPublisher = PublishSubject<Void>()
     
     
-    init(memory: Memory) {
+    init(memory: BehaviorRelay<Memory>) {
         self.memory = memory
         
         tapRequestObservable = tapRequestPublisher.asObservable()

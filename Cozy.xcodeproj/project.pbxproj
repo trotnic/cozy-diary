@@ -91,6 +91,9 @@
 		2BFD471124FF1D9500485231 /* MemorySearchFilterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD471024FF1D9500485231 /* MemorySearchFilterViewModel.swift */; };
 		2BFD471424FF975300485231 /* MemorySearchFilterCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD471324FF975300485231 /* MemorySearchFilterCollectionCell.swift */; };
 		2BFD471624FFAE3500485231 /* FilterManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD471524FFAE3500485231 /* FilterManager.swift */; };
+		2BFD47192500194E00485231 /* MemorySearchFilterTagsViewModelType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD47182500194E00485231 /* MemorySearchFilterTagsViewModelType.swift */; };
+		2BFD471B2500195700485231 /* MemorySearchFilterTagsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD471A2500195700485231 /* MemorySearchFilterTagsViewModel.swift */; };
+		2BFD471D2501186200485231 /* MemoryEditViewModelType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD471C2501186200485231 /* MemoryEditViewModelType.swift */; };
 		B3B88CF141F8D6A579ECA1EE /* Pods_Cozy.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0FC798F2920457D08D7A46D4 /* Pods_Cozy.framework */; };
 /* End PBXBuildFile section */
 
@@ -182,6 +185,9 @@
 		2BFD471024FF1D9500485231 /* MemorySearchFilterViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemorySearchFilterViewModel.swift; sourceTree = "<group>"; };
 		2BFD471324FF975300485231 /* MemorySearchFilterCollectionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemorySearchFilterCollectionCell.swift; sourceTree = "<group>"; };
 		2BFD471524FFAE3500485231 /* FilterManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterManager.swift; sourceTree = "<group>"; };
+		2BFD47182500194E00485231 /* MemorySearchFilterTagsViewModelType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemorySearchFilterTagsViewModelType.swift; sourceTree = "<group>"; };
+		2BFD471A2500195700485231 /* MemorySearchFilterTagsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemorySearchFilterTagsViewModel.swift; sourceTree = "<group>"; };
+		2BFD471C2501186200485231 /* MemoryEditViewModelType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryEditViewModelType.swift; sourceTree = "<group>"; };
 		392D86B353E56D3881C36505 /* Pods-Cozy.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Cozy.release.xcconfig"; path = "Target Support Files/Pods-Cozy/Pods-Cozy.release.xcconfig"; sourceTree = "<group>"; };
 		9EA38423ED02106646ABD875 /* Pods-Cozy.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Cozy.debug.xcconfig"; path = "Target Support Files/Pods-Cozy/Pods-Cozy.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -490,6 +496,7 @@
 			isa = PBXGroup;
 			children = (
 				2B58A36E24F86C74002AD76E /* MemoryEditViewModel.swift */,
+				2BFD471C2501186200485231 /* MemoryEditViewModelType.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -823,6 +830,7 @@
 		2BFD470D24FF1D5300485231 /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
+				2BFD47172500192900485231 /* TagsViewModel */,
 				2BFD471024FF1D9500485231 /* MemorySearchFilterViewModel.swift */,
 			);
 			path = ViewModel;
@@ -834,6 +842,15 @@
 				2BFD471324FF975300485231 /* MemorySearchFilterCollectionCell.swift */,
 			);
 			path = Cells;
+			sourceTree = "<group>";
+		};
+		2BFD47172500192900485231 /* TagsViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				2BFD47182500194E00485231 /* MemorySearchFilterTagsViewModelType.swift */,
+				2BFD471A2500195700485231 /* MemorySearchFilterTagsViewModel.swift */,
+			);
+			path = TagsViewModel;
 			sourceTree = "<group>";
 		};
 		6E3DB1B36F17ADB64E364AEA /* Pods */ = {
@@ -990,6 +1007,7 @@
 				2BFD46D824FC547300485231 /* ThemeManager.swift in Sources */,
 				2B44B5C624F3F47D00BC229A /* CoreGraffitiChunk+CoreDataClass.swift in Sources */,
 				2B574CBD24E849180071D97C /* MemoryCollectionViewModel.swift in Sources */,
+				2BFD47192500194E00485231 /* MemorySearchFilterTagsViewModelType.swift in Sources */,
 				2B44B5CC24F488E900BC229A /* UIStackView+Extensions.swift in Sources */,
 				2BFD46E824FDB3B400485231 /* NMCollectionView.swift in Sources */,
 				2B0748AC24E5E3FA0031D203 /* AppDelegate.swift in Sources */,
@@ -1038,9 +1056,11 @@
 				2B58A36524F8672C002AD76E /* MemoryEditChunkViews.swift in Sources */,
 				2B58A36C24F86A44002AD76E /* MemoryEditCoordinator.swift in Sources */,
 				2BFD46D024FBF3C000485231 /* NMImageView.swift in Sources */,
+				2BFD471B2500195700485231 /* MemorySearchFilterTagsViewModel.swift in Sources */,
 				2BFD46FC24FE954500485231 /* TagsListCoordinator.swift in Sources */,
 				2BFD471124FF1D9500485231 /* MemorySearchFilterViewModel.swift in Sources */,
 				2BFD470724FF000C00485231 /* CoreMemory+CoreDataClass.swift in Sources */,
+				2BFD471D2501186200485231 /* MemoryEditViewModelType.swift in Sources */,
 				2BFD46DE24FC6BE800485231 /* NMTabBarItem.swift in Sources */,
 				2BFD471624FFAE3500485231 /* FilterManager.swift in Sources */,
 				2B0748AE24E5E3FA0031D203 /* SceneDelegate.swift in Sources */,

@@ -8,22 +8,20 @@
 
 import UIKit
 import RxSwift
+import RxCocoa
 
 
 
 class MemoryCollectionCoordinator: ParentCoordinator {
-    
     
     var childCoordinators: [Coordinator] = []
     
     var viewController: MemoryCollectionViewController!
     var navigationController: NMNavigationController!
     
-    
     // MARK: Private
     private let memoryStore: MemoryStoreType
     private let disposeBag = DisposeBag()
-    
     
     // MARK: Init
     init(memoryStore: MemoryStoreType) {
@@ -36,7 +34,7 @@ class MemoryCollectionCoordinator: ParentCoordinator {
         viewController = .init(viewModel: viewModel)
         
         navigationController = NMNavigationController(rootViewController: viewController)
-//        navigationController.setViewControllers([viewController], animated: true)
+
         // SELFCOMM: Opens detail for selected memory
         viewModel.outputs.detailRequestObservable
             .subscribe(onNext: { [weak self] memory in
@@ -60,10 +58,9 @@ class MemoryCollectionCoordinator: ParentCoordinator {
                 }
             })
         .disposed(by: disposeBag)
-        
     }
     
-    private func gotodetail(memory: Memory) {
+    private func gotodetail(memory: BehaviorRelay<Memory>) {
         let coordinator = MemoryEditCoordinator(
             memory: memory,
             memoryStore: memoryStore,
@@ -75,7 +72,6 @@ class MemoryCollectionCoordinator: ParentCoordinator {
         childCoordinators.append(coordinator)
         
         navigationController.pushViewController(coordinator.viewController, animated: true)
-        
     }
     
     private func gotosearch() {
