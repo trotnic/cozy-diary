@@ -65,6 +65,8 @@ class TagsListController: NMViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        navigationItem.title = "Tags"
+        
         setupTableView()
         setupAddButton()
         setupCloseButton()

@@ -9,6 +9,7 @@
 import UIKit
 import RxCocoa
 import RxSwift
+import Alertift
 
 
 // MARK: Controller
@@ -19,12 +20,10 @@ class MemoryEditViewController: NMViewController {
     let viewModel: MemoryCreateViewModelType!
     
     private var buttonsPanelBottomConstraint: NSLayoutConstraint!
+    
     private let isTextPanelActive = BehaviorRelay<Bool>(value: false)
     private let isFontEditPanelActive = BehaviorRelay<Bool>(value: false)
     
-    // MARK: Transition
-    private var imageViewToPresent: UIImageView!
-    private var rectToPresent: CGRect!
     
     private var commonButtons: [NMButton] = []
     private var textEditButtons: [NMButton] = []
@@ -39,9 +38,9 @@ class MemoryEditViewController: NMViewController {
         fatalError("init?(coder: NSCoder) not implemented")
     }
     
-    lazy var dateLabel: UILabel = {
-        let view = UILabel()
-        view.translatesAutoresizingMaskIntoConstraints = false
+    lazy var moreButton: NMButton = {
+        let view = NMButton()
+        view.setImage(UIImage(systemName: "ellipsis"), for: .normal)
         return view
     }()
     
@@ -85,19 +84,14 @@ class MemoryEditViewController: NMViewController {
         super.viewDidLoad()
         
         setupScrollView()
-        bindViewModel()
         setupPanel()
+        setupMoreButton()
+        bindViewModel()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         viewModel.inputs.viewWillAppear.accept(())
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        isFontEditPanelActive.accept(false)
-        isTextPanelActive.accept(false)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -107,18 +101,10 @@ class MemoryEditViewController: NMViewController {
     
     func bindViewModel() {
 
-        viewModel.outputs.items.map { $0.map { [unowned self] (item) -> UIView in
+        viewModel.outputs.items.map { $0.map { (item) -> UIView in
             switch item {
             case let .PhotoItem(viewModel):
                 let view = PhotoChunkMemoryView()
-                
-                view.tapDriver.asObservable()
-                    .subscribe(onNext: {
-                        self.imageViewToPresent = view.imageView
-                        self.rectToPresent = view.imageView.convert(view.imageView.frame, to: self.view.window)
-                    })
-                .disposed(by: self.disposeBag)
-                
                 view.viewModel = viewModel
                 return view
             case let .TextItem(viewModel):
@@ -141,9 +127,9 @@ class MemoryEditViewController: NMViewController {
             .rx.event
             .observeOn(MainScheduler.asyncInstance)
             .bind { [unowned self] recognizer in
+                self.isTextPanelActive.accept(!self.isTextPanelActive.value)
                 if self.contentView.childFirstResponder() != nil {
                     self.view.endEditing(true)
-                    self.isTextPanelActive.accept(false)
                     self.isFontEditPanelActive.accept(false)
                 } else {
                     self.viewModel.inputs.textChunkAdd.accept(())
@@ -154,6 +140,27 @@ class MemoryEditViewController: NMViewController {
         
         viewModel.outputs.title
             .drive(navigationItem.rx.title)
+        .disposed(by: disposeBag)
+    }
+    
+    private func setupMoreButton() {
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: moreButton)
+        
+        moreButton.rx.tap
+            .subscribe(onNext: { [weak self] (_) in
+                guard let self = self else { return }
+                Alertift.actionSheet()
+                    .action(.default("Delete"), handler: {
+                        Alertift.alert(title: "Are you sure?", message: "The memory can't be restored later")
+                            .action(.default("Delete")) {
+                                self.viewModel.inputs.deleteMemoryButtonTap.accept(())
+                            }
+                            .action(.cancel("Cancel"))
+                            .show(on: self)
+                    })
+                    .action(.cancel("Cancel"))
+                    .show(on: self)
+            })
         .disposed(by: disposeBag)
     }
     
@@ -190,16 +197,10 @@ class MemoryEditViewController: NMViewController {
             })
             .disposed(by: disposeBag)
         }
-        
-        commonButtons.forEach {
-            isTextPanelActive
-            .bind(to: $0.rx.isHidden)
-            .disposed(by: disposeBag)
-        }
                 
         isTextPanelActive
             .map { !$0 }
-            .bind { [weak self] (value) in
+            .subscribe(onNext: { [weak self] (value) in
                 guard let self = self else { return }
                 let duration = value ? 0.15 : 0.3
                 UIView.animate(withDuration: duration) {
@@ -208,17 +209,9 @@ class MemoryEditViewController: NMViewController {
                     
                     self.textFormatButton.isHidden = value
                     self.textFormatButton.alpha = value ? 0 : 1
-                    
-                    
                 }
-        }
+        })
         .disposed(by: disposeBag)
-        
-        buttonsPanel.buttons.accept(
-            commonButtons + textEditButtons + [
-            textFormatButton,
-            endEditButton
-        ])
         
         textFormatButton.rx.tap
             .subscribe(onNext: { [weak self] in
@@ -236,6 +229,12 @@ class MemoryEditViewController: NMViewController {
                 self?.isTextPanelActive.accept(false)
                 self?.view.endEditing(true)
             }).disposed(by: disposeBag)
+        
+        buttonsPanel.buttons.accept(
+            commonButtons + textEditButtons + [
+            textFormatButton,
+            endEditButton
+        ])
 
         
         
@@ -338,12 +337,7 @@ class MemoryEditViewController: NMViewController {
                 let panelInset: CGFloat = rect.height == 0 ? -10 : safeInset.bottom - 10
                 self.buttonsPanelBottomConstraint.constant = (-rect.height + panelInset)
                 UIView.animate(withDuration: 0.3) {
-                    if rect.height == 0 {
-                        self.isTextPanelActive.accept(false)
-                    }
                     self.view.layoutIfNeeded()
-                    self.textFormatButton.isHidden.toggle()
-                    self.endEditButton.isHidden.toggle()
                 }
                 self.scrollView.contentInset = .init(top: 0, left: 0, bottom: rect.height + additionalInset, right: 0)
             }

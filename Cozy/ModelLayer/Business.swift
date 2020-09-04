@@ -86,7 +86,7 @@ final class Memory: Taggable {
             return
         }
         if let index = graffities.firstIndex(where: { (graffitiChunk) -> Bool in
-            graffitiChunk.index == index
+            graffitiChunk.index == chunk.index
         }) {
             graffities.remove(at: index)
             return

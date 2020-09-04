@@ -35,16 +35,16 @@ struct MemorySearchFilterCollectionDataSource {
     typealias DataSource = RxCollectionViewSectionedReloadDataSource
     
     static func dataSource() -> DataSource<MemorySearchFilterCollectionSection> {
-        return .init(configureCell: { (dataSource, collectionView, indexPath, item) -> UICollectionViewCell in
+        return .init(configureCell: { (dataSource, tableView, indexPath, item) -> UICollectionViewCell in
             switch item {
             case let .tagsItem(viewModel):
-                if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MemorySearchFilterTagCell.reuseIdentifier, for: indexPath) as? MemorySearchFilterTagCell {
+                if let cell = tableView.dequeueReusableCell(withReuseIdentifier: MemorySearchFilterTagCell.reuseIdentifier, for: indexPath) as? MemorySearchFilterTagCell {
                     cell.bindViewModel(viewModel)
                     return cell
                 }
                 return .init()
             case let .monthsItem(viewModel):
-                if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MemorySearchFilterDateCell.reuseIdentifier, for: indexPath) as? MemorySearchFilterDateCell {
+                if let cell = tableView.dequeueReusableCell(withReuseIdentifier: MemorySearchFilterDateCell.reuseIdentifier, for: indexPath) as? MemorySearchFilterDateCell {
                     cell.bindViewModel(viewModel)
                     return cell
                 }
@@ -61,7 +61,8 @@ protocol MemorySearchFilterViewModelOutput {
 }
 
 protocol MemorySearchFilterViewModelInput {
-    
+    var cancelButtonTap: PublishRelay<Void> { get }
+    var clearButtonTap: PublishRelay<Void> { get }
 }
 
 protocol MemorySearchFilterViewModelType {
@@ -72,12 +73,10 @@ protocol MemorySearchFilterViewModelType {
 
 class MemorySearchFilterController: NMViewController {
 
-    
     private let dataSource = MemorySearchFilterCollectionDataSource.dataSource()
+    private let disposeBag = DisposeBag()
     
     let viewModel: MemorySearchFilterViewModelType
-    
-    private let disposeBag = DisposeBag()
     
     init(viewModel: MemorySearchFilterViewModelType) {
         self.viewModel = viewModel
@@ -95,14 +94,29 @@ class MemorySearchFilterController: NMViewController {
         view.register(MemorySearchFilterTagCell.self, forCellWithReuseIdentifier: MemorySearchFilterTagCell.reuseIdentifier)
         view.translatesAutoresizingMaskIntoConstraints = false
         view.showsHorizontalScrollIndicator = false
-        view.delegate = nil
-        view.dataSource = nil
+        return view
+    }()
+    
+    lazy var clearButton: NMButton = {
+        let view = NMButton()
+        view.setTitle("Clear", for: .normal)
+        return view
+    }()
+    
+    lazy var cancelButton: NMButton = {
+        let view = NMButton()
+        view.setTitle("Cancel", for: .normal)
         return view
     }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        navigationItem.title = "Filters"
+        
         setupCollectionView()
+        setupClearButton()
+        setupCancelButton()
         bindViewModel()
     }
     
@@ -114,7 +128,6 @@ class MemorySearchFilterController: NMViewController {
     
     // MARK: Private methods
     private func setupCollectionView() {
-        
         view.addSubview(collectionView)
         collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
@@ -122,13 +135,38 @@ class MemorySearchFilterController: NMViewController {
         collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
     }
     
+    private func setupClearButton() {
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: clearButton)
+        
+        clearButton.rx.tap
+            .subscribe(onNext: { [weak self] (_) in
+                self?.viewModel.inputs.clearButtonTap.accept(())
+                self?.dismiss(animated: true)
+            })
+        .disposed(by: disposeBag)
+    }
+    
+    private func setupCancelButton() {
+        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: cancelButton)
+        
+        cancelButton.rx.tap
+            .subscribe(onNext: { [weak self] (_) in
+                self?.viewModel.inputs.cancelButtonTap.accept(())
+                self?.dismiss(animated: true)
+            })
+        .disposed(by: disposeBag)
+    }
+    
     fileprivate func getLayout() -> UICollectionViewCompositionalLayout {
+        let height = NSCollectionLayoutDimension.estimated(200)
         let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0))
+        
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
+        
         item.contentInsets = .init(top: 7, leading: 14, bottom: 7, trailing: 14)
         
-        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(200))
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: height)
+        let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
         
         let section = NSCollectionLayoutSection(group: group)
         let layout = UICollectionViewCompositionalLayout(section: section)

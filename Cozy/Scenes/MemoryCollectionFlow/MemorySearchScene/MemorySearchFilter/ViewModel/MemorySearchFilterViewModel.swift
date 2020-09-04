@@ -24,6 +24,8 @@ class MemorySearchFilterViewModel: MemorySearchFilterViewModelType, MemorySearch
     }
     
     // MARK: Inputs
+    let cancelButtonTap = PublishRelay<Void>()
+    let clearButtonTap = PublishRelay<Void>()
     
     // MARK: Private
     private let manager: FilterManagerType
@@ -36,9 +38,11 @@ class MemorySearchFilterViewModel: MemorySearchFilterViewModelType, MemorySearch
     init(manager: FilterManagerType) {
         self.manager = manager
         fillFilters()
+        setupInputs()
     }
     
     private func fillFilters() {
+        
         let allFilters = manager.allFilters()
         let selectedFilters = manager.currentFilters()
         
@@ -98,6 +102,14 @@ class MemorySearchFilterViewModel: MemorySearchFilterViewModelType, MemorySearch
             .init(items: [.monthsItem(viewModel: monthsViewModel)])
         ]
         itemsObserver.accept(result)
+    }
+    
+    private func setupInputs() {
+        clearButtonTap.subscribe(onNext: { [weak self] (_) in
+            self?.manager.clearFilters()
+//            self?.fillFilters()
+        })
+        .disposed(by: disposeBag)
     }
 }
 

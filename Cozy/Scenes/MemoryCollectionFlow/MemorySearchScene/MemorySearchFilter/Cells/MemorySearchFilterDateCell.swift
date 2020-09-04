@@ -16,6 +16,7 @@ class MemorySearchFilterDateCell: NMCollectionViewCell {
     
     private var viewModel: MemorySearchFilterMonthsViewModelType!
     private let disposeBag = DisposeBag()
+    private var widthConstraint: NSLayoutConstraint!
     
     lazy var collectionView: NMCollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -50,13 +51,12 @@ class MemorySearchFilterDateCell: NMCollectionViewCell {
     
     private func setupLabel() {
         contentView.addSubview(collectionView)
-        
-        collectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor).isActive = true
-        collectionView.topAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
-        collectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor).isActive = true
-        collectionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor).isActive = true
-        
         collectionView.contentInset = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
+        
+        contentView.heightAnchor.constraint(equalTo: collectionView.heightAnchor, multiplier: 1.2).isActive = true
+//        collectionView.heightAnchor.constraint(greaterThanOrEqualTo: contentView.heightAnchor).isActive = true
+//        collectionView.heightAnchor.constraint(equalTo: contentView.heightAnchor).isActive = true
+        collectionView.widthAnchor.constraint(equalTo: contentView.widthAnchor).isActive = true
     }
 }
 

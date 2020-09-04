@@ -25,7 +25,7 @@ protocol MemorySearchViewModelInput {
     var searchObserver: PublishRelay<String> { get }
     var searchCancelObserver: PublishRelay<Void> { get }
     
-    var filterButtonTap: PublishRelay<Void> { get } // some service as pushed object
+    var filterButtonTap: PublishRelay<Void> { get }
     var closeButtonTap: PublishRelay<Void> { get }
     var didSelectItem: PublishRelay<BehaviorRelay<Memory>> { get }
 }
@@ -37,6 +37,7 @@ protocol MemorySearchViewModelType {
 
 class MemorySearchViewModel: MemorySearchViewModelType, MemorySearchViewModelOutput, MemorySearchViewModelInput {
     
+    // MARK: Outputs & Inputs
     var outputs: MemorySearchViewModelOutput { return self }
     var inputs: MemorySearchViewModelInput { return self }
     
@@ -106,10 +107,9 @@ class MemorySearchViewModel: MemorySearchViewModelType, MemorySearchViewModelOut
         Observable.combineLatest(searchObserver, filterManager.selectedFiltersObservable())
             .debounce(.milliseconds(200), scheduler: MainScheduler.instance)
             .map({ [unowned self] (term, filters) -> ([BehaviorRelay<Memory>], Set<Filter>) in
-                return (self.itemsPublisher
-                        .value
-                    .filter {term.isEmpty ? true : $0.value.contains(term: term)
-                    }, filters)
+                return (self.itemsPublisher.value
+                        .filter {term.isEmpty ? true : $0.value.contains(term: term)},
+                        filters)
             })
             .map { (memories, filters) -> ([BehaviorRelay<Memory>], Array<String>, Array<Int>) in
                 var tags = [String]()

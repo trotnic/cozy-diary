@@ -19,6 +19,7 @@ class MemorySearchFilterTagCell: NMCollectionViewCell {
     
     private var viewModel: MemorySearchFilterTagsViewModelType!
     private let disposeBag = DisposeBag()
+    private var widthConstraint: NSLayoutConstraint!
     
     lazy var collectionView: NMCollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -52,14 +53,29 @@ class MemorySearchFilterTagCell: NMCollectionViewCell {
     }
     
     private func setupLabel() {
-        contentView.addSubview(collectionView)
         
-        collectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor).isActive = true
-        collectionView.topAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
-        collectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor).isActive = true
-        collectionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor).isActive = true
+        addSubview(collectionView)
         
         collectionView.contentInset = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
+        
+//        collectionView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 5).isActive = true
+//        collectionView.topAnchor.constraint(equalTo: topAnchor, constant: 5).isActive = true
+//        collectionView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5).isActive = true
+//        collectionView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5).isActive = true
+        
+        collectionView.heightAnchor.constraint(equalTo: contentView.heightAnchor).isActive = true
+        collectionView.widthAnchor.constraint(equalTo: contentView.widthAnchor).isActive = true
+        
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+//        let width = UIScreen.main.bounds.width
+//        widthConstraint = contentView.widthAnchor.constraint(equalToConstant: width)
+//        widthConstraint.isActive = true
+        
+//        frame.size.height = 1.2*collectionView.contentSize.height
     }
 }
 
@@ -137,4 +153,3 @@ class FilterTagCell: NMCollectionViewCell {
     
 }
 
-// MARK: Dates

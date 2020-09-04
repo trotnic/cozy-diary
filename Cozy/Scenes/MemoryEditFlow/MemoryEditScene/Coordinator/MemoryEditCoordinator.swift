@@ -2,7 +2,7 @@
 //  MemoryEditCoordinator.swift
 //  Cozy
 //
-//  Created by Uladzislau Volchyk on 8/28/20.
+//  Created by Uladzislau Volchyk on 9/4/20.
 //  Copyright © 2020 Uladzislau Volchyk. All rights reserved.
 //
 
@@ -14,54 +14,37 @@ import Alertift
 
 class MemoryEditCoordinator: ParentCoordinator {
     
-    
     var childCoordinators: [Coordinator] = []
     
     var viewController: MemoryEditViewController!
     let navigationController: UINavigationController
     
-    // MARK: Private
-    private let memory: BehaviorRelay<Memory>
-    private let memoryStore: MemoryStoreType
-    
+    let memory: BehaviorRelay<Memory>
+    let memoryStore: MemoryStoreType
     private let disposeBag = DisposeBag()
+    let imagePicker = ImagePicker()
     
-    private let imagePicker = ImagePicker()
-    
-    // MARK: Init
     init(memory: BehaviorRelay<Memory>, memoryStore: MemoryStoreType, navigationController: UINavigationController) {
         self.memory = memory
         self.memoryStore = memoryStore
         self.navigationController = navigationController
     }
     
-    
+    func start() {
+        assert(false, "should be overriden, don't call this function in child class")
+    }
 }
 
 extension MemoryEditCoordinator {
     
-    func start() {
-        let viewModel = MemoryEditViewModel(memory: memory, memoryStore: memoryStore)
-        
-        
-        viewModel.outputs.shouldClearStack
-            .subscribe(onNext: { [weak self] (_) in
-                guard let self = self else { return }
-                if !self.childCoordinators.isEmpty {
-                    self.childCoordinators.removeAll()
-                }
-            })
-            .disposed(by: disposeBag)
-     
+    func bindToViewModel(_ viewModel: MemoryCreateViewModelType) {
         processPhotoDetail(viewModel)
         processPhotoInsert(viewModel)
         processPhotoShare(viewModel)
         processTagAdd(viewModel)
         processGraffitiInsert(viewModel)
-        
-        viewController = .init(viewModel)
+        processStackCleaning(viewModel)
     }
-    
     
     // MARK: Convenience methods
     private func processPhotoDetail(_ viewModel: MemoryCreateViewModelType) {
@@ -178,6 +161,17 @@ extension MemoryEditCoordinator {
                     coord.start()
                 }
             })
+        .disposed(by: disposeBag)
+    }
+    
+    private func processStackCleaning(_ viewModel: MemoryCreateViewModelType) {
+        viewModel.outputs.shouldClearStack
+           .subscribe(onNext: { [weak self] (_) in
+               guard let self = self else { return }
+               if !self.childCoordinators.isEmpty {
+                   self.childCoordinators.removeAll()
+               }
+           })
         .disposed(by: disposeBag)
     }
 }

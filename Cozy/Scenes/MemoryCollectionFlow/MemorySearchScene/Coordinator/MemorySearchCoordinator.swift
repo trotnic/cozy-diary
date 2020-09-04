@@ -58,7 +58,7 @@ class MemorySearchCoordinator: ParentCoordinator {
     
     
     func gotodetail(memory: BehaviorRelay<Memory>) {
-        let editCoordinator = MemoryEditCoordinator(memory: memory, memoryStore: memoryStore, navigationController: navigationController)
+        let editCoordinator = AnyMemoryEditCoordinator(memory: memory, memoryStore: memoryStore, navigationController: navigationController)
         childCoordinators.append(editCoordinator)
         editCoordinator.start()
         navigationController.pushViewController(editCoordinator.viewController, animated: true)  
@@ -68,7 +68,9 @@ class MemorySearchCoordinator: ParentCoordinator {
         let viewModel = MemorySearchFilterViewModel(manager: filterManager)
         let controller = MemorySearchFilterController(viewModel: viewModel)
         
-        self.viewController.present(controller, animated: true)
+        let wrapController = NMNavigationController(rootViewController: controller)
+        
+        self.viewController.present(wrapController, animated: true)
     }
     
 }

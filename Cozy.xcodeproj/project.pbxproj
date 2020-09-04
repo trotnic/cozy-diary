@@ -39,8 +39,7 @@
 		2B58A35A24F8596D002AD76E /* UnsplashImageCollectionDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B58A35924F8596D002AD76E /* UnsplashImageCollectionDataSource.swift */; };
 		2B58A35D24F85A0A002AD76E /* UnsplashCollectionCommonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B58A35C24F85A0A002AD76E /* UnsplashCollectionCommonCell.swift */; };
 		2B58A36224F866BB002AD76E /* MemoryEditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B58A36124F866BB002AD76E /* MemoryEditViewController.swift */; };
-		2B58A36524F8672C002AD76E /* MemoryEditChunkViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B58A36424F8672C002AD76E /* MemoryEditChunkViews.swift */; };
-		2B58A36C24F86A44002AD76E /* MemoryEditCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B58A36B24F86A44002AD76E /* MemoryEditCoordinator.swift */; };
+		2B58A36C24F86A44002AD76E /* AnyMemoryEditCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B58A36B24F86A44002AD76E /* AnyMemoryEditCoordinator.swift */; };
 		2B58A36F24F86C74002AD76E /* MemoryEditViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B58A36E24F86C74002AD76E /* MemoryEditViewModel.swift */; };
 		2B58A37A24F9AA96002AD76E /* MemoryCollectionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B58A37924F9AA96002AD76E /* MemoryCollectionCoordinator.swift */; };
 		2B58A38324FB17BC002AD76E /* NMCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B58A38224FB17BC002AD76E /* NMCollectionViewCell.swift */; };
@@ -99,6 +98,17 @@
 		2BFD47252501652100485231 /* TagModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD47242501652100485231 /* TagModel.swift */; };
 		2BFD47272501653700485231 /* MonthModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD47262501653700485231 /* MonthModel.swift */; };
 		2BFD472925016E5A00485231 /* MemorySearchFilterDateCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD472825016E5A00485231 /* MemorySearchFilterDateCell.swift */; };
+		2BFD472D2502431B00485231 /* CurrentMemoryEditCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD472C2502431B00485231 /* CurrentMemoryEditCoordinator.swift */; };
+		2BFD472F2502445D00485231 /* MemoryEditCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD472E2502445D00485231 /* MemoryEditCoordinator.swift */; };
+		2BFD47322502570900485231 /* GraffitiChunkViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD47312502570900485231 /* GraffitiChunkViewModel.swift */; };
+		2BFD47342502571500485231 /* GraffitiChunkViewModelType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD47332502571500485231 /* GraffitiChunkViewModelType.swift */; };
+		2BFD47372502575C00485231 /* PhotoChunkViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD47362502575C00485231 /* PhotoChunkViewModel.swift */; };
+		2BFD47392502577A00485231 /* PhotoChunkViewModelType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD47382502577A00485231 /* PhotoChunkViewModelType.swift */; };
+		2BFD473C2502586900485231 /* TextChunkViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD473B2502586900485231 /* TextChunkViewModel.swift */; };
+		2BFD473E250258A300485231 /* TextChunkViewModelType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD473D250258A300485231 /* TextChunkViewModelType.swift */; };
+		2BFD474025025AE700485231 /* MemoryTextChunkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD473F25025AE700485231 /* MemoryTextChunkView.swift */; };
+		2BFD474225025B5D00485231 /* MemoryPhotoChunkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD474125025B5D00485231 /* MemoryPhotoChunkView.swift */; };
+		2BFD474425025B9B00485231 /* MemoryGraffitiChunkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD474325025B9B00485231 /* MemoryGraffitiChunkView.swift */; };
 		B3B88CF141F8D6A579ECA1EE /* Pods_Cozy.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0FC798F2920457D08D7A46D4 /* Pods_Cozy.framework */; };
 /* End PBXBuildFile section */
 
@@ -138,8 +148,7 @@
 		2B58A35924F8596D002AD76E /* UnsplashImageCollectionDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnsplashImageCollectionDataSource.swift; sourceTree = "<group>"; };
 		2B58A35C24F85A0A002AD76E /* UnsplashCollectionCommonCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnsplashCollectionCommonCell.swift; sourceTree = "<group>"; };
 		2B58A36124F866BB002AD76E /* MemoryEditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryEditViewController.swift; sourceTree = "<group>"; };
-		2B58A36424F8672C002AD76E /* MemoryEditChunkViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryEditChunkViews.swift; sourceTree = "<group>"; };
-		2B58A36B24F86A44002AD76E /* MemoryEditCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryEditCoordinator.swift; sourceTree = "<group>"; };
+		2B58A36B24F86A44002AD76E /* AnyMemoryEditCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyMemoryEditCoordinator.swift; sourceTree = "<group>"; };
 		2B58A36E24F86C74002AD76E /* MemoryEditViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryEditViewModel.swift; sourceTree = "<group>"; };
 		2B58A37924F9AA96002AD76E /* MemoryCollectionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryCollectionCoordinator.swift; sourceTree = "<group>"; };
 		2B58A38224FB17BC002AD76E /* NMCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NMCollectionViewCell.swift; sourceTree = "<group>"; };
@@ -198,6 +207,17 @@
 		2BFD47242501652100485231 /* TagModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagModel.swift; sourceTree = "<group>"; };
 		2BFD47262501653700485231 /* MonthModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonthModel.swift; sourceTree = "<group>"; };
 		2BFD472825016E5A00485231 /* MemorySearchFilterDateCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemorySearchFilterDateCell.swift; sourceTree = "<group>"; };
+		2BFD472C2502431B00485231 /* CurrentMemoryEditCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentMemoryEditCoordinator.swift; sourceTree = "<group>"; };
+		2BFD472E2502445D00485231 /* MemoryEditCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryEditCoordinator.swift; sourceTree = "<group>"; };
+		2BFD47312502570900485231 /* GraffitiChunkViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraffitiChunkViewModel.swift; sourceTree = "<group>"; };
+		2BFD47332502571500485231 /* GraffitiChunkViewModelType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraffitiChunkViewModelType.swift; sourceTree = "<group>"; };
+		2BFD47362502575C00485231 /* PhotoChunkViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoChunkViewModel.swift; sourceTree = "<group>"; };
+		2BFD47382502577A00485231 /* PhotoChunkViewModelType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoChunkViewModelType.swift; sourceTree = "<group>"; };
+		2BFD473B2502586900485231 /* TextChunkViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextChunkViewModel.swift; sourceTree = "<group>"; };
+		2BFD473D250258A300485231 /* TextChunkViewModelType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextChunkViewModelType.swift; sourceTree = "<group>"; };
+		2BFD473F25025AE700485231 /* MemoryTextChunkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryTextChunkView.swift; sourceTree = "<group>"; };
+		2BFD474125025B5D00485231 /* MemoryPhotoChunkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryPhotoChunkView.swift; sourceTree = "<group>"; };
+		2BFD474325025B9B00485231 /* MemoryGraffitiChunkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryGraffitiChunkView.swift; sourceTree = "<group>"; };
 		392D86B353E56D3881C36505 /* Pods-Cozy.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Cozy.release.xcconfig"; path = "Target Support Files/Pods-Cozy/Pods-Cozy.release.xcconfig"; sourceTree = "<group>"; };
 		9EA38423ED02106646ABD875 /* Pods-Cozy.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Cozy.debug.xcconfig"; path = "Target Support Files/Pods-Cozy/Pods-Cozy.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -480,7 +500,9 @@
 			isa = PBXGroup;
 			children = (
 				2BD4CD8324EE85CC00BCA0D5 /* ButtonsPanel.swift */,
-				2B58A36424F8672C002AD76E /* MemoryEditChunkViews.swift */,
+				2BFD473F25025AE700485231 /* MemoryTextChunkView.swift */,
+				2BFD474125025B5D00485231 /* MemoryPhotoChunkView.swift */,
+				2BFD474325025B9B00485231 /* MemoryGraffitiChunkView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -497,7 +519,9 @@
 		2B58A36A24F86A32002AD76E /* Coordinator */ = {
 			isa = PBXGroup;
 			children = (
-				2B58A36B24F86A44002AD76E /* MemoryEditCoordinator.swift */,
+				2B58A36B24F86A44002AD76E /* AnyMemoryEditCoordinator.swift */,
+				2BFD472C2502431B00485231 /* CurrentMemoryEditCoordinator.swift */,
+				2BFD472E2502445D00485231 /* MemoryEditCoordinator.swift */,
 			);
 			path = Coordinator;
 			sourceTree = "<group>";
@@ -505,6 +529,9 @@
 		2B58A36D24F86C64002AD76E /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
+				2BFD473A2502585400485231 /* TextChunkViewModel */,
+				2BFD47352502574F00485231 /* PhotoChunkViewModel */,
+				2BFD4730250256FB00485231 /* GraffitiChunkViewModel */,
 				2B58A36E24F86C74002AD76E /* MemoryEditViewModel.swift */,
 				2BFD471C2501186200485231 /* MemoryEditViewModelType.swift */,
 			);
@@ -884,6 +911,33 @@
 			path = FilterModel;
 			sourceTree = "<group>";
 		};
+		2BFD4730250256FB00485231 /* GraffitiChunkViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				2BFD47312502570900485231 /* GraffitiChunkViewModel.swift */,
+				2BFD47332502571500485231 /* GraffitiChunkViewModelType.swift */,
+			);
+			path = GraffitiChunkViewModel;
+			sourceTree = "<group>";
+		};
+		2BFD47352502574F00485231 /* PhotoChunkViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				2BFD47362502575C00485231 /* PhotoChunkViewModel.swift */,
+				2BFD47382502577A00485231 /* PhotoChunkViewModelType.swift */,
+			);
+			path = PhotoChunkViewModel;
+			sourceTree = "<group>";
+		};
+		2BFD473A2502585400485231 /* TextChunkViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				2BFD473B2502586900485231 /* TextChunkViewModel.swift */,
+				2BFD473D250258A300485231 /* TextChunkViewModelType.swift */,
+			);
+			path = TextChunkViewModel;
+			sourceTree = "<group>";
+		};
 		6E3DB1B36F17ADB64E364AEA /* Pods */ = {
 			isa = PBXGroup;
 			children = (
@@ -1016,6 +1070,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2B58A35D24F85A0A002AD76E /* UnsplashCollectionCommonCell.swift in Sources */,
+				2BFD472F2502445D00485231 /* MemoryEditCoordinator.swift in Sources */,
 				2B44B5D624F48D4B00BC229A /* MemorySearchController.swift in Sources */,
 				2BFD472925016E5A00485231 /* MemorySearchFilterDateCell.swift in Sources */,
 				2B402C0424F3118000B40319 /* PageTabBarController.swift in Sources */,
@@ -1023,6 +1078,7 @@
 				2B58A38C24FBB7FD002AD76E /* NMNavigationController.swift in Sources */,
 				2B44B5D824F48D7F00BC229A /* MemorySearchViewModel.swift in Sources */,
 				2BFD470824FF000C00485231 /* CoreMemory+CoreDataProperties.swift in Sources */,
+				2BFD47392502577A00485231 /* PhotoChunkViewModelType.swift in Sources */,
 				2BFD471424FF975300485231 /* MemorySearchFilterTagCell.swift in Sources */,
 				2BFD47222501641700485231 /* MemorySearchFilterMonthsViewModel.swift in Sources */,
 				2B5C578024F672F0009C2285 /* UnsplashImageCollectionController.swift in Sources */,
@@ -1040,6 +1096,7 @@
 				2BFD46D824FC547300485231 /* ThemeManager.swift in Sources */,
 				2B44B5C624F3F47D00BC229A /* CoreGraffitiChunk+CoreDataClass.swift in Sources */,
 				2B574CBD24E849180071D97C /* MemoryCollectionViewModel.swift in Sources */,
+				2BFD47342502571500485231 /* GraffitiChunkViewModelType.swift in Sources */,
 				2BFD47192500194E00485231 /* MemorySearchFilterTagsViewModelType.swift in Sources */,
 				2B44B5CC24F488E900BC229A /* UIStackView+Extensions.swift in Sources */,
 				2BFD46E824FDB3B400485231 /* NMCollectionView.swift in Sources */,
@@ -1050,9 +1107,12 @@
 				2B44B5CA24F488B900BC229A /* UIFont+Extensions.swift in Sources */,
 				2B5C578424F67334009C2285 /* UnsplashImageCollectionCoordinator.swift in Sources */,
 				2B58A36224F866BB002AD76E /* MemoryEditViewController.swift in Sources */,
+				2BFD474425025B9B00485231 /* MemoryGraffitiChunkView.swift in Sources */,
 				2BFD470424FEE47700485231 /* NMTableViewCell.swift in Sources */,
 				2BFD4720250163F700485231 /* MemorySearchFilterMonthsViewModelType.swift in Sources */,
+				2BFD474225025B5D00485231 /* MemoryPhotoChunkView.swift in Sources */,
 				2BFD46F224FE806000485231 /* Tagging.swift in Sources */,
+				2BFD472D2502431B00485231 /* CurrentMemoryEditCoordinator.swift in Sources */,
 				2B574CB624E83B940071D97C /* Business.swift in Sources */,
 				2BFD47272501653700485231 /* MonthModel.swift in Sources */,
 				2B44B5D024F4893900BC229A /* UIView+Extensions.swift in Sources */,
@@ -1078,6 +1138,7 @@
 				2BFD46FE24FE95B300485231 /* TagsListViewModel.swift in Sources */,
 				2B574CD624E850DA0071D97C /* CoreTextChunk+CoreDataClass.swift in Sources */,
 				2B402C0C24F3B24400B40319 /* MapCreateViewModel.swift in Sources */,
+				2BFD473C2502586900485231 /* TextChunkViewModel.swift in Sources */,
 				2B5C579624F6CDFE009C2285 /* UnsplashImageDetailViewModel.swift in Sources */,
 				2B0748B624E5E3FA0031D203 /* Cozy.xcdatamodeld in Sources */,
 				2B58A35424F857B1002AD76E /* ImageDetailTransition.swift in Sources */,
@@ -1085,11 +1146,13 @@
 				2BFD46E224FD9E7D00485231 /* NMAlertController.swift in Sources */,
 				2B402C1724F3D75C00B40319 /* GraffitiCreateViewModel.swift in Sources */,
 				2B402C0A24F3B23500B40319 /* MapCreateViewController.swift in Sources */,
+				2BFD474025025AE700485231 /* MemoryTextChunkView.swift in Sources */,
 				2BFD46FA24FE945900485231 /* TagsListController.swift in Sources */,
+				2BFD47372502575C00485231 /* PhotoChunkViewModel.swift in Sources */,
 				2BD4CD7E24ED703700BCA0D5 /* LocalImageDetailViewModel.swift in Sources */,
 				2BFD46DA24FC610400485231 /* NMTabBarController.swift in Sources */,
-				2B58A36524F8672C002AD76E /* MemoryEditChunkViews.swift in Sources */,
-				2B58A36C24F86A44002AD76E /* MemoryEditCoordinator.swift in Sources */,
+				2BFD473E250258A300485231 /* TextChunkViewModelType.swift in Sources */,
+				2B58A36C24F86A44002AD76E /* AnyMemoryEditCoordinator.swift in Sources */,
 				2BFD46D024FBF3C000485231 /* NMImageView.swift in Sources */,
 				2BFD471B2500195700485231 /* MemorySearchFilterTagsViewModel.swift in Sources */,
 				2BFD46FC24FE954500485231 /* TagsListCoordinator.swift in Sources */,
@@ -1097,6 +1160,7 @@
 				2BFD470724FF000C00485231 /* CoreMemory+CoreDataClass.swift in Sources */,
 				2BFD47252501652100485231 /* TagModel.swift in Sources */,
 				2BFD471D2501186200485231 /* MemoryEditViewModelType.swift in Sources */,
+				2BFD47322502570900485231 /* GraffitiChunkViewModel.swift in Sources */,
 				2BFD46DE24FC6BE800485231 /* NMTabBarItem.swift in Sources */,
 				2BFD471624FFAE3500485231 /* FilterManager.swift in Sources */,
 				2B0748AE24E5E3FA0031D203 /* SceneDelegate.swift in Sources */,

@@ -33,6 +33,7 @@ protocol MemoryCreateViewModelOutput {
     var graffitiInsertRequestObservable: Observable<Void> { get }
     
     var shouldClearStack: Observable<Void> { get }
+    var shouldDeleteMemory: Observable<Void> { get }
 }
 
 protocol MemoryCreateViewModelInput {
@@ -46,9 +47,12 @@ protocol MemoryCreateViewModelInput {
     var graffitiChunkAdd: PublishRelay<Void> { get }
     var tagAdd: PublishRelay<Void> { get }
     
+    var deleteMemoryButtonTap: PublishRelay<Void> { get }
+    
     // MARK: Coordinator Input
     var photoInsertResponse: (ImageMeta) -> () { get }
     var graffitiInsertResponse: (Data) -> () { get }
+    var provideMemory: PublishRelay<BehaviorRelay<Memory>> { get }
 }
 
 protocol MemoryCreateViewModelType {

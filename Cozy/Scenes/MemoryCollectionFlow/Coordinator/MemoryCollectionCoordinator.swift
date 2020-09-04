@@ -61,7 +61,7 @@ class MemoryCollectionCoordinator: ParentCoordinator {
     }
     
     private func gotodetail(memory: BehaviorRelay<Memory>) {
-        let coordinator = MemoryEditCoordinator(
+        let coordinator = AnyMemoryEditCoordinator(
             memory: memory,
             memoryStore: memoryStore,
             navigationController: navigationController

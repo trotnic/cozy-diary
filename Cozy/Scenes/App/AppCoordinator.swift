@@ -35,35 +35,26 @@ class AppCoordinator: ParentCoordinator {
         tabBarController = NMTabBarController()
         
         let wrapController = NMNavigationController()
-        
         wrapController.tabBarItem = UITabBarItem(title: "Today", image: UIImage(systemName: "tortoise"), tag: 0)
+        let currentMemoryCoordinator = CurrentMemoryEditCoordinator(memoryStore: memoryStore, navigationController: wrapController)
+        childCoordinators.append(currentMemoryCoordinator)
+        currentMemoryCoordinator.start()
 
-        let memoryEditCoordinator = MemoryEditCoordinator(
-            memory: memoryStore.relevantMemory,
-            memoryStore: memoryStore,
-            navigationController: wrapController)
-
-        childCoordinators.append(memoryEditCoordinator)
-        memoryEditCoordinator.start()
-        wrapController.setViewControllers([memoryEditCoordinator.viewController], animated: true)
-
+        
         let memoryCollectionCoordinator = MemoryCollectionCoordinator(memoryStore: memoryStore)
-
-
         childCoordinators.append(memoryCollectionCoordinator)
         memoryCollectionCoordinator.start()
         memoryCollectionCoordinator.navigationController.tabBarItem = UITabBarItem(title: "Previous", image: UIImage(systemName: "flame"), tag: 1)
 
         tabBarController.viewControllers = [
-            memoryEditCoordinator.navigationController,
+            currentMemoryCoordinator.navigationController,
             memoryCollectionCoordinator.navigationController
         ]
         
-        tabBarController.selectedIndex = 1
+        tabBarController.selectedIndex = 0
         
         window.rootViewController = tabBarController
         window.makeKeyAndVisible()
-        
     }
     
 }
