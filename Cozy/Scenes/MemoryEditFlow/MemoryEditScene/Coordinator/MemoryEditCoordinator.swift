@@ -44,6 +44,7 @@ extension MemoryEditCoordinator {
         processTagAdd(viewModel)
         processGraffitiInsert(viewModel)
         processStackCleaning(viewModel)
+        processVoiceInsert(viewModel)
     }
     
     // MARK: Convenience methods
@@ -172,6 +173,17 @@ extension MemoryEditCoordinator {
                    self.childCoordinators.removeAll()
                }
            })
+        .disposed(by: disposeBag)
+    }
+    
+    private func processVoiceInsert(_ viewModel: MemoryCreateViewModelType) {
+        viewModel.outputs.voiceInsertRequestObservable
+            .subscribe(onNext: { [weak self] manager in
+                guard let self = self else { return }
+                let coordinator = VoiceRecordCoordinator(presentingController: self.viewController, manager: manager)
+                self.childCoordinators.append(coordinator)
+                coordinator.start()
+            })
         .disposed(by: disposeBag)
     }
 }

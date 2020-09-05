@@ -28,6 +28,7 @@
 		2B44B5D624F48D4B00BC229A /* MemorySearchController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B44B5D524F48D4B00BC229A /* MemorySearchController.swift */; };
 		2B44B5D824F48D7F00BC229A /* MemorySearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B44B5D724F48D7F00BC229A /* MemorySearchViewModel.swift */; };
 		2B44B5DB24F4915F00BC229A /* MemorySearchCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B44B5DA24F4915F00BC229A /* MemorySearchCoordinator.swift */; };
+		2B4B4984250424B400210417 /* VoiceChunkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B4983250424B400210417 /* VoiceChunkManager.swift */; };
 		2B574CAC24E7D3F00071D97C /* NMViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B574CAB24E7D3F00071D97C /* NMViewController.swift */; };
 		2B574CB624E83B940071D97C /* Business.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B574CB524E83B940071D97C /* Business.swift */; };
 		2B574CB924E83DC10071D97C /* MemoryCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B574CB824E83DC10071D97C /* MemoryCollectionViewController.swift */; };
@@ -109,6 +110,10 @@
 		2BFD474025025AE700485231 /* MemoryTextChunkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD473F25025AE700485231 /* MemoryTextChunkView.swift */; };
 		2BFD474225025B5D00485231 /* MemoryPhotoChunkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD474125025B5D00485231 /* MemoryPhotoChunkView.swift */; };
 		2BFD474425025B9B00485231 /* MemoryGraffitiChunkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD474325025B9B00485231 /* MemoryGraffitiChunkView.swift */; };
+		2BFD476A2502FD4000485231 /* VoiceRecordCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD47692502FD4000485231 /* VoiceRecordCoordinator.swift */; };
+		2BFD476C2502FD5300485231 /* VoiceRecordController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD476B2502FD5300485231 /* VoiceRecordController.swift */; };
+		2BFD476E2502FD5E00485231 /* VoiceRecordViewModelType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD476D2502FD5E00485231 /* VoiceRecordViewModelType.swift */; };
+		2BFD47702502FD8100485231 /* VoiceRecordViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD476F2502FD8100485231 /* VoiceRecordViewModel.swift */; };
 		B3B88CF141F8D6A579ECA1EE /* Pods_Cozy.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0FC798F2920457D08D7A46D4 /* Pods_Cozy.framework */; };
 /* End PBXBuildFile section */
 
@@ -137,6 +142,7 @@
 		2B44B5D524F48D4B00BC229A /* MemorySearchController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemorySearchController.swift; sourceTree = "<group>"; };
 		2B44B5D724F48D7F00BC229A /* MemorySearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemorySearchViewModel.swift; sourceTree = "<group>"; };
 		2B44B5DA24F4915F00BC229A /* MemorySearchCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemorySearchCoordinator.swift; sourceTree = "<group>"; };
+		2B4B4983250424B400210417 /* VoiceChunkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceChunkManager.swift; sourceTree = "<group>"; };
 		2B574CAB24E7D3F00071D97C /* NMViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NMViewController.swift; sourceTree = "<group>"; };
 		2B574CB524E83B940071D97C /* Business.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Business.swift; sourceTree = "<group>"; };
 		2B574CB824E83DC10071D97C /* MemoryCollectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryCollectionViewController.swift; sourceTree = "<group>"; };
@@ -218,6 +224,10 @@
 		2BFD473F25025AE700485231 /* MemoryTextChunkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryTextChunkView.swift; sourceTree = "<group>"; };
 		2BFD474125025B5D00485231 /* MemoryPhotoChunkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryPhotoChunkView.swift; sourceTree = "<group>"; };
 		2BFD474325025B9B00485231 /* MemoryGraffitiChunkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryGraffitiChunkView.swift; sourceTree = "<group>"; };
+		2BFD47692502FD4000485231 /* VoiceRecordCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceRecordCoordinator.swift; sourceTree = "<group>"; };
+		2BFD476B2502FD5300485231 /* VoiceRecordController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceRecordController.swift; sourceTree = "<group>"; };
+		2BFD476D2502FD5E00485231 /* VoiceRecordViewModelType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceRecordViewModelType.swift; sourceTree = "<group>"; };
+		2BFD476F2502FD8100485231 /* VoiceRecordViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceRecordViewModel.swift; sourceTree = "<group>"; };
 		392D86B353E56D3881C36505 /* Pods-Cozy.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Cozy.release.xcconfig"; path = "Target Support Files/Pods-Cozy/Pods-Cozy.release.xcconfig"; sourceTree = "<group>"; };
 		9EA38423ED02106646ABD875 /* Pods-Cozy.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Cozy.debug.xcconfig"; path = "Target Support Files/Pods-Cozy/Pods-Cozy.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -396,6 +406,7 @@
 				2B574CB524E83B940071D97C /* Business.swift */,
 				2BFD470124FED34600485231 /* TagManager.swift */,
 				2BFD471524FFAE3500485231 /* FilterManager.swift */,
+				2B4B4983250424B400210417 /* VoiceChunkManager.swift */,
 			);
 			path = ModelLayer;
 			sourceTree = "<group>";
@@ -552,6 +563,7 @@
 		2B58A37224F921B5002AD76E /* MemoryEditScene */ = {
 			isa = PBXGroup;
 			children = (
+				2BFD47652502FC6E00485231 /* VoiceRecordScene */,
 				2BFD46F324FE8E7400485231 /* TagListScene */,
 				2BFD46ED24FE6C9C00485231 /* GraffitiCreateScene */,
 				2B58A37B24F9AC37002AD76E /* ImageDetailScene */,
@@ -938,6 +950,41 @@
 			path = TextChunkViewModel;
 			sourceTree = "<group>";
 		};
+		2BFD47652502FC6E00485231 /* VoiceRecordScene */ = {
+			isa = PBXGroup;
+			children = (
+				2BFD47682502FC8200485231 /* ViewModel */,
+				2BFD47672502FC7C00485231 /* ViewController */,
+				2BFD47662502FC7700485231 /* Coordinator */,
+			);
+			path = VoiceRecordScene;
+			sourceTree = "<group>";
+		};
+		2BFD47662502FC7700485231 /* Coordinator */ = {
+			isa = PBXGroup;
+			children = (
+				2BFD47692502FD4000485231 /* VoiceRecordCoordinator.swift */,
+			);
+			path = Coordinator;
+			sourceTree = "<group>";
+		};
+		2BFD47672502FC7C00485231 /* ViewController */ = {
+			isa = PBXGroup;
+			children = (
+				2BFD476B2502FD5300485231 /* VoiceRecordController.swift */,
+			);
+			path = ViewController;
+			sourceTree = "<group>";
+		};
+		2BFD47682502FC8200485231 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				2BFD476D2502FD5E00485231 /* VoiceRecordViewModelType.swift */,
+				2BFD476F2502FD8100485231 /* VoiceRecordViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
 		6E3DB1B36F17ADB64E364AEA /* Pods */ = {
 			isa = PBXGroup;
 			children = (
@@ -1098,6 +1145,8 @@
 				2B574CBD24E849180071D97C /* MemoryCollectionViewModel.swift in Sources */,
 				2BFD47342502571500485231 /* GraffitiChunkViewModelType.swift in Sources */,
 				2BFD47192500194E00485231 /* MemorySearchFilterTagsViewModelType.swift in Sources */,
+				2BFD476A2502FD4000485231 /* VoiceRecordCoordinator.swift in Sources */,
+				2BFD47702502FD8100485231 /* VoiceRecordViewModel.swift in Sources */,
 				2B44B5CC24F488E900BC229A /* UIStackView+Extensions.swift in Sources */,
 				2BFD46E824FDB3B400485231 /* NMCollectionView.swift in Sources */,
 				2B0748AC24E5E3FA0031D203 /* AppDelegate.swift in Sources */,
@@ -1109,6 +1158,7 @@
 				2B58A36224F866BB002AD76E /* MemoryEditViewController.swift in Sources */,
 				2BFD474425025B9B00485231 /* MemoryGraffitiChunkView.swift in Sources */,
 				2BFD470424FEE47700485231 /* NMTableViewCell.swift in Sources */,
+				2BFD476E2502FD5E00485231 /* VoiceRecordViewModelType.swift in Sources */,
 				2BFD4720250163F700485231 /* MemorySearchFilterMonthsViewModelType.swift in Sources */,
 				2BFD474225025B5D00485231 /* MemoryPhotoChunkView.swift in Sources */,
 				2BFD46F224FE806000485231 /* Tagging.swift in Sources */,
@@ -1147,12 +1197,14 @@
 				2B402C1724F3D75C00B40319 /* GraffitiCreateViewModel.swift in Sources */,
 				2B402C0A24F3B23500B40319 /* MapCreateViewController.swift in Sources */,
 				2BFD474025025AE700485231 /* MemoryTextChunkView.swift in Sources */,
+				2BFD476C2502FD5300485231 /* VoiceRecordController.swift in Sources */,
 				2BFD46FA24FE945900485231 /* TagsListController.swift in Sources */,
 				2BFD47372502575C00485231 /* PhotoChunkViewModel.swift in Sources */,
 				2BD4CD7E24ED703700BCA0D5 /* LocalImageDetailViewModel.swift in Sources */,
 				2BFD46DA24FC610400485231 /* NMTabBarController.swift in Sources */,
 				2BFD473E250258A300485231 /* TextChunkViewModelType.swift in Sources */,
 				2B58A36C24F86A44002AD76E /* AnyMemoryEditCoordinator.swift in Sources */,
+				2B4B4984250424B400210417 /* VoiceChunkManager.swift in Sources */,
 				2BFD46D024FBF3C000485231 /* NMImageView.swift in Sources */,
 				2BFD471B2500195700485231 /* MemorySearchFilterTagsViewModel.swift in Sources */,
 				2BFD46FC24FE954500485231 /* TagsListCoordinator.swift in Sources */,

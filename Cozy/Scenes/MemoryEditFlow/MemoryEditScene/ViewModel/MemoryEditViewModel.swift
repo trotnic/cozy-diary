@@ -41,6 +41,21 @@ class MemoryEditViewModel: MemoryCreateViewModelType, MemoryCreateViewModelOutpu
     
     var graffitiInsertRequestObservable: Observable<Void> { graffitiChunkAdd.asObservable() }
     
+    var voiceInsertRequestObservable: Observable<VoiceChunkManagerType> {
+        voiceChunkAdd
+            .flatMap { [unowned self] _ -> Observable<VoiceChunkManagerType> in
+                let manager = VoiceChunkManager()
+                
+                manager.voiceFileUrl
+                    .subscribe(onNext: { (fileUrl) in
+                        assert(false)
+                    })
+                .disposed(by: self.disposeBag)
+                
+                return .just(manager)
+            }
+    }
+    
     var shouldClearStack: Observable<Void> { shouldClearStackObserver.asObservable() }
     
     var shouldDeleteMemory: Observable<Void> { shouldDeleteMemoryObserver.asObservable() }
@@ -53,6 +68,7 @@ class MemoryEditViewModel: MemoryCreateViewModelType, MemoryCreateViewModelOutpu
     let photoChunkAdd = PublishRelay<Void>()
     let graffitiChunkAdd = PublishRelay<Void>()
     let tagAdd = PublishRelay<Void>()
+    let voiceChunkAdd = PublishRelay<Void>()
     
     let deleteMemoryButtonTap = PublishRelay<Void>()
     

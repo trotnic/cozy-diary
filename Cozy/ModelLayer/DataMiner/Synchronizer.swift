@@ -129,12 +129,10 @@ class Synchronizer: MemoryStoreType {
         .disposed(by: disposeBag)
     }
     
-    private func fetchData() -> [CoreMemory] {
-        fetchData(context: self.coreDataManager.viewContext)
-    }
+    private func fetchData() -> [CoreMemory] { fetchData(context: self.coreDataManager.viewContext) }
     
     private func fetchData(context: NSManagedObjectContext) -> [CoreMemory] {
-        return fetchData(context: context, predicate: nil)
+        fetchData(context: context, predicate: nil)
     }
     
     private func fetchData(context: NSManagedObjectContext, predicate: NSPredicate?) -> [CoreMemory] {

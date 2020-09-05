@@ -92,11 +92,15 @@ class MemoryEditViewController: NMViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         viewModel.inputs.viewWillAppear.accept(())
+        isTextPanelActive.accept(false)
+        isFontEditPanelActive.accept(false)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         viewModel.inputs.viewWillDisappear.accept(())
+        isTextPanelActive.accept(false)
+        isFontEditPanelActive.accept(false)
     }
     
     func bindViewModel() {
@@ -298,6 +302,9 @@ class MemoryEditViewController: NMViewController {
             }),
             panelButtonBuilder("paintbrush", { [weak self] in
                 self?.viewModel.inputs.graffitiChunkAdd.accept(())
+            }),
+            panelButtonBuilder("music.note", { [weak self] in
+                self?.viewModel.inputs.voiceChunkAdd.accept(())
             })
         ]
         

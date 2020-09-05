@@ -32,6 +32,8 @@ protocol MemoryCreateViewModelOutput {
     
     var graffitiInsertRequestObservable: Observable<Void> { get }
     
+    var voiceInsertRequestObservable: Observable<VoiceChunkManagerType> { get }
+    
     var shouldClearStack: Observable<Void> { get }
     var shouldDeleteMemory: Observable<Void> { get }
 }
@@ -46,6 +48,7 @@ protocol MemoryCreateViewModelInput {
     var photoChunkAdd: PublishRelay<Void> { get }
     var graffitiChunkAdd: PublishRelay<Void> { get }
     var tagAdd: PublishRelay<Void> { get }
+    var voiceChunkAdd: PublishRelay<Void> { get }
     
     var deleteMemoryButtonTap: PublishRelay<Void> { get }
     
