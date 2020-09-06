@@ -50,16 +50,22 @@ class GraffitiCreateCoordinator: Coordinator, GraffitiCreateCoordinatorOutput {
         wrapController.modalPresentationStyle = .fullScreen
         
         
-        viewModel.outputs.saveRequestObservable
+        viewModel
+            .outputs
+            .saveRequestObservable
             .subscribe(onNext: { [weak self] data in
                 self?.savePublisher.onNext(data)
-            }).disposed(by: disposeBag)
+            })
+            .disposed(by: disposeBag)
         
         
-        viewModel.outputs.closeRequestObservable
+        viewModel
+            .outputs
+            .closeRequestObservable
             .subscribe(onNext: { [weak self] in
                 self?.closePublisher.onNext(())
-            }).disposed(by: disposeBag)
+            })
+            .disposed(by: disposeBag)
         
         
         presentingController.present(wrapController, animated: true)

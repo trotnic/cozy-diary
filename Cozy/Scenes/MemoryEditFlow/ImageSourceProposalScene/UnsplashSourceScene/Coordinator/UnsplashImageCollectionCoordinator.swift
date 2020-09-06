@@ -9,6 +9,7 @@
 import Foundation
 import RxSwift
 import Kingfisher
+import Alertift
 
 
 class UnsplashImageCollectionCoordinator: ParentCoordinator {
@@ -40,14 +41,18 @@ class UnsplashImageCollectionCoordinator: ParentCoordinator {
         
         viewModel = UnsplashImageCollectionViewModel(service: UnsplashService())
         
-        viewModel.outputs.detailImageRequest
+        viewModel
+            .outputs
+            .detailImageRequest
             .asObservable()
             .subscribe(onNext: { [weak self] (photo) in
                 self?.gotodetail(meta: photo)
             })
             .disposed(by: disposeBag)
         
-        viewModel.outputs.cancelObservable
+        viewModel
+            .outputs
+            .cancelObservable
             .bind(to: cancelObserver)
             .disposed(by: disposeBag)
         
@@ -60,60 +65,50 @@ class UnsplashImageCollectionCoordinator: ParentCoordinator {
     }
     
     private func gotodetail(meta: UnsplashPhoto) {
-        let viewModel = UnsplashImageDetailViewModel(imageMeta: meta)
+        let viewModel = UnsplashImageDetailViewModel(imageMeta: meta, imageDownloader: .default)
         let controller = ImageDetailViewController(viewModel)
         controller.modalPresentationStyle = .fullScreen
         
-        viewModel.outputs.closeRequestObservable
+        viewModel
+            .outputs
+            .closeRequestObservable
             .subscribe(onNext: {
                 controller.dismiss(animated: true)
             })
             .disposed(by: disposeBag)
         
-        viewModel.outputs.moreRequestObservable
+        viewModel
+            .outputs
+            .moreRequestObservable
             .subscribe(onNext: {
-                let alertController = NMAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-                
-                let addAction = UIAlertAction(
-                    title: "Add",
-                    style: .default) { (_) in
+                Alertift.actionSheet()
+                    .action(.default("Add")) {
                         viewModel.outputs.image
-                            .subscribe(onNext: { [weak self] (data) in
-                                if let self = self {
-                                    let imageMeta = ImageMeta(imageUrl: URL(string: meta.urls.regular), originalImage: data)
-                                    self.metaObserver.onNext(imageMeta)
-                                    self.cancelObserver.onNext(())
-                                }
-                            })
-                            .disposed(by: self.disposeBag)
-                }
-                alertController.addAction(addAction)
-                
-                let shareAction = UIAlertAction(
-                    title: "Share",
-                    style: .default) { (_) in
+                        .subscribe(onNext: { [weak self] (data) in
+                            if let self = self {
+                                let imageMeta = ImageMeta(imageUrl: URL(string: meta.urls.regular), originalImage: data)
+                                self.metaObserver.onNext(imageMeta)
+                                self.cancelObserver.onNext(())
+                            }
+                        })
+                        .disposed(by: self.disposeBag)
+                    }
+                    .action(.default("Share")) {
                         viewModel.outputs.image
-                            .subscribe(onNext: { (data) in
-                                DispatchQueue.global(qos: .userInitiated).async {
-                                    if let image = UIImage(data: data) {
-                                        let activityController = UIActivityViewController(activityItems: [image], applicationActivities: nil)
-                                        DispatchQueue.main.async {
-                                            controller.present(activityController, animated: true)
-                                        }
+                        .subscribe(onNext: { (data) in
+                            DispatchQueue.global(qos: .userInitiated).async {
+                                if let image = UIImage(data: data) {
+                                    let activityController = UIActivityViewController(activityItems: [image], applicationActivities: nil)
+                                    DispatchQueue.main.async {
+                                        controller.present(activityController, animated: true)
                                     }
                                 }
-                            })
-                            .disposed(by: self.disposeBag)
-                }
-                alertController.addAction(shareAction)
-                
-                let cancelAction = UIAlertAction(
-                    title: "Cancel",
-                    style: .destructive,
-                    handler: nil)
-                alertController.addAction(cancelAction)
-                
-                controller.present(alertController, animated: true)
+                            }
+                        })
+                        .disposed(by: self.disposeBag)
+                    }
+                    .action(.cancel("Cancel"))
+                .show(on: controller)
             })
             .disposed(by: disposeBag)
         

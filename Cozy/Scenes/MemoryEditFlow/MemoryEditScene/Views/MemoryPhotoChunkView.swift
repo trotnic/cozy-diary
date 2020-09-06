@@ -77,24 +77,35 @@ class PhotoChunkMemoryView: UIView {
     }
     
     func bindViewModel() {
-        viewModel.outputs.photo.map { UIImage(data: $0)}
+        viewModel
+            .outputs
+            .photo
+            .map { UIImage(data: $0)}
             .bind(to: imageView.rx.image)
             .disposed(by: disposeBag)
         
-        viewModel.outputs.photo.map { UIImage(data: $0)?.size }
+        viewModel
+            .outputs
+            .photo
+            .map { UIImage(data: $0)?.size }
             .subscribe(onNext: { [weak contentView] size in
                 if let contentView = contentView,
                     let size = size {
                     contentView.heightAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: size.height/size.width).isActive = true
                 }
-            }).disposed(by: disposeBag)
+            })
+            .disposed(by: disposeBag)
         
         let tapReco = UITapGestureRecognizer()
         addGestureRecognizer(tapReco)
-        tapReco.rx.event.subscribe(onNext: { [weak self] (reco) in
-            self?.tapObserver.accept(())
-            self?.viewModel.inputs.tapRequest()
-        }).disposed(by: disposeBag)
+        
+        tapReco
+            .rx.event
+            .subscribe(onNext: { [weak self] (reco) in
+                self?.tapObserver.accept(())
+                self?.viewModel.inputs.tap.accept(())
+            })
+            .disposed(by: disposeBag)
     }
     
 }
@@ -113,23 +124,17 @@ extension PhotoChunkMemoryView: UIContextMenuInteractionDelegate {
         let shareAction = UIAction(
             title: "Share",
             image: UIImage(systemName: "square.and.arrow.up"),
-            handler: { [weak self] _ in
-                self?.viewModel.inputs.shareButtonTap.accept(())
-        })
+            handler: { [weak self] _ in self?.viewModel.inputs.shareButtonTap.accept(()) })
         
         let copy = UIAction(
             title: "Copy",
             image: UIImage(systemName: "doc.on.doc"),
-            handler: { [weak self] _ in
-                self?.viewModel.inputs.copyButtonTap.accept(())
-        })
+            handler: { [weak self] _ in self?.viewModel.inputs.copyButtonTap.accept(()) })
         
         let remove = UIAction(
             title: "Remove",
             image: UIImage(systemName: "trash")?.withTintColor(.red),
-            handler: { [weak self] _ in
-                self?.viewModel.inputs.removeButtonTap.accept(())
-        })
+            handler: { [weak self] _ in self?.viewModel.inputs.removeButtonTap.accept(()) })
         
         return UIMenu(title: "", children: [shareAction, copy, remove])
     }

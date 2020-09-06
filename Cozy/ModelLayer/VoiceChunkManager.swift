@@ -20,7 +20,5 @@ class VoiceChunkManager: VoiceChunkManagerType {
     
     private let fileUrlObserver = PublishSubject<URL>()
     
-    func insertVoiceFileUrl(_ url: URL) {
-        fileUrlObserver.onNext(url)
-    }
+    func insertVoiceFileUrl(_ url: URL) { fileUrlObserver.onNext(url) }
 }

@@ -16,7 +16,7 @@ protocol TagManagerType {
     init(with taggable: Item)
     
     func insertTag(_ tag: String)
-    func remoeTag(_ tag: String)
+    func removeTag(_ tag: String)
     func currentTags() -> Observable<Item.Tags>
     func currentItem() -> Item?
 }
@@ -37,19 +37,15 @@ final class TagManager: TagManagerType {
         }        
     }
     
-    func remoeTag(_ tag: String) {
+    func removeTag(_ tag: String) {
         if let value = try? taggable.value() {
-            value.tags = value.tags.filter { $0.rawValue.lowercased() != tag }
+            value.tags = value.tags.filter { $0.rawValue.lowercased() != tag.lowercased() }
             taggable.onNext(value)
         }
     }
     
-    func currentTags() -> Observable<Item.Tags> {
-        taggable.flatMap{ item -> Observable<Item.Tags> in .just(item.tags)}
-    }
+    func currentTags() -> Observable<Item.Tags> { taggable.flatMap{ item -> Observable<Item.Tags> in .just(item.tags)} }
     
-    func currentItem() -> Item? {
-        return try? taggable.value()
-    }
+    func currentItem() -> Item? { try? taggable.value() }
     
 }

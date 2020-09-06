@@ -36,6 +36,7 @@ class MemorySearchFilterTagsViewModel: MemorySearchFilterTagsViewModelType, Memo
     
     // MARK: Init
     init(tags: [TagModel]) {
+        
         self.tags.accept(tags.map { [unowned self] item -> BehaviorRelay<TagModel> in
             let observer = BehaviorRelay<TagModel>(value: item)
             

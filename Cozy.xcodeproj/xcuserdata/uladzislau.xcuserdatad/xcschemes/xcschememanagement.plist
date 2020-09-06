@@ -7,7 +7,20 @@
 		<key>Cozy.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>8</integer>
+			<integer>11</integer>
+		</dict>
+	</dict>
+	<key>SuppressBuildableAutocreation</key>
+	<dict>
+		<key>2B0748A724E5E3FA0031D203</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>2B4B499F2504E30F00210417</key>
+		<dict>
+			<key>primary</key>
+			<true/>
 		</dict>
 	</dict>
 </dict>

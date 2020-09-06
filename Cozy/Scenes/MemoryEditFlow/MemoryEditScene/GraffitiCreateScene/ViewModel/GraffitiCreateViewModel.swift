@@ -8,48 +8,27 @@
 
 import Foundation
 import RxSwift
+import RxCocoa
 
 
-protocol GraffitiCreateViewModelOutput {
-    var saveRequestObservable: Observable<Data> { get }
-    var closeRequestObservable: Observable<Void> { get }
-}
-
-protocol GraffitiCreateViewModelInput {
-    var saveRequest: (Data) -> () { get }
-    var closeRequest: () -> () { get }
-}
-
-protocol GraffitiCreateViewModelType {
-    var outputs: GraffitiCreateViewModelOutput { get }
-    var inputs: GraffitiCreateViewModelInput { get }
-}
 
 class GraffitiCreateViewModel: GraffitiCreateViewModelType, GraffitiCreateViewModelOutput, GraffitiCreateViewModelInput {
     
+    // MARK: Outputs & Inputs
     var outputs: GraffitiCreateViewModelOutput { return self }
     var inputs: GraffitiCreateViewModelInput { return self }
     
     // MARK: Outputs
-    var saveRequestObservable: Observable<Data>
-    var closeRequestObservable: Observable<Void>
+    var saveRequestObservable: Observable<Data> { saveButtonTap.asObservable() }
+    var closeRequestObservable: Observable<Void> { closeButtonTap.asObservable() }
     
     // MARK: Inputs
-    lazy var saveRequest: (Data) -> () = {
-        { data in
-            self.savePublisher.onNext(data)
-        }
-    }()
-    lazy var closeRequest = { { self.closePublisher.onNext(()) } }()
+    let closeButtonTap = PublishRelay<Void>()
+    let saveButtonTap = PublishRelay<Data>()
     
     // MARK: Private
-    let savePublisher = PublishSubject<Data>()
-    let closePublisher = PublishSubject<Void>()
     
-    init() {
-        saveRequestObservable = savePublisher.asObservable()
-        closeRequestObservable = closePublisher.asObservable()
-    }
-    
+    // MARK: Init
+    init() { }
     
 }

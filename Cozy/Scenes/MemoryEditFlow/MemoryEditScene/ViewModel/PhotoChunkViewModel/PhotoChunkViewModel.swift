@@ -18,15 +18,15 @@ class PhotoChunkViewModel: PhotoChunkViewModelType, PhotoChunkViewModelOutput, P
     // MARK: Outputs
     var photo: BehaviorRelay<Data>
     
-    var detailPhotoRequestObservable: Observable<Void>
+    var detailPhotoRequestObservable: Observable<Void> { tap.asObservable() }
     
     var sharePhotoRequest: Observable<Void> { shareButtonTap.asObservable() }
     var copyPhotoRequest: Observable<Void> { copyButtonTap.asObservable() }
     var removePhotoRequest: Observable<Void> { removeButtonTap.asObservable() }
     
     // MARK: Inputs
-    lazy var tapRequest = { { self.tapRequestPublisher.onNext(()) } }()
-    lazy var longPressRequest = { {} }()
+    
+    let tap = PublishRelay<Void>()
     
     let shareButtonTap = PublishRelay<Void>()
     let copyButtonTap = PublishRelay<Void>()
@@ -42,13 +42,6 @@ class PhotoChunkViewModel: PhotoChunkViewModelType, PhotoChunkViewModelOutput, P
     init(_ chunk: PhotoChunk) {
         self.chunk = chunk
         photo = .init(value: chunk.photo)
-        
-        detailPhotoRequestObservable = tapRequestPublisher.asObservable()
-        
-        
-        photo.bind { [weak self] photo in
-            self?.chunk.photo = photo
-        }.disposed(by: disposeBag)
     }
 }
 

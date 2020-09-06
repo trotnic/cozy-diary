@@ -20,23 +20,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         if let scene = scene as? UIWindowScene {
             coordinator = .init(window: UIWindow(windowScene: scene))
             coordinator.start()
+            ThemeManager.shared.provideWithInterfaceStyle(UIScreen.main.traitCollection.userInterfaceStyle)
         }
         
         guard let _ = (scene as? UIWindowScene) else { return }
     }
     
-    func sceneDidBecomeActive(_ scene: UIScene) {
-        
-    }
-    
-    func sceneWillResignActive(_ scene: UIScene) {
-        
-    }
-
     func sceneDidEnterBackground(_ scene: UIScene) {
-        
-//        CoreMemory.update(Synchronizer.shared.relevantMemory.value)
-        
         (UIApplication.shared.delegate as? AppDelegate)?.saveContext()
     }
 

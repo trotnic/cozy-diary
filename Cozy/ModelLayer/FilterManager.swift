@@ -46,25 +46,11 @@ class FilterManager: FilterManagerType {
     private let selectedFiltersBag = BehaviorRelay<Set<Filter>>(value: [])
     private let allFiltersBag = BehaviorRelay<Set<Filter>>(value: defaultFilters())
     
-    func allFilters() -> Set<Filter> {
-        allFiltersBag.value
-    }
-    
-    func currentFilters() -> Set<Filter> {
-        selectedFiltersBag.value
-    }
-    
-    func refillInitialFiltersWith(_ filters: [Filter]) {
-        allFiltersBag.accept(Set(filters).union(FilterManager.defaultFilters()))
-    }
-    
-    func allFiltersObservable() -> Observable<Set<Filter>> {
-        allFiltersBag.asObservable()
-    }
-    
-    func selectedFiltersObservable() -> Observable<Set<Filter>> {
-        selectedFiltersBag.asObservable()
-    }
+    func allFilters() -> Set<Filter> { allFiltersBag.value }    
+    func currentFilters() -> Set<Filter> { selectedFiltersBag.value }
+    func refillInitialFiltersWith(_ filters: [Filter]) { allFiltersBag.accept(Set(filters).union(FilterManager.defaultFilters())) }
+    func allFiltersObservable() -> Observable<Set<Filter>> { allFiltersBag.asObservable() }
+    func selectedFiltersObservable() -> Observable<Set<Filter>> { selectedFiltersBag.asObservable() }
     
     func insertFilter(_ filter: Filter) {
         var currentFilters = selectedFiltersBag.value
@@ -77,9 +63,7 @@ class FilterManager: FilterManagerType {
         selectedFiltersBag.accept(currentFilters.filter { $0 != filter })
     }
     
-    func clearFilters() {
-        selectedFiltersBag.accept([])
-    }
+    func clearFilters() { selectedFiltersBag.accept([]) }
 }
 
 extension FilterManager {

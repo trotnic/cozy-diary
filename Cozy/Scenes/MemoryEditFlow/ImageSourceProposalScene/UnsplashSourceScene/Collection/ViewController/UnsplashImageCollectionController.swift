@@ -13,45 +13,12 @@ import RxDataSources
 import Kingfisher
 
 
-
-
-// MARK: View Model Declaration
-
-
-protocol UnsplashImageCollectionViewModelOutput {
-    var items: Driver<[UnsplashCollectionSection]> { get }
-    
-    var detailImageRequest: Signal<UnsplashPhoto> { get }
-    
-    var cancelObservable: Observable<Void> { get }
-}
-
-protocol UnsplashImageCollectionViewModelInput {
-    var didScrollToEnd: PublishRelay<Void> { get }
-    var willDisappear: PublishRelay<Void> { get }
-    
-    var searchObserver: PublishRelay<String> { get }
-    var searchCancelObserver: PublishRelay<Void> { get }
-}
-
-protocol UnsplashImageCollectionViewModelType {
-    var outputs: UnsplashImageCollectionViewModelOutput { get }
-    var inputs: UnsplashImageCollectionViewModelInput { get }
-}
-
-
-// MARK: Controller
-
-
 class UnsplashImageCollectionController: NMViewController {
-    
     let viewModel: UnsplashImageCollectionViewModelType
-    
     
     // MARK: Private Properties
     private let disposeBag = DisposeBag()
     private let dataSource = UnsplashCollectionDataSource.dataSource()
-    
     
     // MARK: Init
     init(viewModel: UnsplashImageCollectionViewModelType) {
@@ -62,7 +29,6 @@ class UnsplashImageCollectionController: NMViewController {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
     
     // MARK: Views
     lazy var collectionView: NMCollectionView = {
@@ -78,10 +44,15 @@ class UnsplashImageCollectionController: NMViewController {
         controller.searchBar.showsCancelButton = false
         controller.searchBar.placeholder = "Search for a photo"
         
-        
         return controller
     }()
     
+    lazy var noItemsLabel: NMLabel = {
+        let view = NMLabel()
+        view.text = "Find something amaizing for your memory ✨"
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
     
     // MARK: Lifecycle
     override func viewDidLoad() {
@@ -89,22 +60,54 @@ class UnsplashImageCollectionController: NMViewController {
         setupCollectionView()
         setupSearchController()
         setupBackButton()
+        setupNoItemsLabel()
         bindViewModel()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        DispatchQueue.main.async {
+            self.searchController.searchBar.becomeFirstResponder()
+        }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         searchController.searchBar.resignFirstResponder()
     }
-    
-    func bindViewModel() {
-        viewModel.outputs.items
-            .drive(collectionView.rx.items(dataSource: dataSource))
-        .disposed(by: disposeBag)
-    }
-    
-    
+        
     // MARK: Private Methods
+    private func bindViewModel() {
+        viewModel
+            .outputs.items
+            .drive(collectionView.rx.items(dataSource: dataSource))
+            .disposed(by: disposeBag)
+        
+        collectionView
+            .rx.willBeginDragging
+            .subscribe(onNext: { [weak self] in
+                self?.searchController.searchBar.resignFirstResponder()
+            })
+            .disposed(by: disposeBag)
+        
+        searchController
+            .searchBar.rx
+            .text.orEmpty
+            .bind(onNext: { [weak self] (term) in
+                self?.viewModel.inputs.searchObserver.accept(term)
+                if term != "" {
+                    self?.noItemsLabel.isHidden = true
+                }
+            })
+            .disposed(by: disposeBag)
+        
+        searchController
+            .searchBar.rx
+            .cancelButtonClicked
+            .bind(to: viewModel.inputs.searchCancelObserver)
+            .disposed(by: disposeBag)
+    }
+        
     private func getLayout() -> UICollectionViewLayout {
         let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.5), heightDimension: .fractionalHeight(1.0))
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
@@ -130,7 +133,8 @@ class UnsplashImageCollectionController: NMViewController {
         collectionView.contentInset.bottom = view.safeAreaInsets.bottom
         collectionView.showsHorizontalScrollIndicator = false
         
-        collectionView.rx.willDisplayCell
+        collectionView
+            .rx.willDisplayCell
             .flatMap { (_, indexPath) -> Observable<IndexPath> in .just(indexPath) }
             .filter { indexPath in
                 let numberOfSections = self.collectionView.numberOfSections
@@ -139,44 +143,30 @@ class UnsplashImageCollectionController: NMViewController {
             }
             .map { _ in () }
             .bind(to: viewModel.inputs.didScrollToEnd)
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
     }
     
     private func setupSearchController() {
         navigationItem.searchController = searchController
         navigationItem.hidesSearchBarWhenScrolling = false
         
-        searchController.searchBar.rx
-            .text.orEmpty
-            .bind(to: viewModel.inputs.searchObserver)
-        .disposed(by: disposeBag)
-        
-        searchController.searchBar.rx
-            .cancelButtonClicked
-            .bind(to: viewModel.inputs.searchCancelObserver)
-        .disposed(by: disposeBag)
-        
         let tapReco = UITapGestureRecognizer()
-        tapReco.rx.event
+        tapReco
+            .rx.event
             .subscribe(onNext: { [weak self] _ in
                 self?.searchController.searchBar.resignFirstResponder()
             })
             .disposed(by: disposeBag)
         
         collectionView.addGestureRecognizer(tapReco)
-        
-        collectionView.rx.willBeginDragging
-            .subscribe(onNext: { [weak self] in
-                self?.searchController.searchBar.resignFirstResponder()
-            })
-        .disposed(by: disposeBag)
     }
     
     private func setupBackButton() {
         let button = NMButton()
         button.setTitle("Close", for: .normal)
         
-        button.rx.tap
+        button
+            .rx.tap
             .subscribe(onNext: { [weak self] in
                 self?.searchController.searchBar.resignFirstResponder()
                 if let controller = self?.navigationItem.searchController {
@@ -187,6 +177,13 @@ class UnsplashImageCollectionController: NMViewController {
             .disposed(by: disposeBag)
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: button)
+    }
+    
+    private func setupNoItemsLabel() {
+        view.addSubview(noItemsLabel)
+        
+        noItemsLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        noItemsLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
     }
 }
 

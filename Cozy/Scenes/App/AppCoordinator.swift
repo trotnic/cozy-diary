@@ -10,14 +10,6 @@ import Foundation
 import UIKit
 
 
-protocol Coordinator: class {
-    func start()
-}
-
-protocol ParentCoordinator: Coordinator {
-    var childCoordinators: [Coordinator] { get }
-}
-
 class AppCoordinator: ParentCoordinator {
         
     let window: UIWindow
@@ -35,8 +27,10 @@ class AppCoordinator: ParentCoordinator {
         tabBarController = NMTabBarController()
         
         let wrapController = NMNavigationController()
-        wrapController.tabBarItem = UITabBarItem(title: "Today", image: UIImage(systemName: "tortoise"), tag: 0)
+        
+        wrapController.tabBarItem = UITabBarItem(title: "Today", image: UIImage(systemName: "square.and.pencil"), tag: 0)
         let currentMemoryCoordinator = CurrentMemoryEditCoordinator(memoryStore: memoryStore, navigationController: wrapController)
+        
         childCoordinators.append(currentMemoryCoordinator)
         currentMemoryCoordinator.start()
 
@@ -44,7 +38,9 @@ class AppCoordinator: ParentCoordinator {
         let memoryCollectionCoordinator = MemoryCollectionCoordinator(memoryStore: memoryStore)
         childCoordinators.append(memoryCollectionCoordinator)
         memoryCollectionCoordinator.start()
-        memoryCollectionCoordinator.navigationController.tabBarItem = UITabBarItem(title: "Previous", image: UIImage(systemName: "flame"), tag: 1)
+        
+        let collectionItem = UITabBarItem(title: "Previous", image: UIImage(systemName: "calendar"), tag: 1)
+        memoryCollectionCoordinator.navigationController.tabBarItem = collectionItem
 
         tabBarController.viewControllers = [
             currentMemoryCoordinator.navigationController,

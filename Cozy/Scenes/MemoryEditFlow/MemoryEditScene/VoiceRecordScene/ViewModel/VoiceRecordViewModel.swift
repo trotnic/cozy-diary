@@ -32,6 +32,8 @@ class VoiceRecordViewModel: NSObject, VoiceRecordViewModelType, VoiceRecordViewM
     var finishRecording: Driver<Void> { finishRecordingObserver.asDriver(onErrorJustReturn: ()) }
     var restoreRecording: Driver<Void> { restoreRecordingObserver.asDriver(onErrorJustReturn: ()) }
     
+    var presentAlert: Driver<(String, String)> { alertObserver.asDriver(onErrorJustReturn: ("", "")) }
+    
     // MARK: Inputs
     let recordButtonTap = PublishRelay<Void>()
     let playButtonTap = PublishRelay<Void>()
@@ -50,6 +52,8 @@ class VoiceRecordViewModel: NSObject, VoiceRecordViewModelType, VoiceRecordViewM
     private let pauseRecordingObserver = PublishRelay<Void>()
     private let finishRecordingObserver = PublishRelay<Void>()
     private let restoreRecordingObserver = PublishRelay<Void>()
+    
+    private let alertObserver = PublishRelay<(String, String)>()
     
     private var timeDurationObservable: Disposable?
     
@@ -106,7 +110,7 @@ class VoiceRecordViewModel: NSObject, VoiceRecordViewModelType, VoiceRecordViewM
                         self.beginOperation()
                     }
                 } else {
-                    assert(false)
+                    self.alertObserver.accept(("Error with recording", "Try to restart app or allow the application to use microphone in settings"))
                 }
                 
             })
@@ -122,10 +126,10 @@ class VoiceRecordViewModel: NSObject, VoiceRecordViewModelType, VoiceRecordViewM
                     self?.audioPlayer?.volume = 1
                     self?.audioPlayer?.play()
                 } catch {
-                    assert(false)
+                    self?.alertObserver.accept(("Error with playing audio", "Try to restart app"))
                 }
             })
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
     }
     
     private func bindCommitTap() {
@@ -133,7 +137,7 @@ class VoiceRecordViewModel: NSObject, VoiceRecordViewModelType, VoiceRecordViewM
             .subscribe(onNext: { [weak self] in
                 self?.finishOperation()
             })
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
     }
     
     private func bindRemoveTap() {
@@ -141,7 +145,7 @@ class VoiceRecordViewModel: NSObject, VoiceRecordViewModelType, VoiceRecordViewM
             .subscribe(onNext: { [weak self] in
                 self?.restoreOperation()
             })
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
     }
     
     private func bindSaveTap() {
@@ -151,7 +155,7 @@ class VoiceRecordViewModel: NSObject, VoiceRecordViewModelType, VoiceRecordViewM
                 self.manager.insertVoiceFileUrl(self.currentFileUrl)
                 self.restoreOperation()
             })
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
     }
     
     private func bindCloseTap() {
@@ -159,7 +163,7 @@ class VoiceRecordViewModel: NSObject, VoiceRecordViewModelType, VoiceRecordViewM
             .subscribe(onNext: { [weak self] (_) in
                 print("CLOSE OBSERVER NOT IMPLEMENTED IN \(self?.debugDescription ?? "")")
             })
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
     }
     
 }
@@ -171,15 +175,15 @@ extension VoiceRecordViewModel {
         do {
             try recordingSession.setCategory(.playAndRecord, mode: .default)
             try recordingSession.setActive(true)
-            recordingSession.requestRecordPermission { (isAllowed) in
+            recordingSession.requestRecordPermission { [weak self] (isAllowed) in
                 if isAllowed {
                     print("INFO: Recording allowed")
                 } else {
-                    assert(false, "BAD: shouldn't come here")
+                    self?.alertObserver.accept(("Error with recording", "Allow the app to use microphone in settings"))
                 }
             }
         } catch {
-            assert(false, "BAD: shouldn't come here")
+            alertObserver.accept(("Error with recording", "Try to restart app"))
         }
     }
     
@@ -193,9 +197,8 @@ extension VoiceRecordViewModel {
         
         do {
             audioRecorder = try AVAudioRecorder(url: currentFileUrl, settings: settings)
-            audioRecorder?.delegate = self
         } catch {
-            assert(false, "BAD: Shouldn't come here")
+            alertObserver.accept(("Error with recording", "Try to restart app"))
         }
     }
     
@@ -252,22 +255,4 @@ extension VoiceRecordViewModel {
         self.durationOffset = self.durationObserver.value
         self.timeDurationObservable?.dispose()
     }
-}
-
-// MARK: AVAudioRecorderDelegate
-
-extension VoiceRecordViewModel: AVAudioRecorderDelegate {
-
-    //    func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
-    //        if !flag {
-    //            Alertift
-    //            .alert(title: "Error", message: "Can't start recording")
-    //                .action(.default("Try again")) { [weak self] in
-    //                    self?.beginRecording()
-    //                }
-    //                .action(.cancel("Cancel"))
-    //            .show(on: self)
-    //        }
-    //    }
-    
 }

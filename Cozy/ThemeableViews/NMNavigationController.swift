@@ -61,6 +61,11 @@ class NMNavigationController: UINavigationController {
 
     }
     
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        
+        ThemeManager.shared.provideWithInterfaceStyle(traitCollection.userInterfaceStyle)
+    }
 }
 
 extension NMNavigationController {

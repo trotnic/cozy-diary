@@ -11,32 +11,6 @@ import RxSwift
 import RxCocoa
 
 
-
-
-// MARK: View Model Declaration
-
-
-protocol ImageDetailViewModelOutput {
-    var image: Observable<Data> { get }
-    
-    var closeRequestObservable: Observable<Void> { get }
-    var moreRequestObservable: Observable<Void> { get }
-}
-
-protocol ImageDetailViewModelInput {
-    var closeObserver: PublishRelay<Void> { get }
-    var shareObserver: PublishRelay<Void> { get }
-}
-
-protocol ImageDetailViewModelType {
-    var outputs: ImageDetailViewModelOutput { get }
-    var inputs: ImageDetailViewModelInput { get }
-}
-
-
-// MARK: Controller
-
-
 class ImageDetailViewController: NMViewController {
 
     let viewModel: ImageDetailViewModelType
@@ -120,7 +94,9 @@ class ImageDetailViewController: NMViewController {
     
     func bindViewModel() {
         
-        viewModel.outputs.image
+        viewModel
+            .outputs
+            .image
             .subscribe(onNext: { [weak self] (image) in
                 DispatchQueue.global(qos: .userInteractive).async {
                     if let image = UIImage(data: image) {
@@ -135,16 +111,18 @@ class ImageDetailViewController: NMViewController {
             })
             .disposed(by: disposeBag)
         
-        closeButton.rx.tap
+        closeButton
+            .rx.tap
             .subscribe(onNext: { [weak self] in
                 self?.transitionDelegate.shouldDoInteractive = false
-                self?.viewModel.inputs.closeObserver.accept(())
+                self?.viewModel.inputs.closeButtonTap.accept(())
             })
             .disposed(by: disposeBag)
         
-        moreButton.rx.tap
+        moreButton
+            .rx.tap
             .subscribe(onNext: { [weak self] in
-                self?.viewModel.inputs.shareObserver.accept(())
+                self?.viewModel.inputs.moreButtonTap.accept(())
             })
             .disposed(by: disposeBag)
         
@@ -183,47 +161,55 @@ class ImageDetailViewController: NMViewController {
     
     private func setupViewGestureSensitivity() {
         let tapReco = UITapGestureRecognizer()
-        tapReco.rx.event
+        
+        tapReco
+            .rx.event
             .subscribe(onNext: { [unowned self] (_) in
                 
                 UIView.animate(withDuration: 0.3, animations: {
                     self.headerView.alpha = self.headerView.alpha == 1.0 ? 0.0 : 1.0
                 })
-        }).disposed(by: disposeBag)
+            }).disposed(by: disposeBag)
         
         view.addGestureRecognizer(tapReco)
         
+        
         let panReco = UIPanGestureRecognizer()
-        panReco.rx.event.subscribe(onNext: { [unowned self] (recognizer) in
+        
+        panReco
+            .rx.event
+            .subscribe(onNext: { [unowned self] (recognizer) in
 
-            if recognizer.state == .began {
-                self.initialTouchPoint = recognizer.location(in: self.view.window)
-                self.dismiss(animated: true)
-            }
-            if recognizer.state == .changed {
-                let point = recognizer.location(in: self.view.window)
-                
-                if point.y > self.initialTouchPoint.y {
-                    let progress = abs(point.y - self.initialTouchPoint.y) / (1.4*self.view.frame.height)
-                    self.transitionDelegate.interactionTransition.update(progress)
+                if recognizer.state == .began {
+                    self.initialTouchPoint = recognizer.location(in: self.view.window)
+                    self.dismiss(animated: true)
                 }
-            }
-            if recognizer.state == .ended {
-                let point = recognizer.location(in: self.view.window)
-                let requiredDistance = (self.view.window?.bounds.height ?? 300) * 0.2
-                let shouldFinish = abs(point.y) - abs(self.initialTouchPoint.y) >= requiredDistance
+                if recognizer.state == .changed {
+                    let point = recognizer.location(in: self.view.window)
+                    
+                    if point.y > self.initialTouchPoint.y {
+                        let progress = abs(point.y - self.initialTouchPoint.y) / (1.7*self.view.frame.height)
+                        self.transitionDelegate.interactionTransition.update(progress)
+                    }
+                }
+                if recognizer.state == .ended {
+                    let point = recognizer.location(in: self.view.window)
+                    let requiredDistance = (self.view.window?.bounds.height ?? 300) * 0.2
+                    let shouldFinish = abs(point.y) - abs(self.initialTouchPoint.y) >= requiredDistance
+                    
+                    if shouldFinish {
+                        self.transitionDelegate.interactionTransition.finish()
+                    } else {
+                        self.transitionDelegate.interactionTransition.cancel()
+                    }
+                }
                 
-                if shouldFinish {
-                    self.transitionDelegate.interactionTransition.finish()
-                } else {
+                if recognizer.state == .cancelled {
                     self.transitionDelegate.interactionTransition.cancel()
                 }
-            }
-            
-            if recognizer.state == .cancelled {
-                self.transitionDelegate.interactionTransition.cancel()
-            }
-        }).disposed(by: disposeBag)
+            })
+            .disposed(by: disposeBag)
+        
         view.addGestureRecognizer(panReco)
     }
     

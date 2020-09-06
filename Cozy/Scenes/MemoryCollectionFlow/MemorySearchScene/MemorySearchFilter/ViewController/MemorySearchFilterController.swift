@@ -12,63 +12,7 @@ import RxSwift
 import RxDataSources
 
 
-// MARK: DataSource declaration
-
-enum MemorySearchFilterCollectionItem {
-    case tagsItem(viewModel: MemorySearchFilterTagsViewModelType)
-    case monthsItem(viewModel: MemorySearchFilterMonthsViewModelType)
-}
-
-struct MemorySearchFilterCollectionSection {
-    var items: [MemorySearchFilterCollectionItem]
-}
-
-extension MemorySearchFilterCollectionSection: SectionModelType {
-    typealias Item = MemorySearchFilterCollectionItem
-    
-    init(original: Self, items: [Self.Item]) {
-        self = original
-    }
-}
-
-struct MemorySearchFilterCollectionDataSource {
-    typealias DataSource = RxCollectionViewSectionedReloadDataSource
-    
-    static func dataSource() -> DataSource<MemorySearchFilterCollectionSection> {
-        return .init(configureCell: { (dataSource, tableView, indexPath, item) -> UICollectionViewCell in
-            switch item {
-            case let .tagsItem(viewModel):
-                if let cell = tableView.dequeueReusableCell(withReuseIdentifier: MemorySearchFilterTagCell.reuseIdentifier, for: indexPath) as? MemorySearchFilterTagCell {
-                    cell.bindViewModel(viewModel)
-                    return cell
-                }
-                return .init()
-            case let .monthsItem(viewModel):
-                if let cell = tableView.dequeueReusableCell(withReuseIdentifier: MemorySearchFilterDateCell.reuseIdentifier, for: indexPath) as? MemorySearchFilterDateCell {
-                    cell.bindViewModel(viewModel)
-                    return cell
-                }
-                return .init()
-            }
-        })
-    }
-}
-
 // MARK: View Model declaration
-
-protocol MemorySearchFilterViewModelOutput {
-    var items: Observable<[MemorySearchFilterCollectionSection]> { get }
-}
-
-protocol MemorySearchFilterViewModelInput {
-    var cancelButtonTap: PublishRelay<Void> { get }
-    var clearButtonTap: PublishRelay<Void> { get }
-}
-
-protocol MemorySearchFilterViewModelType {
-    var outputs: MemorySearchFilterViewModelOutput { get }
-    var inputs: MemorySearchFilterViewModelInput { get }
-}
 
 
 class MemorySearchFilterController: NMViewController {
@@ -138,23 +82,25 @@ class MemorySearchFilterController: NMViewController {
     private func setupClearButton() {
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: clearButton)
         
-        clearButton.rx.tap
+        clearButton
+            .rx.tap
             .subscribe(onNext: { [weak self] (_) in
                 self?.viewModel.inputs.clearButtonTap.accept(())
                 self?.dismiss(animated: true)
             })
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
     }
     
     private func setupCancelButton() {
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: cancelButton)
         
-        cancelButton.rx.tap
+        cancelButton
+            .rx.tap
             .subscribe(onNext: { [weak self] (_) in
                 self?.viewModel.inputs.cancelButtonTap.accept(())
                 self?.dismiss(animated: true)
             })
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
     }
     
     fileprivate func getLayout() -> UICollectionViewCompositionalLayout {

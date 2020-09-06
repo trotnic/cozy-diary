@@ -69,29 +69,39 @@ class MemorySearchFilterViewModel: MemorySearchFilterViewModelType, MemorySearch
             }
         }
         
+        
         let tagsViewModel = MemorySearchFilterTagsViewModel(tags: tags)
         
-        tagsViewModel.outputs.appendItem
+        tagsViewModel
+            .outputs
+            .appendItem
             .subscribe(onNext: { [weak self] (tag) in
                 self?.manager.insertFilter(.tag(tag.value))
             })
             .disposed(by: self.disposeBag)
         
-        tagsViewModel.outputs.removeItem
+        tagsViewModel
+            .outputs
+            .removeItem
             .subscribe(onNext: { [weak self] (tag) in
                 self?.manager.removeFilter(.tag(tag.value))
             })
             .disposed(by: self.disposeBag)
         
+        
         let monthsViewModel = MemorySearchFilterMonthsViewModel(months: months)
         
-        monthsViewModel.outputs.appendItem
+        monthsViewModel
+            .outputs
+            .appendItem
             .subscribe(onNext: { [weak self] (month) in
                 self?.manager.insertFilter(.date(month.value))
             })
             .disposed(by: self.disposeBag)
         
-        monthsViewModel.outputs.removeItem
+        monthsViewModel
+            .outputs
+            .removeItem
             .subscribe(onNext: { [weak self] (month) in
                 self?.manager.removeFilter(.date(month.value))
             })
@@ -101,15 +111,16 @@ class MemorySearchFilterViewModel: MemorySearchFilterViewModelType, MemorySearch
             .init(items: [.tagsItem(viewModel: tagsViewModel)]),
             .init(items: [.monthsItem(viewModel: monthsViewModel)])
         ]
+        
         itemsObserver.accept(result)
     }
     
     private func setupInputs() {
-        clearButtonTap.subscribe(onNext: { [weak self] (_) in
-            self?.manager.clearFilters()
-//            self?.fillFilters()
-        })
-        .disposed(by: disposeBag)
+        clearButtonTap
+            .subscribe(onNext: { [weak self] (_) in
+                self?.manager.clearFilters()
+            })
+            .disposed(by: disposeBag)
     }
 }
 

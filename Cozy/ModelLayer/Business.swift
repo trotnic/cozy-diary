@@ -9,6 +9,8 @@
 import Foundation
 
 
+// MARK: Protocols
+
 protocol Chunkable {
     var index: Int { get set }
 }
@@ -29,8 +31,9 @@ protocol GraffitiChunkable: Chunkable {
 protocol VoiceChunkable: Chunkable {
     var voiceUrl: URL { get set }
 }
-// structs
 
+
+// MARK: Memory
 final class Memory: Taggable {
     let date: Date
     private(set) var index: Int
@@ -40,10 +43,6 @@ final class Memory: Taggable {
     private(set) var voices: Array<VoiceChunk>
     
     var tags: Tags = []
-    
-    private var total: Int {
-        texts.count + photos.count
-    }
     
     init(
         date: Date,
@@ -122,9 +121,7 @@ final class Memory: Taggable {
     }
     
     func contains(term: String) -> Bool {
-        !texts.filter { (chunk) -> Bool in
-            chunk.text.string.contains(term)
-        }.isEmpty
+        !texts.filter { $0.text.string.lowercased().contains(term.lowercased()) }.isEmpty
     }
     
 }
@@ -145,8 +142,6 @@ extension Memory {
 
 
 // MARK: Sub Chunks
-
-
 class TextChunk: TextChunkable {
     var text: NSAttributedString
     var index: Int

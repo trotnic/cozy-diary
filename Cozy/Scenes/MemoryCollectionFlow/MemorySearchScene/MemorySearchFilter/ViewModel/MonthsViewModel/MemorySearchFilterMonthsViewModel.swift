@@ -37,6 +37,7 @@ class MemorySearchFilterMonthsViewModel: MemorySearchFilterMonthsViewModelType, 
     
     // MARK: Init
     init(months: [MonthModel]) {
+        
         self.months.accept(months.map { [unowned self] item -> BehaviorRelay<MonthModel> in
             let observer = BehaviorRelay<MonthModel>(value: item)
             

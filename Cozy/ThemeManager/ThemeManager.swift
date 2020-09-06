@@ -11,8 +11,13 @@ import RxSwift
 import RxCocoa
 import Alertift
 
+enum Themes {
+    case light
+    case dark
+}
 
 class ThemeManager {
+    
     static let shared = ThemeManager()
     
     private let disposeBag = DisposeBag()
@@ -32,12 +37,8 @@ class ThemeManager {
                 Alertift.Alert.titleTextColor = color
                 Alertift.Alert.messageTextColor = color
                 
-                
                 Alertift.ActionSheet.titleTextColor = color
                 Alertift.ActionSheet.messageTextColor = color
-                
-                
-                
             }
             .disposed(by: self.disposeBag)
             
@@ -49,6 +50,14 @@ class ThemeManager {
             .disposed(by: self.disposeBag)
         }
         .disposed(by: self.disposeBag)
+    }
+    
+    func provideWithInterfaceStyle(_ style: UIUserInterfaceStyle) {
+        if style == .dark {
+            currentTheme.accept(DarkTheme())
+        } else {
+            currentTheme.accept(LightTheme())
+        }
     }
     
     let currentTheme = BehaviorRelay<Theme>(value: LightTheme())
@@ -68,5 +77,18 @@ class LightTheme: Theme {
     let tintColor = BehaviorRelay<UIColor>(value: UIColor(hex: "EB5E28")!)
     let borderColor = BehaviorRelay<UIColor>(value: UIColor(hex: "403D39")!)
     let textColor = BehaviorRelay<UIColor>(value: UIColor(hex: "252422")!)
-    
+}
+
+// background -> text
+// tint -> tint
+// border -> theme
+// text -> background
+// theme -> border
+
+class DarkTheme: Theme {
+    let themeColor = BehaviorRelay<UIColor>(value: UIColor(hex: "403D39")!)
+    let backgroundColor = BehaviorRelay<UIColor>(value: UIColor(hex: "252422")!)
+    let tintColor = BehaviorRelay<UIColor>(value: UIColor(hex: "EB5E28")!)
+    let borderColor = BehaviorRelay<UIColor>(value: UIColor(hex: "CCC5B9")!)
+    let textColor = BehaviorRelay<UIColor>(value: UIColor(hex: "FFFCF2")!)
 }

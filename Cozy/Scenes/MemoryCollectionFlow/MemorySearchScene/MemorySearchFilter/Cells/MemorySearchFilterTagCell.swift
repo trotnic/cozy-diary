@@ -45,11 +45,13 @@ class MemorySearchFilterTagCell: NMCollectionViewCell {
     func bindViewModel(_ viewModel: MemorySearchFilterTagsViewModelType) {
         self.viewModel = viewModel
         
-        viewModel.outputs.items
+        viewModel
+            .outputs
+            .items
             .bind(to: collectionView.rx.items(cellIdentifier: FilterTagCell.reuseIdentifier, cellType: FilterTagCell.self)) { item, model, cell in
                 cell.bindModel(model)
-        }
-        .disposed(by: disposeBag)
+            }
+            .disposed(by: disposeBag)
     }
     
     private func setupLabel() {
@@ -58,24 +60,8 @@ class MemorySearchFilterTagCell: NMCollectionViewCell {
         
         collectionView.contentInset = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
         
-//        collectionView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 5).isActive = true
-//        collectionView.topAnchor.constraint(equalTo: topAnchor, constant: 5).isActive = true
-//        collectionView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5).isActive = true
-//        collectionView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5).isActive = true
-        
         collectionView.heightAnchor.constraint(equalTo: contentView.heightAnchor).isActive = true
         collectionView.widthAnchor.constraint(equalTo: contentView.widthAnchor).isActive = true
-        
-    }
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        
-//        let width = UIScreen.main.bounds.width
-//        widthConstraint = contentView.widthAnchor.constraint(equalToConstant: width)
-//        widthConstraint.isActive = true
-        
-//        frame.size.height = 1.2*collectionView.contentSize.height
     }
 }
 

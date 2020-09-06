@@ -19,6 +19,8 @@ protocol VoiceChunkViewModelOutput {
     var pausePlaying: Driver<Void> { get }
     
     var removeItemRequest: Observable<Void> { get }
+    
+    var presentAlert: Driver<(String, String)> { get }
 }
 
 protocol VoiceChunkViewModelInput {

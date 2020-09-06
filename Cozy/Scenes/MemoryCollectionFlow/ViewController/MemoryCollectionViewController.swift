@@ -12,46 +12,6 @@ import RxSwift
 import RxDataSources
 
 
-// MARK: Data Source Configuration
-
-
-enum MemoryCollectionViewItem {
-    case CommonItem(viewModel: MemoryCollectionCommonItemViewModelType)
-}
-
-struct MemoryCollectionViewSection {
-    var items: [MemoryCollectionViewItem]
-}
-
-extension MemoryCollectionViewSection: SectionModelType {
-    typealias Item = MemoryCollectionViewItem
-    
-    init(original: Self, items: [Self.Item]) {
-        self = original
-    }
-}
-
-struct MemoryCollectionViewDataSource {
-    typealias DataSource = RxCollectionViewSectionedReloadDataSource
-    
-    static func dataSource() -> DataSource<MemoryCollectionViewSection> {
-        return .init(configureCell: { (dataSource, collectionView, indexPath, item) -> UICollectionViewCell in
-            switch item {
-            case let .CommonItem(viewModel):
-                if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MemoryCollectionViewCell.reuseIdentifier, for: indexPath) as? MemoryCollectionViewCell {
-                    cell.viewModel = viewModel
-                    return cell
-                }
-                return UICollectionViewCell()
-            }
-        })
-    }
-}
-
-
-// MARK: Controller
-
-
 class MemoryCollectionViewController: NMViewController {
     
     var dataSource = MemoryCollectionViewDataSource.dataSource()
@@ -99,8 +59,10 @@ class MemoryCollectionViewController: NMViewController {
         viewModel.inputs.viewWillAppear.accept(())
     }
     
-    func bindViewModel() {
-        viewModel.outputs.items
+    private func bindViewModel() {
+        viewModel
+            .outputs
+            .items
             .drive(collectionView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
     }
@@ -121,9 +83,10 @@ class MemoryCollectionViewController: NMViewController {
         
         navigationItem.rightBarButtonItem = .init(customView: button)
         
-        button.rx.tap
+        button
+            .rx.tap
             .subscribe(onNext: { [weak self] in
-                self?.viewModel.inputs.searchRequest()
+                self?.viewModel.inputs.searchButtonTap.accept(())
             }).disposed(by: disposeBag)
     }
     

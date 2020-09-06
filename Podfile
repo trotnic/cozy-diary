@@ -2,7 +2,7 @@
 # platform :ios, '9.0'
 
 target 'Cozy' do
-  # Comment the next line if you don't want to use dynamic frameworks
+
   use_frameworks!
 
   pod 'RxSwift'
@@ -10,7 +10,12 @@ target 'Cozy' do
   pod 'RxDataSources'
   pod 'Kingfisher'
   pod 'Alertift', '~> 4.1'
-    
-  # Pods for Cozy
+  
+	target 'CozyTests' do
+
+		pod 'RxTest'
+		pod 'RxBlocking'
+
+	end
 
 end

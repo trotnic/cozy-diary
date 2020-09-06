@@ -74,10 +74,6 @@ public class CoreMemory: NSManagedObject {
         }
     }
     
-    /// Updates properties with provided object and context without commiting
-    ///
-    /// - parameter  memory: Object to update with
-    /// - parameter context: Actual context
     func updateSelfWith(_ memory: Memory, on context: NSManagedObjectContext) {
         date = memory.date
         increment = Int64(memory.index)

@@ -57,9 +57,9 @@ class ImageDetailTransitionPresent: NSObject, UIViewControllerAnimatedTransition
         let toRectSize = toVC.view.frame.size
         
         toVC.view.transform = .init(translationX: 0, y: toRectSize.height)
-        toVC.view.layer.cornerRadius = 80
+        toVC.view.layer.cornerRadius = 40
         
-        UIView.animate(withDuration: animationDuration, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 0.2, options: .allowUserInteraction, animations: {
+        UIView.animate(withDuration: 1.5*animationDuration, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 0.2, options: .allowUserInteraction, animations: {
             toVC.view.transform = .identity
             toVC.view.layer.cornerRadius = 0
             fadeView.alpha = 1
@@ -95,16 +95,13 @@ class ImageDetailTransitionDismiss: NSObject, UIViewControllerAnimatedTransition
         containerView.addSubview(fadeView)
         containerView.addSubview(fromVC.view)
         
-
-        
-        
         let toRectSize = fromVC.view.frame.size
         
         let transform = CGAffineTransform(translationX: 0, y: toRectSize.height)
         
         UIView.animate(withDuration: animationDuration, delay: 0, usingSpringWithDamping: 0.75, initialSpringVelocity: 0.2, options: .allowUserInteraction, animations: {
             fromVC.view.transform = transform
-            fromVC.view.layer.cornerRadius = 80
+            fromVC.view.layer.cornerRadius = 40
             fadeView.alpha = 0
         }) { (success) in
             transitionContext.completeTransition(!transitionContext.transitionWasCancelled)

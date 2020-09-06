@@ -11,6 +11,7 @@ import CoreData
 import RxSwift
 import RxCocoa
 
+
 protocol CoreDataManagerType {
     var viewContext: NSManagedObjectContext { get }
     var backgroundContext: NSManagedObjectContext { get }
@@ -23,31 +24,13 @@ class CoreDataManager: CoreDataManagerType {
     let persistenceContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "Cozy")
         container.loadPersistentStores { (description, error) in
-            if let error = error {
-                fatalError("KAVABANGA")
-            }
+            if let error = error { fatalError("FATAL: message --- \(error.localizedDescription) ---") }
         }
         return container
     }()
     
-    var viewContext: NSManagedObjectContext {
-        persistenceContainer.viewContext
-    }
-    
-    var backgroundContext: NSManagedObjectContext {
-        persistenceContainer.newBackgroundContext()
-    }
-    
-}
-
-class UserDefaultsManager {
-    
-    static let shared = UserDefaultsManager()
-    
-    var isTodayRemembered: Bool {
-        UserDefaults.standard.bool(forKey: "")
-    }
-    
+    var viewContext: NSManagedObjectContext { persistenceContainer.viewContext }
+    var backgroundContext: NSManagedObjectContext { persistenceContainer.newBackgroundContext() }
 }
 
 
@@ -101,11 +84,7 @@ class Synchronizer: MemoryStoreType {
     private var coreDataModels = BehaviorRelay<[BehaviorRelay<Memory>]>(value: [])
     private let coreDataManager: CoreDataManagerType = CoreDataManager()
     
-    var relevantMemory: BehaviorRelay<Memory> {
-        get {
-            fetchRelevantOrCreate()
-        }
-    }
+    var relevantMemory: BehaviorRelay<Memory> { get { fetchRelevantOrCreate() } }
     
     private let disposeBag = DisposeBag()
     
@@ -115,7 +94,8 @@ class Synchronizer: MemoryStoreType {
         self.calendar = calendar
         coreDataModels.accept(fetchData().map { .init(value: $0.selfChunk) })
         
-        NotificationCenter.default.rx
+        NotificationCenter
+            .default.rx
             .notification(UIApplication.willResignActiveNotification)
             .subscribe(onNext: { [weak self] (notificaiton) in
                 if let self = self {
@@ -126,7 +106,7 @@ class Synchronizer: MemoryStoreType {
                     UIApplication.shared.endBackgroundTask(taskIdentifier)
                 }
             })
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
     }
     
     private func fetchData() -> [CoreMemory] { fetchData(context: self.coreDataManager.viewContext) }
@@ -143,7 +123,7 @@ class Synchronizer: MemoryStoreType {
         do {
             return try context.fetch(request)
         } catch {
-            assert(false, "Fetch error, shouldn't ever happen")
+            print("BAD: Error message --- \(error.localizedDescription) ---")
             return []
         }
     }
@@ -169,7 +149,7 @@ class Synchronizer: MemoryStoreType {
             coreDataModels.accept(fetchData().map { .init(value: $0.selfChunk) })
             return true
         } catch {
-            print(error)
+            print("BAD: Error message --- \(error.localizedDescription) ---")
             return false
         }
     }
@@ -191,7 +171,7 @@ class Synchronizer: MemoryStoreType {
                 return true
             }
         } catch {
-            assert(false, error.localizedDescription)
+            assert(false, "fatal: shouldn't ever happen; Error: \(error.localizedDescription)")
         }
         return false
     }
@@ -209,7 +189,7 @@ class Synchronizer: MemoryStoreType {
                 coreDataModels.accept(fetchData().map { .init(value: $0.selfChunk) })
                 return true
             } catch  {
-                print(error)
+                assert(false, "fatal: shouldn't ever happen; Error: \(error.localizedDescription)")
             }
         }
         return false
@@ -250,7 +230,7 @@ class Synchronizer: MemoryStoreType {
         do {
             try context.save()
         } catch {
-            assert(false, "ohm, emrorm :(")
+            assert(false, "fatal: shouldn't ever happen; Error: \(error.localizedDescription)")
         }
         return .init(value: entity.selfChunk)
     }

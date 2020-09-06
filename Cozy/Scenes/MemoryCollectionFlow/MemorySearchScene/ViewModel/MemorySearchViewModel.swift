@@ -11,29 +11,6 @@ import RxSwift
 import RxCocoa
 
 
-protocol MemorySearchViewModelOutput {
-    var items: Driver<[MemoryCollectionViewSection]> { get }
-    
-    var dismissCurrentController: Observable<Void> { get }
-    var showFilter: Observable<FilterManagerType> { get }
-    var showDetail: Observable<BehaviorRelay<Memory>> { get }
-}
-
-protocol MemorySearchViewModelInput {
-    var searchButtonTap: PublishRelay<Void> { get }
-    
-    var searchObserver: PublishRelay<String> { get }
-    var searchCancelObserver: PublishRelay<Void> { get }
-    
-    var filterButtonTap: PublishRelay<Void> { get }
-    var closeButtonTap: PublishRelay<Void> { get }
-    var didSelectItem: PublishRelay<BehaviorRelay<Memory>> { get }
-}
-
-protocol MemorySearchViewModelType {
-    var outputs: MemorySearchViewModelOutput { get }
-    var inputs: MemorySearchViewModelInput { get }
-}
 
 class MemorySearchViewModel: MemorySearchViewModelType, MemorySearchViewModelOutput, MemorySearchViewModelInput {
     
@@ -55,15 +32,13 @@ class MemorySearchViewModel: MemorySearchViewModelType, MemorySearchViewModelOut
                         .disposed(by: self.disposeBag)
                     return .CommonItem(viewModel: viewModel)
                 })]
-        }
-        .asDriver(onErrorJustReturn: [])
+            }
+            .asDriver(onErrorJustReturn: [])
     }
     
     // MARK: Coordinator output
     var showFilter: Observable<FilterManagerType> {
-        filterButtonTap.flatMap { [unowned self] (_) -> Observable<FilterManagerType> in
-            .just(self.filterManager)
-        }
+        filterButtonTap.flatMap { [unowned self] (_) -> Observable<FilterManagerType> in .just(self.filterManager) }
     }
     var showDetail: Observable<BehaviorRelay<Memory>> { didSelectItem.asObservable() }
     var dismissCurrentController: Observable<Void> { closeButtonTap.asObservable() }
@@ -86,7 +61,6 @@ class MemorySearchViewModel: MemorySearchViewModelType, MemorySearchViewModelOut
     private let filteredPublisher = BehaviorRelay<[BehaviorRelay<Memory>]>(value: [])
     
     private let memoryStore: MemoryStoreType
-    
     private let filterManager: FilterManagerType
     
     // MARK: Init
@@ -94,17 +68,27 @@ class MemorySearchViewModel: MemorySearchViewModelType, MemorySearchViewModelOut
         self.memoryStore = memoryStore
         self.filterManager = filterManager
         
-        memoryStore.fetchBeforeNow()
+        
+        bindMemoryStore()
+        bindFilters()
+    }
+    
+    // MARK: Private methods
+    private func bindMemoryStore() {
+        memoryStore
+            .fetchBeforeNow()
             .bind(onNext: { [weak self] (memories) in
-                self?.itemsPublisher.accept(memories)                
+                self?.itemsPublisher.accept(memories)
                 self?.filterManager.refillInitialFiltersWith(
-                    memories.map { $0.value }
-                        .allTags.map { tag -> Filter in .tag(tag.rawValue) }
+                    memories.map { $0.value }.allTags.map { tag -> Filter in .tag(tag.rawValue) }
                 )
             })
             .disposed(by: disposeBag)
-        
-        Observable.combineLatest(searchObserver, filterManager.selectedFiltersObservable())
+    }
+    
+    private func bindFilters() {
+        Observable
+            .combineLatest(searchObserver, filterManager.selectedFiltersObservable())
             .debounce(.milliseconds(200), scheduler: MainScheduler.instance)
             .map({ [unowned self] (term, filters) -> ([BehaviorRelay<Memory>], Set<Filter>) in
                 return (self.itemsPublisher.value
@@ -163,12 +147,12 @@ class MemorySearchViewModel: MemorySearchViewModelType, MemorySearchViewModelOut
             .disposed(by: disposeBag)
             
         
-        searchCancelObserver
-            .subscribe(onNext: { [weak self] in
-                if let self = self {
-                    self.filteredPublisher.accept(self.itemsPublisher.value)
-                }
-            })
-        .disposed(by: disposeBag)
+            searchCancelObserver
+                .subscribe(onNext: { [weak self] in
+                    if let self = self {
+                        self.filteredPublisher.accept(self.itemsPublisher.value)
+                    }
+                })
+            .disposed(by: disposeBag)
     }
 }

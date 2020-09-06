@@ -13,19 +13,12 @@ import Alertift
 
 class ImageProposalCoordinator: ParentCoordinator {
     
-    
     var childCoordinators: [Coordinator] = []
     
-    var metaObservable: Observable<ImageMeta> {
-        metaObserver.asObservable()
-    }
-    
-    var cancelObservable: Observable<Void> {
-        cancelObserver.asObservable()
-    }
+    var metaObservable: Observable<ImageMeta> { metaObserver.asObservable() }
+    var cancelObservable: Observable<Void> { cancelObserver.asObservable() }
     
     let imagePicker = ImagePicker()
-    var viewController: ImageProposalSheetController!
     
     let presentingController: UIViewController
     
@@ -42,43 +35,53 @@ class ImageProposalCoordinator: ParentCoordinator {
     
     func start() {
         Alertift.actionSheet()
-            .action(.default("Pick on Unsplash")) { [weak self] (action, tag) in
-                guard let self = self else { return }
-                let coordinator = UnsplashImageCollectionCoordinator(presentingController: self.presentingController)
-                
-                self.childCoordinators.append(coordinator)
-                
-                coordinator.metaObservable
-                    .bind(to: self.metaObserver)
-                    .disposed(by: self.disposeBag)
-                
-                coordinator.cancelObservable
-                    .bind(to: self.cancelObserver)
-                    .disposed(by: self.disposeBag)
-                
-                coordinator.start()
+            .action(.default("Pick on Unsplash")) { [weak self] in
+                self?.presentUnsplashCollection()
             }
-            .action(.default("Photo Library")) { [weak self] (action, tag) in
-                self?.imagePicker.prepareGallery({ (controller) in
-                    self?.presentingController.present(controller, animated: true)
-                }, completion: { (meta) in
-                    self?.presentingController.dismiss(animated: true)
-                    self?.metaObserver.onNext(meta)
-                    self?.cancelObserver.onNext(())
-                })
-                
+            .action(.default("Photo Library")) { [weak self] in
+                self?.presentGallery()
             }
-            .action(.default("Take Photo")) { [weak self] (action, tag) in
-                self?.imagePicker.prepareCamera({ (controller) in
-                    self?.presentingController.present(controller, animated: true)
-                }, completion: { (meta) in
-                    self?.presentingController.dismiss(animated: true)
-                    self?.metaObserver.onNext(meta)
-                    self?.cancelObserver.onNext(())
-                })
+            .action(.default("Take Photo")) { [weak self] in
+                self?.presentCamera()
             }
             .action(.cancel("Cancel"))
             .show(on: presentingController)
+    }
+    
+    private func presentUnsplashCollection() {
+        let coordinator = UnsplashImageCollectionCoordinator(presentingController: self.presentingController)
+        
+        self.childCoordinators.append(coordinator)
+        
+        coordinator.metaObservable
+            .bind(to: self.metaObserver)
+            .disposed(by: self.disposeBag)
+        
+        coordinator.cancelObservable
+            .bind(to: self.cancelObserver)
+            .disposed(by: self.disposeBag)
+        
+        coordinator.start()
+    }
+    
+    private func presentGallery() {
+        imagePicker.prepareGallery({ [weak self] (controller) in
+            self?.presentingController.present(controller, animated: true)
+        }, completion: { [weak self] (meta) in
+            self?.presentingController.dismiss(animated: true)
+            self?.metaObserver.onNext(meta)
+            self?.cancelObserver.onNext(())
+        })
+    }
+    
+    private func presentCamera() {
+        imagePicker.prepareCamera({ [weak self] (controller) in
+            self?.presentingController.present(controller, animated: true)
+        }, completion: { [weak self] (meta) in
+            self?.presentingController.dismiss(animated: true)
+            self?.metaObserver.onNext(meta)
+            self?.cancelObserver.onNext(())
+        })
     }
     
 }

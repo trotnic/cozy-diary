@@ -83,7 +83,8 @@ class MemorySearchController: NMViewController {
     }
     
     func bindViewModel() {
-        viewModel.outputs
+        viewModel
+            .outputs
             .items
             .drive(collectionView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
@@ -98,21 +99,24 @@ class MemorySearchController: NMViewController {
         
         searchController.searchBar.placeholder = "Search for memories"
         
-        searchController.searchBar.rx
+        searchController
+            .searchBar.rx
             .text.orEmpty
             .bind(to: viewModel.inputs.searchObserver)
             .disposed(by: disposeBag)
         
-        searchController.searchBar.rx
+        searchController
+            .searchBar.rx
             .cancelButtonClicked
             .bind(to: viewModel.inputs.searchCancelObserver)
             .disposed(by: disposeBag)
         
-        collectionView.rx.willBeginDragging
+        collectionView
+            .rx.willBeginDragging
             .subscribe(onNext: { [weak self] in
                 self?.searchController.searchBar.resignFirstResponder()
             })
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
         
     }
     
@@ -126,7 +130,8 @@ class MemorySearchController: NMViewController {
     }
     
     private func setupCloseButton() {
-        closeButton.rx.tap
+        closeButton
+            .rx.tap
             .bind(to: viewModel.inputs.closeButtonTap)
             .disposed(by: disposeBag)
         
@@ -134,7 +139,8 @@ class MemorySearchController: NMViewController {
     }
     
     private func setupFilterButton() {
-        filterButton.rx.tap
+        filterButton
+            .rx.tap
             .bind(to: viewModel.inputs.filterButtonTap)
             .disposed(by: disposeBag)
         

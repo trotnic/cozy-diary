@@ -10,11 +10,6 @@ import Foundation
 import RxDataSources
 
 
-
-
-// MARK: Data Source Declaration
-
-
 enum UnsplashCollectionItem {
     case common(viewModel: UnsplashImageCollectionCommonItemViewModelType)
 }

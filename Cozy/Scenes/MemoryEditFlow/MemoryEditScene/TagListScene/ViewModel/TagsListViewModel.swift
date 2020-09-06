@@ -54,7 +54,7 @@ class TagsListViewModel: TagsListViewModelType, TagsListViewModelOutput, TagsLis
         
         tagRemove
             .subscribe(onNext: { [weak self] (tag) in
-                self?.manager.remoeTag(tag)
+                self?.manager.removeTag(tag)
             })
             .disposed(by: disposeBag)        
         

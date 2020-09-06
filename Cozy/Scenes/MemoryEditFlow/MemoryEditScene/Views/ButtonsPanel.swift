@@ -47,21 +47,22 @@ class ButtonsPanel: UIView {
     private func setConstraints() {
         
         
-        buttons.bind { (buttons) in
-            buttons.forEach { [weak self] (button) in
-                if let self = self {
-                    self.buttonSize.bind { (size) in
-                        button.layer.cornerRadius = size / 2
-                        button.heightAnchor.constraint(equalToConstant: size).isActive = true
-                        button.widthAnchor.constraint(equalToConstant: size).isActive = true
+        buttons
+            .bind { (buttons) in
+                buttons.forEach { [weak self] (button) in
+                    if let self = self {
+                        self.buttonSize.bind { (size) in
+                            button.layer.cornerRadius = size / 2
+                            button.heightAnchor.constraint(equalToConstant: size).isActive = true
+                            button.widthAnchor.constraint(equalToConstant: size).isActive = true
+                        }
+                        .disposed(by: self.disposeBag)
+                        
+                        self.expandedStackView.addArrangedSubview(button)
                     }
-                    .disposed(by: self.disposeBag)
-                    
-                    self.expandedStackView.addArrangedSubview(button)
                 }
             }
-        }
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
       
         expandedStackView.translatesAutoresizingMaskIntoConstraints = false
         expandedStackView.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
@@ -80,7 +81,10 @@ extension ButtonsPanel {
         
         theme.bind { [weak self] (theme) in
             guard let self = self else { return }
-            theme.themeColor.bind(to: self.panelBackgroundColor).disposed(by: self.disposeBag)
+            theme
+                .themeColor
+                .bind(to: self.panelBackgroundColor)
+                .disposed(by: self.disposeBag)
         }
         .disposed(by: self.disposeBag)
     }

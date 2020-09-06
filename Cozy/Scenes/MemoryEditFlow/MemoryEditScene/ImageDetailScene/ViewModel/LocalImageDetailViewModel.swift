@@ -17,21 +17,13 @@ class LocalImageDetailViewModel: ImageDetailViewModelType, ImageDetailViewModelO
     var inputs: ImageDetailViewModelInput { return self }
     
     // MARK: Outputs
-    var image: Observable<Data> {
-        imageObserver.asObservable()
-    }
-    
-    var closeRequestObservable: Observable<Void> {
-        closeObserver.asObservable()
-    }
-    
-    var moreRequestObservable: Observable<Void> {
-        shareObserver.asObservable()
-    }
+    var image: Observable<Data> { imageObserver.asObservable() }
+    var closeRequestObservable: Observable<Void> { closeButtonTap.asObservable() }
+    var moreRequestObservable: Observable<Void> { moreButtonTap.asObservable() }
     
     // MARK: Inputs
-    let closeObserver = PublishRelay<Void>()
-    let shareObserver = PublishRelay<Void>()
+    let closeButtonTap = PublishRelay<Void>()
+    let moreButtonTap = PublishRelay<Void>()
     
     // MARK: Private
     private let imageObserver: BehaviorRelay<Data>

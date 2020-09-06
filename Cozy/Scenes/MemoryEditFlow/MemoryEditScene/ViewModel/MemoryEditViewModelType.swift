@@ -18,7 +18,7 @@ enum MemoryCreateCollectionItem {
     case VoiceItem(viewModel: VoiceChunkViewModelType)
 }
 
-protocol MemoryCreateViewModelOutput {
+protocol MemoryEditViewModelOutput {
     
     // MARK: Controller Output
     var items: BehaviorRelay<[MemoryCreateCollectionItem]> { get }
@@ -39,7 +39,7 @@ protocol MemoryCreateViewModelOutput {
     var shouldDeleteMemory: Observable<Void> { get }
 }
 
-protocol MemoryCreateViewModelInput {
+protocol MemoryEditViewModelInput {
     
     // MARK: Controller Input
     var viewWillAppear: PublishRelay<Void> { get }
@@ -59,7 +59,7 @@ protocol MemoryCreateViewModelInput {
     var provideMemory: PublishRelay<BehaviorRelay<Memory>> { get }
 }
 
-protocol MemoryCreateViewModelType {
-    var outputs: MemoryCreateViewModelOutput { get }
-    var inputs: MemoryCreateViewModelInput { get }
+protocol MemoryEditViewModelType {
+    var outputs: MemoryEditViewModelOutput { get }
+    var inputs: MemoryEditViewModelInput { get }
 }

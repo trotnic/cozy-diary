@@ -12,12 +12,9 @@ import RxSwift
 import Alertift
 
 
-// MARK: Controller
-
-
 class MemoryEditViewController: NMViewController {
 
-    let viewModel: MemoryCreateViewModelType!
+    let viewModel: MemoryEditViewModelType!
     
     private var buttonsPanelBottomConstraint: NSLayoutConstraint!
     
@@ -29,7 +26,7 @@ class MemoryEditViewController: NMViewController {
     private var textEditButtons: [NMButton] = []
     
     // MARK: Init
-    init(_ viewModel: MemoryCreateViewModelType) {
+    init(_ viewModel: MemoryEditViewModelType) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
@@ -92,50 +89,53 @@ class MemoryEditViewController: NMViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         viewModel.inputs.viewWillAppear.accept(())
-        isTextPanelActive.accept(false)
-        isFontEditPanelActive.accept(false)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         viewModel.inputs.viewWillDisappear.accept(())
-        isTextPanelActive.accept(false)
-        isFontEditPanelActive.accept(false)
     }
     
-    func bindViewModel() {
+    private func bindViewModel() {
 
-        viewModel.outputs.items.map { $0.map { (item) -> UIView in
-            switch item {
-            case let .PhotoItem(viewModel):
-                let view = PhotoChunkMemoryView()
-                view.viewModel = viewModel
-                return view
-            case let .TextItem(viewModel):
-                let view = TextChunkMemoryView()
-                view.viewModel = viewModel
-                return view
-            case let .GraffitiItem(viewModel):
-                let view = GraffitiChunkMemoryView()
-                view.viewModel = viewModel
-                return view
-            case let .VoiceItem(viewModel):
-                let view = VoiceChunkMemoryView()
-                view.viewModel = viewModel
-                return view
-            }
-            }}.subscribe(onNext: { [weak self] (views) in
+        viewModel
+            .outputs
+            .items
+            .map { $0.map { (item) -> UIView in
+                switch item {
+                case let .PhotoItem(viewModel):
+                    let view = PhotoChunkMemoryView()
+                    view.viewModel = viewModel
+                    return view
+                case let .TextItem(viewModel):
+                    let view = TextChunkMemoryView()
+                    view.viewModel = viewModel
+                    return view
+                case let .GraffitiItem(viewModel):
+                    let view = GraffitiChunkMemoryView()
+                    view.viewModel = viewModel
+                    return view
+                case let .VoiceItem(viewModel):
+                    let view = VoiceChunkMemoryView()
+                    view.viewModel = viewModel
+                    return view
+                }
+            }}
+            .subscribe(onNext: { [weak self] (views) in
                 self?.contentView.removeAllArrangedSubviews()
                 views.forEach { self?.contentView.addArrangedSubview($0) }
-        }).disposed(by: disposeBag)
+            })
+            .disposed(by: disposeBag)
         
         let tapGesture = UITapGestureRecognizer()
         scrollView.addGestureRecognizer(tapGesture)
+        
         tapGesture
             .rx.event
             .observeOn(MainScheduler.asyncInstance)
             .bind { [unowned self] recognizer in
                 self.isTextPanelActive.accept(!self.isTextPanelActive.value)
+                
                 if self.contentView.childFirstResponder() != nil {
                     self.view.endEditing(true)
                     self.isFontEditPanelActive.accept(false)
@@ -143,18 +143,21 @@ class MemoryEditViewController: NMViewController {
                     self.viewModel.inputs.textChunkAdd.accept(())
                     self.contentView.arrangedSubviews.last?.becomeFirstResponder()
                 }
-        }
-        .disposed(by: disposeBag)
+            }
+            .disposed(by: disposeBag)
         
-        viewModel.outputs.title
+        viewModel
+            .outputs
+            .title
             .drive(navigationItem.rx.title)
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
     }
     
     private func setupMoreButton() {
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: moreButton)
         
-        moreButton.rx.tap
+        moreButton
+            .rx.tap
             .subscribe(onNext: { [weak self] (_) in
                 guard let self = self else { return }
                 Alertift.actionSheet()
@@ -169,16 +172,20 @@ class MemoryEditViewController: NMViewController {
                     .action(.cancel("Cancel"))
                     .show(on: self)
             })
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
     }
     
     private func panelButtonBuilder(_ image: String, _ action: @escaping () -> ()) -> NMButton {
         let button = NMButton()
-        button.rx.tap
-        .bind(onNext: action)
-        .disposed(by: disposeBag)
+        
+        button
+            .rx.tap
+            .bind(onNext: action)
+            .disposed(by: disposeBag)
+        
         button.setImage(UIImage(systemName: image), for: .normal)
         button.backgroundColor = .clear
+        
         return button
     }
     
@@ -218,10 +225,11 @@ class MemoryEditViewController: NMViewController {
                     self.textFormatButton.isHidden = value
                     self.textFormatButton.alpha = value ? 0 : 1
                 }
-        })
-        .disposed(by: disposeBag)
+            })
+            .disposed(by: disposeBag)
         
-        textFormatButton.rx.tap
+        textFormatButton
+            .rx.tap
             .subscribe(onNext: { [weak self] in
                 if let current = self?.isFontEditPanelActive.value {
                     UIView.animate(withDuration: 0.15) {
@@ -231,21 +239,17 @@ class MemoryEditViewController: NMViewController {
             })
             .disposed(by: disposeBag)
         
-        endEditButton.rx.tap
+        endEditButton
+            .rx.tap
             .subscribe(onNext: { [weak self] in
                 self?.isFontEditPanelActive.accept(false)
                 self?.isTextPanelActive.accept(false)
                 self?.view.endEditing(true)
             }).disposed(by: disposeBag)
         
-        buttonsPanel.buttons.accept(
-            commonButtons + textEditButtons + [
-            textFormatButton,
-            endEditButton
-        ])
+        let buttons = commonButtons + textEditButtons + [textFormatButton, endEditButton]
+        buttonsPanel.buttons.accept(buttons)
 
-        
-        
         buttonsPanel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         buttonsPanelBottomConstraint = buttonsPanel.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10)
         buttonsPanelBottomConstraint.isActive = true
@@ -298,16 +302,16 @@ class MemoryEditViewController: NMViewController {
         ]
         
         let commonButtons: [NMButton] = [
-            panelButtonBuilder("plus", { [weak self] in
+            panelButtonBuilder("folder.badge.plus", { [weak self] in
                 self?.viewModel.inputs.photoChunkAdd.accept(())
             }),
-            panelButtonBuilder("bookmark", { [weak self] in
+            panelButtonBuilder("tag", { [weak self] in
                 self?.viewModel.inputs.tagAdd.accept(())
             }),
-            panelButtonBuilder("paintbrush", { [weak self] in
+            panelButtonBuilder("hand.draw", { [weak self] in
                 self?.viewModel.inputs.graffitiChunkAdd.accept(())
             }),
-            panelButtonBuilder("music.note", { [weak self] in
+            panelButtonBuilder("mic", { [weak self] in
                 self?.viewModel.inputs.voiceChunkAdd.accept(())
             })
         ]
@@ -316,7 +320,7 @@ class MemoryEditViewController: NMViewController {
         self.commonButtons.append(contentsOf: commonButtons)
     }
     
-    func setupScrollView() {
+    private func setupScrollView() {
         let safeGuide = view.safeAreaLayoutGuide
         
         view.addSubview(scrollView)
@@ -326,14 +330,16 @@ class MemoryEditViewController: NMViewController {
         scrollView.trailingAnchor.constraint(equalTo: safeGuide.trailingAnchor).isActive = true
         scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
         
+        scrollView.showsHorizontalScrollIndicator = false
+        
         scrollView.contentInset.bottom = 150
         scrollView.contentInset.top = 10
         
-        contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: kSideInset).isActive = true
+        contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 20).isActive = true
         contentView.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
-        contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -kSideInset).isActive = true
+        contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -20).isActive = true
         contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor).isActive = true
-        contentView.widthAnchor.constraint(equalTo: view.safeAreaLayoutGuide.widthAnchor, constant: -2*kSideInset).isActive = true
+        contentView.widthAnchor.constraint(equalTo: view.safeAreaLayoutGuide.widthAnchor, constant: -2*20).isActive = true
         
         contentView.insetsLayoutMarginsFromSafeArea = true
         
@@ -341,18 +347,21 @@ class MemoryEditViewController: NMViewController {
         scrollView.sizeToFit()
         
         
-        keyboardHeight().subscribe(onNext: { [weak self] (rect) in
-            if let self = self {
-                let safeInset = self.view.safeAreaInsets
-                let additionalInset: CGFloat = rect.height == 0 ? 150 : 50
-                let panelInset: CGFloat = rect.height == 0 ? -10 : safeInset.bottom - 10
-                self.buttonsPanelBottomConstraint.constant = (-rect.height + panelInset)
-                UIView.animate(withDuration: 0.3) {
-                    self.view.layoutIfNeeded()
+        keyboardHeight()
+            .subscribe(onNext: { [weak self] (rect) in
+                if let self = self {
+                    let safeInset = self.view.safeAreaInsets
+                    let additionalInset: CGFloat = rect.height == 0 ? 150 : 50
+                    let panelInset: CGFloat = rect.height == 0 ? -10 : safeInset.bottom - 10
+                    self.buttonsPanelBottomConstraint.constant = (-rect.height + panelInset)
+                    self.isTextPanelActive.accept(rect.height != 0)
+                    UIView.animate(withDuration: 0.3) {
+                        self.view.layoutIfNeeded()
+                    }
+                    self.scrollView.contentInset.bottom = rect.height + additionalInset
                 }
-                self.scrollView.contentInset = .init(top: 0, left: 0, bottom: rect.height + additionalInset, right: 0)
-            }
-        }).disposed(by: disposeBag)
+            })
+            .disposed(by: disposeBag)
         
     }
     

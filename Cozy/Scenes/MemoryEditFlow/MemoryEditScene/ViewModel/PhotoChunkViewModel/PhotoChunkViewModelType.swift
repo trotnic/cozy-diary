@@ -22,8 +22,7 @@ protocol PhotoChunkViewModelOutput {
 }
 
 protocol PhotoChunkViewModelInput {
-    var tapRequest: () -> () { get }
-    var longPressRequest: () -> () { get }
+    var tap: PublishRelay<Void> { get }
     
     var shareButtonTap: PublishRelay<Void> { get }
     var copyButtonTap: PublishRelay<Void> { get }

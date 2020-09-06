@@ -9,7 +9,6 @@
 import UIKit
 import RxSwift
 import RxCocoa
-import AVFoundation
 import Alertift
 
 
@@ -95,7 +94,9 @@ class VoiceRecordController: NMViewController {
     }
     
     func bindViewModel() {
-        viewModel.outputs.startRecording
+        viewModel
+            .outputs
+            .startRecording
             .drive(onNext: { [weak self] in
                 guard let self = self else { return }
                 self.removeButton.isEnabled = false
@@ -103,16 +104,20 @@ class VoiceRecordController: NMViewController {
                 self.commitButton.isEnabled = true
                 self.changeImageOnButton(button: self.recordingButton, with: "pause.fill")                
             })
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
         
-        viewModel.outputs.pauseRecording
+        viewModel
+            .outputs
+            .pauseRecording
             .drive(onNext: { [weak self] in
                 guard let self = self else { return }
                 self.changeImageOnButton(button: self.recordingButton, with: "mic.fill")
             })
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
         
-        viewModel.outputs.finishRecording
+        viewModel
+            .outputs
+            .finishRecording
             .drive(onNext: { [weak self] in
                 guard let self = self else { return }
                 self.removeButton.isEnabled = true
@@ -123,9 +128,11 @@ class VoiceRecordController: NMViewController {
                 self.saveButton.alpha = 1
                 self.changeImageOnButton(button: self.recordingButton, with: "mic.fill")
             })
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
         
-        viewModel.outputs.restoreRecording
+        viewModel
+            .outputs
+            .restoreRecording
             .drive(onNext: { [weak self] in
                 self?.recordingButton.isEnabled = true
                 self?.removeButton.isEnabled = false
@@ -134,11 +141,22 @@ class VoiceRecordController: NMViewController {
                 self?.saveButton.isEnabled = false
                 self?.saveButton.alpha = 0.6
             })
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
         
-        viewModel.outputs.currentDuration
+        viewModel
+            .outputs
+            .currentDuration
             .drive(durationLabel.rx.text)
             .disposed(by: disposeBag)
+        
+        viewModel
+            .outputs
+            .presentAlert
+            .drive(onNext: { [weak self] (title, message) in
+                self?.presentAlert(title: title, message: message)
+            })
+            .disposed(by: disposeBag)
+        
     }
     
     private func setupRecordingButton() {
@@ -158,25 +176,28 @@ class VoiceRecordController: NMViewController {
     private func setupPlayButton() {
         view.addSubview(playButton)
         
-        playButton.rx.tap
+        playButton
+            .rx.tap
             .bind(to: viewModel.inputs.playButtonTap)
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
     }
     
     private func setupRemoveButton() {
         view.addSubview(removeButton)
         
-        removeButton.rx.tap
+        removeButton
+            .rx.tap
             .bind(to: viewModel.inputs.removeButtonTap)
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
     }
     
     private func setupCommitButton() {
         view.addSubview(commitButton)
         
-        commitButton.rx.tap
+        commitButton
+            .rx.tap
             .bind(to: viewModel.inputs.commitButtonTap)
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
     }
     
     private func setupButtonsStack() {
@@ -203,32 +224,40 @@ class VoiceRecordController: NMViewController {
         button.setTitle("Close", for: .normal)
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: button)
         
-        button.rx.tap
+        button
+            .rx.tap
             .subscribe(onNext: { [weak self] in
                 self?.viewModel.inputs.closeButtonTap.accept(())
                 self?.dismiss(animated: true)
             })
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
     }
     
     private func setupSaveButton() {
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: saveButton)
                 
-        saveButton.rx.tap
+        saveButton
+            .rx.tap
             .subscribe(onNext: { [weak self] in
                 self?.viewModel.inputs.saveButtonTap.accept(())
                 self?.dismiss(animated: true)
             })
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
     }
     
-    // MARK: Beauty
     private func changeImageOnButton(button: UIButton, with systemImage: String) {
         let congifuration = UIImage.SymbolConfiguration(pointSize: 80, weight: .regular, scale: .medium)
         button.setImage(UIImage(systemName: systemImage, withConfiguration: congifuration), for: .normal)
         UIView.animate(withDuration: 0.15) {
             self.view.layoutIfNeeded()
         }
+    }
+    
+    private func presentAlert(title: String, message: String) {
+        Alertift
+            .alert(title: title, message: message)
+            .action(.default("Ok"))
+            .show(on: self)
     }
     
 }

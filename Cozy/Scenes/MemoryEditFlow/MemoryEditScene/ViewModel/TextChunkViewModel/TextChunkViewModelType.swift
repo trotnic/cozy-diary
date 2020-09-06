@@ -18,10 +18,7 @@ protocol TextChunkViewModelOutput {
 }
 
 protocol TextChunkViewModelInput {
-    var tapRequest: () -> () { get }
-    var longPressRequest: () -> () { get }
-    
-    var contextRemoveRequest: () -> () { get }
+    var contextRemoveTap: PublishRelay<Void> { get }
 }
 
 protocol TextChunkViewModelType {

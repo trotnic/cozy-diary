@@ -18,40 +18,35 @@ class UnsplashImageDetailViewModel: ImageDetailViewModelType, ImageDetailViewMod
     var inputs: ImageDetailViewModelInput { return self }
     
     // MARK: Outputs
-    var image: Observable<Data> {
-        imageObserver.asObservable()
-    }
-    
-    var closeRequestObservable: Observable<Void> {
-        closeObserver.asObservable()
-    }
-    
-    var moreRequestObservable: Observable<Void> {
-        shareObserver.asObservable()
-    }
+    var image: Observable<Data> { imageObserver.asObservable() }
+    var closeRequestObservable: Observable<Void> { closeButtonTap.asObservable() }
+    var moreRequestObservable: Observable<Void> { moreButtonTap.asObservable() }
     
     // MARK: Inputs
-    let closeObserver = PublishRelay<Void>()
-    let shareObserver = PublishRelay<Void>()
+    let closeButtonTap = PublishRelay<Void>()
+    let moreButtonTap = PublishRelay<Void>()
     
     // MARK: Private
     private let imageMeta: UnsplashPhoto
     private let disposeBag = DisposeBag()
     
     private let imageObserver = BehaviorRelay<Data>(value: Data())
+    private let imageDownloader: ImageDownloader
     
     // MARK: Init
-    init(imageMeta: UnsplashPhoto) {
+    init(imageMeta: UnsplashPhoto, imageDownloader: ImageDownloader) {
         self.imageMeta = imageMeta
+        self.imageDownloader = imageDownloader
         
-        ImageDownloader.default.downloadImage(with: URL(string: self.imageMeta.urls.regular)!) { [weak self] result in
-            switch result {
-            case let .success(value):
-                self?.imageObserver.accept(value.originalData)
-            case let .failure(error):
-                print(error)
+        self.imageDownloader
+            .downloadImage(with: URL(string: self.imageMeta.urls.regular)!) { [weak self] result in
+                switch result {
+                case let .success(value):
+                    self?.imageObserver.accept(value.originalData)
+                case let .failure(error):
+                    print(error)
+                }
             }
-        }
         
     }
 }

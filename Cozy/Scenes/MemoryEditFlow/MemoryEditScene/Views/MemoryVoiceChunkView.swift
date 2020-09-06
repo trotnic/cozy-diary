@@ -9,6 +9,7 @@
 import UIKit
 import RxSwift
 import RxCocoa
+import Alertift
 
 
 class VoiceChunkMemoryView: UIView {
@@ -16,11 +17,7 @@ class VoiceChunkMemoryView: UIView {
     
     private let disposeBag = DisposeBag()
     
-    var viewModel: VoiceChunkViewModelType! {
-        didSet {
-            bindViewModel()
-        }
-    }
+    var viewModel: VoiceChunkViewModelType! { didSet { bindViewModel() } }
     
     lazy var contentView: NMMainThemeView = {
         let view = NMMainThemeView()
@@ -56,36 +53,43 @@ class VoiceChunkMemoryView: UIView {
     }
     
     func bindViewModel() {
-        playButton.rx.tap
+        playButton
+            .rx.tap
             .bind(to: viewModel.inputs.playButtonTap)
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
         
         Observable.combineLatest(viewModel.outputs.currentDurationString.asObservable(), viewModel.outputs.totalDurationString.asObservable())
             .flatMap { (current, total) -> Observable<String> in
                 .just("\(current)/\(total)")
             }
             .bind(to: durationLabel.rx.text)
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
         
-        viewModel.outputs.startPlaying
+        viewModel
+            .outputs
+            .startPlaying
             .drive(onNext: { [weak self] in
-                let configuration = UIImage.SymbolConfiguration(pointSize: 35, weight: .bold, scale: .large)
-                self?.playButton.setImage(UIImage(systemName: "pause.circle.fill", withConfiguration: configuration), for: .normal)
-                UIView.animate(withDuration: 0.3) {
-                    self?.layoutIfNeeded()
-                }
+                guard let self = self else { return }
+                self.changeImageOn(button: self.playButton, with: "pause.circle.fill")
             })
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
         
-        viewModel.outputs.pausePlaying
+        viewModel
+            .outputs
+            .pausePlaying
             .drive(onNext: { [weak self] in
-                let configuration = UIImage.SymbolConfiguration(pointSize: 35, weight: .bold, scale: .large)
-                self?.playButton.setImage(UIImage(systemName: "play.circle.fill", withConfiguration: configuration), for: .normal)
-                UIView.animate(withDuration: 0.3) {
-                    self?.layoutIfNeeded()
-                }
+                guard let self = self else { return }
+                self.changeImageOn(button: self.playButton, with: "play.circle.fill")
             })
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
+        
+        viewModel
+            .outputs
+            .presentAlert
+            .drive(onNext: { [weak self] (title, message) in
+                self?.presentAlert(title: title, message: message)
+            })
+            .disposed(by: disposeBag)
     }
     
     private func setupContentView() {
@@ -118,16 +122,28 @@ class VoiceChunkMemoryView: UIView {
         durationLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -sideInsetSize).isActive = true
         durationLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor).isActive = true
     }
+    
+    private func presentAlert(title: String, message: String) {
+        Alertift
+            .alert(title: title, message: message)
+            .action(.default("Ok"))
+            .show()
+    }
+    
+    private func changeImageOn(button: UIButton, with system: String) {
+        let configuration = UIImage.SymbolConfiguration(pointSize: 35, weight: .bold, scale: .large)
+        button.setImage(UIImage(systemName: system, withConfiguration: configuration), for: .normal)
+        UIView.animate(withDuration: 0.3) {
+            self.layoutIfNeeded()
+        }
+    }
 }
 
 extension VoiceChunkMemoryView: UIContextMenuInteractionDelegate {
 
     func contextMenuInteraction(_ interaction: UIContextMenuInteraction,
                                 configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
-        
-        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ -> UIMenu? in
-            return self.createContextMenu()
-        }
+         UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ -> UIMenu? in self.createContextMenu() }
     }
     
     func createContextMenu() -> UIMenu {
@@ -135,9 +151,7 @@ extension VoiceChunkMemoryView: UIContextMenuInteractionDelegate {
         let remove = UIAction(
             title: "Remove",
             image: UIImage(systemName: "trash")?.withTintColor(.red),
-            handler: { [weak self] _ in
-                self?.viewModel.inputs.removeButtonTap.accept(())
-        })
+            handler: { [weak self] _ in self?.viewModel.inputs.removeButtonTap.accept(()) })
         
         return UIMenu(title: "", children: [remove])
     }

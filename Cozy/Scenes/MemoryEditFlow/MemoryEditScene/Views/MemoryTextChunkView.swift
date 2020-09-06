@@ -40,28 +40,17 @@ class TextChunkMemoryView: UIView {
     }
     
     func bindViewModel() {
-        viewModel.outputs.text
+        viewModel
+            .outputs
+            .text
             .bind(to: textView.rx.attributedText)
             .disposed(by: disposeBag)
+        
         textView.rx
             .attributedText
             .map { $0 ?? NSAttributedString(string: "") }
             .bind(to: viewModel.outputs.text)
             .disposed(by: disposeBag)
-        
-        let tapReco = UITapGestureRecognizer()
-        addGestureRecognizer(tapReco)
-        tapReco.rx.event.subscribe(onNext: { [weak self] (reco) in
-            self?.viewModel.inputs.tapRequest()
-        }).disposed(by: disposeBag)
-        
-        let longPressReco = UILongPressGestureRecognizer()
-        addGestureRecognizer(longPressReco)
-        longPressReco.rx.event.subscribe(onNext: { [weak self] (reco) in
-            if reco.state == .began {
-                self?.viewModel.inputs.longPressRequest()
-            }
-        }).disposed(by: disposeBag)
     }
     
     override func becomeFirstResponder() -> Bool {
@@ -73,7 +62,7 @@ class TextChunkMemoryView: UIView {
 extension TextChunkMemoryView: UITextViewDelegate {
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         if text == "" && textView.text == "" {
-            self.viewModel.inputs.contextRemoveRequest()
+            self.viewModel.inputs.contextRemoveTap.accept(())
         }
         return true
     }

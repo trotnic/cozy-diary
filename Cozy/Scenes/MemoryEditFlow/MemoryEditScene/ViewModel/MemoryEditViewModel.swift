@@ -13,11 +13,11 @@ import RxCocoa
 
 
 
-class MemoryEditViewModel: MemoryCreateViewModelType, MemoryCreateViewModelOutput, MemoryCreateViewModelInput {
+class MemoryEditViewModel: MemoryEditViewModelType, MemoryEditViewModelOutput, MemoryEditViewModelInput {
     
     // MARK: Outputs & Inputs
-    var outputs: MemoryCreateViewModelOutput { return self }
-    var inputs: MemoryCreateViewModelInput { return self }
+    var outputs: MemoryEditViewModelOutput { return self }
+    var inputs: MemoryEditViewModelInput { return self }
     
     // MARK: Outputs
     let items = BehaviorRelay<[MemoryCreateCollectionItem]>(value: [])
@@ -121,7 +121,7 @@ class MemoryEditViewModel: MemoryCreateViewModelType, MemoryCreateViewModelOutpu
             .subscribe(onNext: { [weak self] (_) in
                 self?.memoryStore.seekFor(memory, key: memory.value.date)
                 self?.shouldClearStackObserver.accept(())
-        }).disposed(by: disposeBag)
+            }).disposed(by: disposeBag)
         
         viewWillDisappear
             .map { [unowned self] _ -> Date in
@@ -129,14 +129,13 @@ class MemoryEditViewModel: MemoryCreateViewModelType, MemoryCreateViewModelOutpu
             }
             .subscribe(onNext: { [weak self] (date) in
                 self?.memoryStore.leaveAway(key: date)
-        }).disposed(by: disposeBag)
+            }).disposed(by: disposeBag)
         
         deleteMemoryButtonTap
-            .subscribe(onNext: { [weak self] (_) in
-                guard let self = self else { return }
+            .subscribe(onNext: { [unowned self] (_) in
                 self.memoryStore.removeItem(self.memory.value)
                 self.shouldDeleteMemoryObserver.accept(())
-        }).disposed(by: disposeBag)
+            }).disposed(by: disposeBag)
 
         // TODO: Bad, should think about segregation
         provideMemory
@@ -144,78 +143,93 @@ class MemoryEditViewModel: MemoryCreateViewModelType, MemoryCreateViewModelOutpu
                 self?.memory = memory
                 self?.bindMemory()
                 self?.memoryStore.seekFor(memory, key: memory.value.date)
-        }).disposed(by: disposeBag)
+            })
+            .disposed(by: disposeBag)
     }
     
     // MARK: Private methods
     private func bindMemory() {
-        memory.subscribe(onNext: { [unowned self] memory in
-            self.items.accept(
-                memory.sortedChunks.map { chunk -> MemoryCreateCollectionItem in
-                    if let textChunk = chunk as? TextChunk {
-                        return self.textChunkItem(textChunk)
-                    } else if let graffitiChunk = chunk as? GraffitiChunk {
-                        return self.graffitiCHunkItem(graffitiChunk)
-                    } else if let photoChunk = chunk as? PhotoChunk {
-                        return self.photoChunkItem(photoChunk)
-                    } else {
-                        let voiceChunk = chunk as! VoiceChunk
-                        return self.voiceChunkItem(voiceChunk)
+        memory
+            .subscribe(onNext: { [unowned self] memory in
+                self.items.accept(
+                    memory.sortedChunks.map { chunk -> MemoryCreateCollectionItem in
+                        if let textChunk = chunk as? TextChunk {
+                            return self.textChunkItem(textChunk)
+                        } else if let graffitiChunk = chunk as? GraffitiChunk {
+                            return self.graffitiCHunkItem(graffitiChunk)
+                        } else if let photoChunk = chunk as? PhotoChunk {
+                            return self.photoChunkItem(photoChunk)
+                        } else {
+                            let voiceChunk = chunk as! VoiceChunk
+                            return self.voiceChunkItem(voiceChunk)
+                        }
                     }
-                }
-            )
-        }).disposed(by: disposeBag)
+                )
+            })
+            .disposed(by: disposeBag)
     }
     
     private func setupTextChunkAdd() {
-        textChunkAdd.subscribe(onNext: { [weak self] (_) in
-            guard let self = self else { return }
-            let value = self.memory.value
-            if (value.sortedChunks.last as? TextChunkable) == nil {
-                value.insertTextChunk("")
-                self.memory.accept(value)
-            }
-        })
-        .disposed(by: disposeBag)
+        textChunkAdd
+            .subscribe(onNext: { [weak self] (_) in
+                guard let self = self else { return }
+                let value = self.memory.value
+                if (value.sortedChunks.last as? TextChunkable) == nil {
+                    value.insertTextChunk("")
+                    self.memory.accept(value)
+                }
+            })
+            .disposed(by: disposeBag)
     }
 
     private func textChunkItem(_ textChunk: TextChunk) -> MemoryCreateCollectionItem {
         let viewModel = TextChunkViewModel(textChunk)
-        viewModel.outputs.removeTextRequest
+        
+        viewModel
+            .outputs
+            .removeTextRequest
             .subscribe(onNext: { [weak self] in
                 if let value = self?.memory.value {
                     value.removeChunk(textChunk)
                     self?.memory.accept(value)
                 }
-        }).disposed(by: self.disposeBag)
+            })
+            .disposed(by: self.disposeBag)
+        
         return .TextItem(viewModel: viewModel)
     }
     
     private func graffitiCHunkItem(_ graffitiChunk: GraffitiChunk) -> MemoryCreateCollectionItem {
         let viewModel = GraffitiChunkViewModel(graffitiChunk)
         
-        viewModel.outputs
+        viewModel
+            .outputs
             .copyItem
             .subscribe(onNext: { (_) in
                 DispatchQueue.global(qos: .utility).async {
                     UIPasteboard.general.image = UIImage(data: graffitiChunk.graffiti)
                 }
-            }).disposed(by: disposeBag)
+            })
+            .disposed(by: disposeBag)
         
-        viewModel.outputs
+        viewModel
+            .outputs
             .shareItem
             .subscribe(onNext: { [weak self] in
                 self?.photoShareObserver.onNext(graffitiChunk.graffiti)
-            }).disposed(by: disposeBag)
+            })
+            .disposed(by: disposeBag)
         
-        viewModel.outputs
+        viewModel
+            .outputs
             .removeItem
             .subscribe(onNext: { [weak self] (_) in
                 if let value = self?.memory.value {
                     value.removeChunk(graffitiChunk)
                     self?.memory.accept(value)
                 }
-            }).disposed(by: disposeBag)
+            })
+            .disposed(by: disposeBag)
         
         return .GraffitiItem(viewModel: viewModel)
     }
@@ -223,35 +237,43 @@ class MemoryEditViewModel: MemoryCreateViewModelType, MemoryCreateViewModelOutpu
     private func photoChunkItem(_ photoChunk: PhotoChunk) -> MemoryCreateCollectionItem {
         let viewModel = PhotoChunkViewModel(photoChunk)
         
-        viewModel.outputs
+        viewModel
+            .outputs
             .detailPhotoRequestObservable
             .subscribe(onNext: { [weak self] in
                 self?.photoDetailObserver.onNext(photoChunk.photo)
-        }).disposed(by: self.disposeBag)
+            })
+            .disposed(by: self.disposeBag)
         
-        viewModel.outputs
+        viewModel
+            .outputs
             .copyPhotoRequest
             .subscribe(onNext: { (_) in
                 DispatchQueue.global(qos: .utility).async {
                     UIPasteboard.general.image = UIImage(data: photoChunk.photo)
                 }
-        }).disposed(by: self.disposeBag)
+            })
+            .disposed(by: self.disposeBag)
         
-        viewModel.outputs
+        viewModel
+            .outputs
             .sharePhotoRequest
             .subscribe(onNext: { [weak self] in
                 self?.photoShareObserver
                     .onNext(photoChunk.photo)
-        }).disposed(by: self.disposeBag)
+            })
+            .disposed(by: self.disposeBag)
         
-        viewModel.outputs
+        viewModel
+            .outputs
             .removePhotoRequest
             .subscribe(onNext: { [weak self] in
                 if let value = self?.memory.value {
                     value.removeChunk(photoChunk)
                     self?.memory.accept(value)
                 }
-        }).disposed(by: self.disposeBag)
+            })
+            .disposed(by: self.disposeBag)
         
         return .PhotoItem(viewModel: viewModel)
     }
@@ -259,7 +281,8 @@ class MemoryEditViewModel: MemoryCreateViewModelType, MemoryCreateViewModelOutpu
     private func voiceChunkItem(_ voiceChunk: VoiceChunk) -> MemoryCreateCollectionItem {
         let viewModel = VoiceChunkViewModel(voiceChunk)
         
-        viewModel.outputs
+        viewModel
+            .outputs
             .removeItemRequest
             .subscribe(onNext: { [weak self] in
                 if let value = self?.memory.value {
@@ -267,7 +290,7 @@ class MemoryEditViewModel: MemoryCreateViewModelType, MemoryCreateViewModelOutpu
                     self?.memory.accept(value)
                 }
             })
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
         
         return .VoiceItem(viewModel: viewModel)
     }

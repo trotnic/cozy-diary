@@ -24,7 +24,9 @@ class AnyMemoryEditCoordinator: MemoryEditCoordinator {
         let viewModel = MemoryEditViewModel(memory: memory, memoryStore: memoryStore)
         bindToViewModel(viewModel)
         
-        viewModel.outputs.shouldDeleteMemory
+        viewModel
+            .outputs
+            .shouldDeleteMemory
             .subscribe(onNext: { [weak self] (_) in
                 self?.navigationController.popViewController(animated: true)
             })

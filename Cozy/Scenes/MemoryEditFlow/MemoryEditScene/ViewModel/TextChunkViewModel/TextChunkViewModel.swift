@@ -19,25 +19,19 @@ class TextChunkViewModel: TextChunkViewModelType, TextChunkViewModelOutput, Text
     // MARK: Outputs
     var text: BehaviorRelay<NSAttributedString>
     
-    var removeTextRequest: Observable<Void>
+    var removeTextRequest: Observable<Void> { contextRemoveTap.asObservable() }
     
     // MARK: Inputs
-    lazy var tapRequest = { {} }()
-    lazy var longPressRequest = { {} }()
-    lazy var contextRemoveRequest = { { self.removeRequestPublisher.onNext(()) } }()
+    let contextRemoveTap = PublishRelay<Void>()
     
     // MARK: Private
     private let chunk: TextChunk
     private let disposeBag = DisposeBag()
     
-    private let removeRequestPublisher = PublishSubject<Void>()
-    
     // MARK: Init
     init(_ chunk: TextChunk) {
         self.chunk = chunk
         text = .init(value: chunk.text)
-        
-        removeTextRequest = removeRequestPublisher.asObservable()
         
         text.bind { [weak self] text in
             self?.chunk.text = text

@@ -84,15 +84,21 @@ class MemoryCollectionViewCell: NMCollectionViewCell {
     }
     
     func bindViewModel() {
-        viewModel.outputs.date
+        viewModel
+            .outputs
+            .date
             .bind(to: dateLabel.rx.text)
             .disposed(by: disposeBag)
         
-        viewModel.outputs.text
+        viewModel
+            .outputs
+            .text
             .bind(to: textLabel.rx.text)
             .disposed(by: disposeBag)
         
-        viewModel.outputs.image
+        viewModel
+            .outputs
+            .image
             .filter { $0 != nil }
             .map { UIImage(data: $0!) }
             .bind(to: imageView.rx.image)
@@ -105,10 +111,11 @@ class MemoryCollectionViewCell: NMCollectionViewCell {
         let tapReco = UITapGestureRecognizer()
         addGestureRecognizer(tapReco)
         
-        tapReco.rx.event
+        tapReco
+            .rx.event
             .subscribe(onNext: { [weak self] (recognizer) in
-                self?.viewModel.inputs.tapRequest()
-        }).disposed(by: disposeBag)
+                self?.viewModel.inputs.tap.accept(())
+            }).disposed(by: disposeBag)
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {

@@ -13,6 +13,7 @@ import RxCocoa
 
 class GraffitiChunkViewModel: GraffitiChunkViewModelType, GraffitiChunkViewModelOutput, GraffitiChunkViewModelInput {
     
+    // MARK: Outputs & Inputs
     var outputs: GraffitiChunkViewModelOutput { return self }
     var inputs: GraffitiChunkViewModelInput { return self }
     

@@ -24,12 +24,14 @@ class CurrentMemoryEditCoordinator: MemoryEditCoordinator {
         let viewModel = MemoryEditViewModel(memory: memoryStore.relevantMemory, memoryStore: memoryStore)
         bindToViewModel(viewModel)
         
-        viewModel.outputs.shouldDeleteMemory
+        viewModel
+            .outputs
+            .shouldDeleteMemory
             .subscribe(onNext: { [weak self] (_) in
                 guard let self = self else { return }
                 viewModel.provideMemory.accept(self.memoryStore.relevantMemory)
             })
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
         
         viewController = .init(viewModel)
         navigationController.setViewControllers([viewController], animated: true)

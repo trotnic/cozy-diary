@@ -14,11 +14,7 @@ import RxCocoa
 class GraffitiChunkMemoryView: UIView {
     private let disposeBag = DisposeBag()
     
-    var viewModel: GraffitiChunkViewModelType! {
-        didSet {
-            bindViewModel()
-        }
-    }
+    var viewModel: GraffitiChunkViewModelType! { didSet { bindViewModel() } }
     
     lazy var contentView: UIView = {
         let view = UIView()
@@ -45,7 +41,6 @@ class GraffitiChunkMemoryView: UIView {
         graffitiView.topAnchor.constraint(equalTo: topAnchor).isActive = true
         graffitiView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
         graffitiView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
-        
     }
     
     required init?(coder: NSCoder) {
@@ -53,7 +48,9 @@ class GraffitiChunkMemoryView: UIView {
     }
     
     func bindViewModel() {
-        viewModel.outputs.graffiti
+        viewModel
+            .outputs
+            .graffiti
             .map { data in UIImage(data: data) }
             .bind(to: graffitiView.rx.image)
             .disposed(by: disposeBag)
@@ -61,12 +58,8 @@ class GraffitiChunkMemoryView: UIView {
 }
 
 extension GraffitiChunkMemoryView: UIContextMenuInteractionDelegate {
-    func contextMenuInteraction(_ interaction: UIContextMenuInteraction,
-                                configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
-        
-        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ -> UIMenu? in
-            return self.createContextMenu()
-        }
+    func contextMenuInteraction(_ interaction: UIContextMenuInteraction, configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
+        UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ -> UIMenu? in self.createContextMenu() }
     }
     
     func createContextMenu() -> UIMenu {
@@ -74,23 +67,17 @@ extension GraffitiChunkMemoryView: UIContextMenuInteractionDelegate {
         let shareAction = UIAction(
             title: "Share",
             image: UIImage(systemName: "square.and.arrow.up"),
-            handler: { [weak self] _ in
-                self?.viewModel.inputs.shareButtonTap.accept(())
-        })
+            handler: { [weak self] _ in self?.viewModel.inputs.shareButtonTap.accept(()) })
         
         let copy = UIAction(
             title: "Copy",
             image: UIImage(systemName: "doc.on.doc"),
-            handler: { [weak self] _ in
-                self?.viewModel.inputs.copyButtonTap.accept(())
-        })
+            handler: { [weak self] _ in self?.viewModel.inputs.copyButtonTap.accept(()) })
         
         let remove = UIAction(
             title: "Remove",
             image: UIImage(systemName: "trash")?.withTintColor(.red),
-            handler: { [weak self] _ in
-                self?.viewModel.inputs.removeButtonTap.accept(())
-        })
+            handler: { [weak self] _ in self?.viewModel.inputs.removeButtonTap.accept(()) })
         
         return UIMenu(title: "", children: [shareAction, copy, remove])
     }

@@ -12,22 +12,6 @@ import RxCocoa
 import Alertift
 
 
-protocol TagsListViewModelOutput {
-    var items: Observable<[String]> { get }
-}
-
-protocol TagsListViewModelInput {
-    var tagInsert: PublishRelay<String> { get }
-    var tagRemove: PublishRelay<String> { get }
-    var dismiss: PublishRelay<Void> { get }
-}
-
-protocol TagsListViewModelType {
-    var outputs: TagsListViewModelOutput { get }
-    var inputs: TagsListViewModelInput { get }
-}
-
-
 class TagsListController: NMViewController {
 
     let viewModel: TagsListViewModelType
@@ -79,11 +63,13 @@ class TagsListController: NMViewController {
     }
     
     func bindViewModel() {
-        viewModel.outputs
+        viewModel
+            .outputs
             .items
             .bind(to: tableView.rx.items(cellIdentifier: "reuseIdentifier")) { row, model, cell in
-           cell.textLabel?.text = model
-        }.disposed(by: disposeBag)
+               cell.textLabel?.text = model
+            }
+            .disposed(by: disposeBag)
         
         
         tableView.rx
@@ -91,7 +77,7 @@ class TagsListController: NMViewController {
             .subscribe(onNext: { [weak self] (text) in
                 self?.viewModel.inputs.tagRemove.accept(text)
             })
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
     }
     
     private func setupTableView() {
@@ -105,7 +91,8 @@ class TagsListController: NMViewController {
     private func setupAddButton() {
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: addButton)
         
-        addButton.rx.tap
+        addButton
+            .rx.tap
             .subscribe(onNext: { [weak self] in
                 guard let self = self else { return }
                 Alertift.alert(title: "Add tag")
@@ -131,15 +118,17 @@ class TagsListController: NMViewController {
                         self.viewModel.inputs.tagInsert.accept(text)
                     }
                 }
+                .action(.cancel("Cancel"))
                 .show(on: self)
             })
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
     }
     
     private func setupCloseButton() {
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: closeButton)
         
-        closeButton.rx.tap
+        closeButton
+            .rx.tap
             .subscribe(onNext: { [weak self] in
                 self?.viewModel.inputs.dismiss.accept(())
                 self?.dismiss(animated: true)

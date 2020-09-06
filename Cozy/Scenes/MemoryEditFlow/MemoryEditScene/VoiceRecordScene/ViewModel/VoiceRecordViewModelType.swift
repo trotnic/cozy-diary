@@ -18,6 +18,8 @@ protocol VoiceRecordViewModelOutput {
     var pauseRecording: Driver<Void> { get }
     var finishRecording: Driver<Void> { get }
     var restoreRecording: Driver<Void> { get }
+    
+    var presentAlert: Driver<(String, String)> { get }
 }
 
 protocol VoiceRecordViewModelInput {

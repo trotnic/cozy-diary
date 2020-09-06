@@ -36,28 +36,34 @@ class MemoryCollectionCoordinator: ParentCoordinator {
         navigationController = NMNavigationController(rootViewController: viewController)
 
         // SELFCOMM: Opens detail for selected memory
-        viewModel.outputs.detailRequestObservable
+        viewModel
+            .outputs
+            .detailRequestObservable
             .subscribe(onNext: { [weak self] memory in
                 self?.gotodetail(memory: memory)
             })
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
                 
         // SELFCOMM: Opens search controller
-        viewModel.outputs.searchRequestObservable
+        viewModel
+            .outputs
+            .searchRequestObservable
             .subscribe(onNext: { [weak self] in
                 self?.gotosearch()
             })
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
         
         // REFACTOR
-        viewModel.inputs.viewWillAppear
+        viewModel
+            .inputs
+            .viewWillAppear
             .subscribe(onNext: { [weak self] in
                 guard let self = self else { return }
                 if !self.childCoordinators.isEmpty {
                     self.childCoordinators.removeAll()
                 }
             })
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
     }
     
     private func gotodetail(memory: BehaviorRelay<Memory>) {

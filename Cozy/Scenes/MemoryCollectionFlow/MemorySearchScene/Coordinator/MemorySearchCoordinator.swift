@@ -35,19 +35,25 @@ class MemorySearchCoordinator: ParentCoordinator {
         navigationController.pushViewController(viewController, animated: true)
         navigationController.modalPresentationStyle = .fullScreen
         
-        viewModel.outputs.dismissCurrentController
+        viewModel
+            .outputs
+            .dismissCurrentController
             .subscribe(onNext: { [weak self] in
                 self?.navigationController.dismiss(animated: true)
             })
             .disposed(by: disposeBag)
         
-        viewModel.outputs.showDetail
+        viewModel
+            .outputs
+            .showDetail
             .subscribe(onNext: { [weak self] (memory) in
                 self?.gotodetail(memory: memory)
             })
             .disposed(by: disposeBag)
         
-        viewModel.outputs.showFilter
+        viewModel
+            .outputs
+            .showFilter
             .subscribe(onNext: { [weak self] (manager) in
                 self?.presentFilterScreen(filterManager: manager)
             })

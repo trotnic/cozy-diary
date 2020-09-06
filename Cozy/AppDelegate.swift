@@ -12,12 +12,13 @@ import CoreData
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
+    var orientationLock = UIInterfaceOrientationMask.all
+
+    func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
+            return self.orientationLock
+    }
+    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        
-//        Synchronizer.shared.relevantMemory = CoreDataModeller(manager: CoreDataManager()).fetchRelevantOrCreate()
-//        Synchronizer.shared.relevantMemory.texts.insert(TextChunk(text: "LOLKEK", index: 0))
-//        CoreMemory.update(Synchronizer.shared.relevantMemory)
-        
         return true
     }
 

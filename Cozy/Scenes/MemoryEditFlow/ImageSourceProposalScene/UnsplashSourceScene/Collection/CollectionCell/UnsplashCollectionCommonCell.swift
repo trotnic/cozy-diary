@@ -16,11 +16,7 @@ class UnsplashCollectionCommonCell: UICollectionViewCell {
     
     static let reuseIdentifier = "UnsplashCollectionCommonCell"
     
-    var viewModel: UnsplashImageCollectionCommonItemViewModelType! {
-        didSet {
-            bindViewModel()
-        }
-    }
+    var viewModel: UnsplashImageCollectionCommonItemViewModelType! { didSet { bindViewModel() } }
     
     // MARK: Private properties
     private let disposeBag = DisposeBag()
@@ -58,23 +54,29 @@ class UnsplashCollectionCommonCell: UICollectionViewCell {
     
     private func setupTapRecognizer() {
         let tapReco = UITapGestureRecognizer()
-        tapReco.rx.event
+        
+        tapReco
+            .rx.event
             .subscribe(onNext: { [weak self] (recognizer) in
                 self?.viewModel.inputs.tapRequest.accept(())
             })
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
+        
         addGestureRecognizer(tapReco)
     }
     
     private func bindViewModel() {
-        viewModel.outputs.image.drive(onNext: { [weak self] (url) in
-            if let url = url {
-                self?.imageView.kf.indicatorType = .activity
-                self?.imageView.kf
-                    .setImage(with: url, options: [.transition(.fade(0.25))])
-            }
-        })
-        .disposed(by: disposeBag)
+        viewModel
+            .outputs
+            .image
+            .drive(onNext: { [weak self] (url) in
+                if let url = url {
+                    self?.imageView.kf.indicatorType = .activity
+                    self?.imageView.kf
+                        .setImage(with: url, options: [.transition(.fade(0.25))])
+                }
+            })
+            .disposed(by: disposeBag)
     }
 }
 
