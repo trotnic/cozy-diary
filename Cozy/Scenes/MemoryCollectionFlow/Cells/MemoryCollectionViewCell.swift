@@ -73,22 +73,14 @@ class MemoryCollectionViewCell: NMCollectionViewCell {
         textLabel.topAnchor.constraint(equalTo: dateLabel.bottomAnchor, constant: 5).isActive = true
         textLabel.trailingAnchor.constraint(equalTo: imageView.leadingAnchor, constant: -10).isActive = true
         textLabel.bottomAnchor.constraint(lessThanOrEqualTo: safeGuide.bottomAnchor, constant: -10).isActive = true
-        
-        
-        
-//        layer.masksToBounds = true
-//        layer.cornerRadius = 12
-//
 
         layer.shadowColor = UIColor.lightGray.cgColor
         layer.shadowRadius = 3
         layer.shadowOpacity = 1
         layer.shadowOffset = CGSize(width: 0, height: 2)
        
-        
         contentView.layer.cornerRadius = 12
         contentView.layer.masksToBounds = true
-//        shadowLayer.shadowOffset =
     }
     
     func bindViewModel() {

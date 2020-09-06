@@ -24,6 +24,11 @@ protocol PhotoChunkable: Chunkable {
 protocol GraffitiChunkable: Chunkable {
     var graffiti: Data { get set }
 }
+
+
+protocol VoiceChunkable: Chunkable {
+    var voiceUrl: URL { get set }
+}
 // structs
 
 final class Memory: Taggable {
@@ -32,6 +37,7 @@ final class Memory: Taggable {
     private(set) var texts: Array<TextChunk>
     private(set) var photos: Array<PhotoChunk>
     private(set) var graffities: Array<GraffitiChunk>
+    private(set) var voices: Array<VoiceChunk>
     
     var tags: Tags = []
     
@@ -45,6 +51,7 @@ final class Memory: Taggable {
         texts: Array<TextChunk>,
         photos: Array<PhotoChunk>,
         graffities: Array<GraffitiChunk>,
+        voices: Array<VoiceChunk>,
         tags: Array<String>
     ) {
         self.date = date
@@ -52,13 +59,13 @@ final class Memory: Taggable {
         self.texts = texts
         self.photos = photos
         self.graffities = graffities
+        self.voices = voices
         self.tags = tags.map { item -> Tag<Memory> in .init(stringLiteral: item) }
     }
     
     func insertTextChunk(_ text: String) {
         texts.append(TextChunk(text: NSAttributedString(string: text), index: index))
         index += 1
-        
     }
     
     func insertPhoto(_ photo: Data) {
@@ -68,6 +75,11 @@ final class Memory: Taggable {
     
     func insertGraffiti(_ graffiti: Data) {
         graffities.append(GraffitiChunk(graffiti: graffiti, index: index))
+        index += 1
+    }
+    
+    func insertVoice(_ voiceUrl: URL) {
+        voices.append(VoiceChunk(voiceUrl: voiceUrl, index: index))
         index += 1
     }
     
@@ -90,11 +102,17 @@ final class Memory: Taggable {
             graffities.remove(at: index)
             return
         }
+        if let index = voices.firstIndex(where: { (voiceChunk) -> Bool in
+            voiceChunk.index == chunk.index
+        }) {
+            voices.remove(at: index)
+            return
+        }
         
     }
     
     var sortedChunks: Array<Chunkable> {
-        (texts + photos + graffities).sorted { (t1, t2) -> Bool in
+        (texts + photos + graffities + voices).sorted { (t1, t2) -> Bool in
             t1.index < t2.index
         }
     }
@@ -119,6 +137,7 @@ extension Memory {
             texts: [],
             photos: [],
             graffities: [],
+            voices: [],
             tags: []
         )
     }
@@ -158,3 +177,12 @@ class GraffitiChunk: GraffitiChunkable {
     }
 }
 
+class VoiceChunk: VoiceChunkable {
+    var voiceUrl: URL
+    var index: Int
+    
+    init(voiceUrl: URL, index: Int) {
+        self.voiceUrl = voiceUrl
+        self.index = index
+    }
+}

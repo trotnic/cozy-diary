@@ -48,7 +48,9 @@ class MemoryEditViewModel: MemoryCreateViewModelType, MemoryCreateViewModelOutpu
                 
                 manager.voiceFileUrl
                     .subscribe(onNext: { (fileUrl) in
-                        assert(false)
+                        let value = self.memory.value
+                        value.insertVoice(fileUrl)
+                        self.memory.accept(value)
                     })
                 .disposed(by: self.disposeBag)
                 
@@ -154,9 +156,11 @@ class MemoryEditViewModel: MemoryCreateViewModelType, MemoryCreateViewModelOutpu
                         return self.textChunkItem(textChunk)
                     } else if let graffitiChunk = chunk as? GraffitiChunk {
                         return self.graffitiCHunkItem(graffitiChunk)
-                    } else {
-                        let photoChunk = chunk as! PhotoChunk
+                    } else if let photoChunk = chunk as? PhotoChunk {
                         return self.photoChunkItem(photoChunk)
+                    } else {
+                        let voiceChunk = chunk as! VoiceChunk
+                        return self.voiceChunkItem(voiceChunk)
                     }
                 }
             )
@@ -250,5 +254,21 @@ class MemoryEditViewModel: MemoryCreateViewModelType, MemoryCreateViewModelOutpu
         }).disposed(by: self.disposeBag)
         
         return .PhotoItem(viewModel: viewModel)
+    }
+    
+    private func voiceChunkItem(_ voiceChunk: VoiceChunk) -> MemoryCreateCollectionItem {
+        let viewModel = VoiceChunkViewModel(voiceChunk)
+        
+        viewModel.outputs
+            .removeItemRequest
+            .subscribe(onNext: { [weak self] in
+                if let value = self?.memory.value {
+                    value.removeChunk(voiceChunk)
+                    self?.memory.accept(value)
+                }
+            })
+        .disposed(by: disposeBag)
+        
+        return .VoiceItem(viewModel: viewModel)
     }
 }

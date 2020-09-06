@@ -24,6 +24,7 @@ public class CoreMemory: NSManagedObject {
             texts: textChunks,
             photos: photoChunks,
             graffities: graffitiChunks,
+            voices: voiceChunks,
             tags: tagsRepresentation
         )
     }
@@ -52,6 +53,15 @@ public class CoreMemory: NSManagedObject {
         }
         set {
             graffities = NSSet(array: newValue)
+        }
+    }
+    
+    var voiceChunks: Array<VoiceChunk> {
+        get {
+            (voices?.allObjects as? Array<CoreVoiceChunk>)?.map { $0.selfChunk } ?? []
+        }
+        set {
+            voices = NSSet(array: newValue)
         }
     }
     
@@ -93,6 +103,13 @@ public class CoreMemory: NSManagedObject {
             return graffitiEntity
         })
         
+        voices = NSSet(array: memory.voices.map {
+            let voiceEntity = CoreVoiceChunk(context: context)
+            voiceEntity.audioUrl = $0.voiceUrl
+            voiceEntity.index = Int64($0.index)
+            return voiceEntity
+        })
+        
         tagsRepresentation = memory.tags.map { $0.rawValue }
     }
     
@@ -125,6 +142,13 @@ public class CoreMemory: NSManagedObject {
                     graffityEntity.index = Int64($0.index)
                     graffityEntity.graffiti = $0.graffiti
                     return graffityEntity
+                })
+                
+                entity?.voices = NSSet(array: copy.voices.map {
+                    let voiceEntity = CoreVoiceChunk(context: context)
+                    voiceEntity.index = Int64($0.index)
+                    voiceEntity.audioUrl = $0.voiceUrl
+                    return voiceEntity
                 })
                 
                 entity?.tagsRepresentation = memory.tags.map { $0.rawValue }

@@ -66,8 +66,6 @@ class VoiceRecordViewModel: NSObject, VoiceRecordViewModelType, VoiceRecordViewM
         return formatter
     }()
     
-    var someisvar: Bool = false
-    
     private var audioRecorder: AVAudioRecorder?
     private var audioPlayer: AVAudioPlayer?
     
@@ -151,6 +149,7 @@ class VoiceRecordViewModel: NSObject, VoiceRecordViewModelType, VoiceRecordViewM
             .subscribe(onNext: { [weak self] in
                 guard let self = self else { return }
                 self.manager.insertVoiceFileUrl(self.currentFileUrl)
+                self.restoreOperation()
             })
         .disposed(by: disposeBag)
     }
@@ -203,8 +202,8 @@ extension VoiceRecordViewModel {
     private func provideFileUrl() {
         let date = Date()
         let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
-        let fileName = "rec-\(formatter.string(from: date).replacingOccurrences(of: ":", with: "_")).m4a"
+        formatter.dateFormat = "ddMMMYY_hhmmssa"
+        let fileName = "rec-\(formatter.string(from: date)).mp4"
         let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
         self.currentFileUrl = paths[0].appendingPathComponent(fileName)
     }

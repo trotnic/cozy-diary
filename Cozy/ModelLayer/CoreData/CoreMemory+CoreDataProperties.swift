@@ -1,8 +1,8 @@
 //
-//  CoreMemory+CoreDataClass.swift
+//  CoreMemory+CoreDataProperties.swift
 //  Cozy
 //
-//  Created by Uladzislau Volchyk on 8/15/20.
+//  Created by Uladzislau Volchyk on 9/6/20.
 //  Copyright © 2020 Uladzislau Volchyk. All rights reserved.
 //
 //
@@ -23,6 +23,7 @@ extension CoreMemory {
     @NSManaged public var graffities: NSSet?
     @NSManaged public var photos: NSSet?
     @NSManaged public var texts: NSSet?
+    @NSManaged public var voices: NSSet?
 
 }
 
@@ -74,5 +75,22 @@ extension CoreMemory {
 
     @objc(removeTexts:)
     @NSManaged public func removeFromTexts(_ values: NSSet)
+
+}
+
+// MARK: Generated accessors for voices
+extension CoreMemory {
+
+    @objc(addVoicesObject:)
+    @NSManaged public func addToVoices(_ value: CoreVoiceChunk)
+
+    @objc(removeVoicesObject:)
+    @NSManaged public func removeFromVoices(_ value: CoreVoiceChunk)
+
+    @objc(addVoices:)
+    @NSManaged public func addToVoices(_ values: NSSet)
+
+    @objc(removeVoices:)
+    @NSManaged public func removeFromVoices(_ values: NSSet)
 
 }

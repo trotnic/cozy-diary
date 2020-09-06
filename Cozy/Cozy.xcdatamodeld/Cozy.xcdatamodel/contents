@@ -12,6 +12,7 @@
         <relationship name="graffities" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CoreGraffitiChunk" inverseName="model" inverseEntity="CoreGraffitiChunk"/>
         <relationship name="photos" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CorePhotoChunk" inverseName="model" inverseEntity="CorePhotoChunk"/>
         <relationship name="texts" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CoreTextChunk" inverseName="model" inverseEntity="CoreTextChunk"/>
+        <relationship name="voices" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CoreVoiceChunk" inverseName="model" inverseEntity="CoreVoiceChunk"/>
     </entity>
     <entity name="CorePhotoChunk" representedClassName="CorePhotoChunk" syncable="YES" codeGenerationType="category">
         <attribute name="index" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
@@ -23,10 +24,16 @@
         <attribute name="text" optional="YES" attributeType="Transformable"/>
         <relationship name="model" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CoreMemory" inverseName="texts" inverseEntity="CoreMemory"/>
     </entity>
+    <entity name="CoreVoiceChunk" representedClassName="CoreVoiceChunk" syncable="YES" codeGenerationType="category">
+        <attribute name="audioUrl" optional="YES" attributeType="URI"/>
+        <attribute name="index" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="model" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CoreMemory" inverseName="voices" inverseEntity="CoreMemory"/>
+    </entity>
     <elements>
         <element name="CoreGraffitiChunk" positionX="-36" positionY="54" width="128" height="88"/>
-        <element name="CoreMemory" positionX="-45" positionY="0" width="128" height="133"/>
+        <element name="CoreMemory" positionX="-45" positionY="0" width="128" height="148"/>
         <element name="CorePhotoChunk" positionX="-27" positionY="45" width="128" height="88"/>
         <element name="CoreTextChunk" positionX="-18" positionY="36" width="128" height="88"/>
+        <element name="CoreVoiceChunk" positionX="-36" positionY="54" width="128" height="88"/>
     </elements>
 </model>

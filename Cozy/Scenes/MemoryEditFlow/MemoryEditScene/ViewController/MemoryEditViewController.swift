@@ -119,6 +119,10 @@ class MemoryEditViewController: NMViewController {
                 let view = GraffitiChunkMemoryView()
                 view.viewModel = viewModel
                 return view
+            case let .VoiceItem(viewModel):
+                let view = VoiceChunkMemoryView()
+                view.viewModel = viewModel
+                return view
             }
             }}.subscribe(onNext: { [weak self] (views) in
                 self?.contentView.removeAllArrangedSubviews()

@@ -15,6 +15,7 @@ enum MemoryCreateCollectionItem {
     case TextItem(viewModel: TextChunkViewModelType)
     case PhotoItem(viewModel: PhotoChunkViewModelType)
     case GraffitiItem(viewModel: GraffitiChunkViewModelType)
+    case VoiceItem(viewModel: VoiceChunkViewModelType)
 }
 
 protocol MemoryCreateViewModelOutput {

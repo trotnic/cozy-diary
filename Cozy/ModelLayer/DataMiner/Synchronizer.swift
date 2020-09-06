@@ -183,7 +183,7 @@ class Synchronizer: MemoryStoreType {
         
         do {
             let fetchResult = try context.fetch(request)
-            if fetchResult.count == 1,
+            if fetchResult.count >= 1,
                 let entity = fetchResult.last {
                 entity.updateSelfWith(memory, on: context)
                 try context.save()
@@ -191,7 +191,7 @@ class Synchronizer: MemoryStoreType {
                 return true
             }
         } catch {
-            print(error)
+            assert(false, error.localizedDescription)
         }
         return false
     }

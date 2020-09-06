@@ -29,6 +29,13 @@
 		2B44B5D824F48D7F00BC229A /* MemorySearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B44B5D724F48D7F00BC229A /* MemorySearchViewModel.swift */; };
 		2B44B5DB24F4915F00BC229A /* MemorySearchCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B44B5DA24F4915F00BC229A /* MemorySearchCoordinator.swift */; };
 		2B4B4984250424B400210417 /* VoiceChunkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B4983250424B400210417 /* VoiceChunkManager.swift */; };
+		2B4B4987250429F000210417 /* CoreVoiceChunk+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B4985250429F000210417 /* CoreVoiceChunk+CoreDataClass.swift */; };
+		2B4B498B25042D8600210417 /* VoiceChunkViewModelType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B498A25042D8600210417 /* VoiceChunkViewModelType.swift */; };
+		2B4B498D25042D8F00210417 /* VoieChunkViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B498C25042D8F00210417 /* VoieChunkViewModel.swift */; };
+		2B4B499125042E7E00210417 /* MemoryVoiceChunkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B499025042E7E00210417 /* MemoryVoiceChunkView.swift */; };
+		2B4B49942504383A00210417 /* CoreMemory+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B49922504383A00210417 /* CoreMemory+CoreDataClass.swift */; };
+		2B4B49972504387200210417 /* CoreMemory+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B49962504387200210417 /* CoreMemory+CoreDataProperties.swift */; };
+		2B4B499925043E8600210417 /* NMMainThemeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B499825043E8600210417 /* NMMainThemeView.swift */; };
 		2B574CAC24E7D3F00071D97C /* NMViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B574CAB24E7D3F00071D97C /* NMViewController.swift */; };
 		2B574CB624E83B940071D97C /* Business.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B574CB524E83B940071D97C /* Business.swift */; };
 		2B574CB924E83DC10071D97C /* MemoryCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B574CB824E83DC10071D97C /* MemoryCollectionViewController.swift */; };
@@ -85,8 +92,6 @@
 		2BFD470024FEA79B00485231 /* NMTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD46FF24FEA79B00485231 /* NMTextField.swift */; };
 		2BFD470224FED34600485231 /* TagManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD470124FED34600485231 /* TagManager.swift */; };
 		2BFD470424FEE47700485231 /* NMTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD470324FEE47700485231 /* NMTableViewCell.swift */; };
-		2BFD470724FF000C00485231 /* CoreMemory+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD470524FF000C00485231 /* CoreMemory+CoreDataClass.swift */; };
-		2BFD470824FF000C00485231 /* CoreMemory+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD470624FF000C00485231 /* CoreMemory+CoreDataProperties.swift */; };
 		2BFD470F24FF1D7600485231 /* MemorySearchFilterController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD470E24FF1D7600485231 /* MemorySearchFilterController.swift */; };
 		2BFD471124FF1D9500485231 /* MemorySearchFilterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD471024FF1D9500485231 /* MemorySearchFilterViewModel.swift */; };
 		2BFD471424FF975300485231 /* MemorySearchFilterTagCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD471324FF975300485231 /* MemorySearchFilterTagCell.swift */; };
@@ -143,6 +148,13 @@
 		2B44B5D724F48D7F00BC229A /* MemorySearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemorySearchViewModel.swift; sourceTree = "<group>"; };
 		2B44B5DA24F4915F00BC229A /* MemorySearchCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemorySearchCoordinator.swift; sourceTree = "<group>"; };
 		2B4B4983250424B400210417 /* VoiceChunkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceChunkManager.swift; sourceTree = "<group>"; };
+		2B4B4985250429F000210417 /* CoreVoiceChunk+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CoreVoiceChunk+CoreDataClass.swift"; sourceTree = "<group>"; };
+		2B4B498A25042D8600210417 /* VoiceChunkViewModelType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceChunkViewModelType.swift; sourceTree = "<group>"; };
+		2B4B498C25042D8F00210417 /* VoieChunkViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoieChunkViewModel.swift; sourceTree = "<group>"; };
+		2B4B499025042E7E00210417 /* MemoryVoiceChunkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryVoiceChunkView.swift; sourceTree = "<group>"; };
+		2B4B49922504383A00210417 /* CoreMemory+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CoreMemory+CoreDataClass.swift"; sourceTree = "<group>"; };
+		2B4B49962504387200210417 /* CoreMemory+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CoreMemory+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		2B4B499825043E8600210417 /* NMMainThemeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NMMainThemeView.swift; sourceTree = "<group>"; };
 		2B574CAB24E7D3F00071D97C /* NMViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NMViewController.swift; sourceTree = "<group>"; };
 		2B574CB524E83B940071D97C /* Business.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Business.swift; sourceTree = "<group>"; };
 		2B574CB824E83DC10071D97C /* MemoryCollectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryCollectionViewController.swift; sourceTree = "<group>"; };
@@ -199,8 +211,6 @@
 		2BFD46FF24FEA79B00485231 /* NMTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NMTextField.swift; sourceTree = "<group>"; };
 		2BFD470124FED34600485231 /* TagManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagManager.swift; sourceTree = "<group>"; };
 		2BFD470324FEE47700485231 /* NMTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NMTableViewCell.swift; sourceTree = "<group>"; };
-		2BFD470524FF000C00485231 /* CoreMemory+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CoreMemory+CoreDataClass.swift"; sourceTree = "<group>"; };
-		2BFD470624FF000C00485231 /* CoreMemory+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CoreMemory+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		2BFD470E24FF1D7600485231 /* MemorySearchFilterController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemorySearchFilterController.swift; sourceTree = "<group>"; };
 		2BFD471024FF1D9500485231 /* MemorySearchFilterViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemorySearchFilterViewModel.swift; sourceTree = "<group>"; };
 		2BFD471324FF975300485231 /* MemorySearchFilterTagCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemorySearchFilterTagCell.swift; sourceTree = "<group>"; };
@@ -381,6 +391,15 @@
 			path = Coordinator;
 			sourceTree = "<group>";
 		};
+		2B4B498925042D7500210417 /* VoiceChunkViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				2B4B498C25042D8F00210417 /* VoieChunkViewModel.swift */,
+				2B4B498A25042D8600210417 /* VoiceChunkViewModelType.swift */,
+			);
+			path = VoiceChunkViewModel;
+			sourceTree = "<group>";
+		};
 		2B574CAA24E7D3E10071D97C /* Helper */ = {
 			isa = PBXGroup;
 			children = (
@@ -422,8 +441,9 @@
 		2B574CC124E84EB20071D97C /* CoreData */ = {
 			isa = PBXGroup;
 			children = (
-				2BFD470524FF000C00485231 /* CoreMemory+CoreDataClass.swift */,
-				2BFD470624FF000C00485231 /* CoreMemory+CoreDataProperties.swift */,
+				2B4B49962504387200210417 /* CoreMemory+CoreDataProperties.swift */,
+				2B4B49922504383A00210417 /* CoreMemory+CoreDataClass.swift */,
+				2B4B4985250429F000210417 /* CoreVoiceChunk+CoreDataClass.swift */,
 				2B44B5C424F3F47D00BC229A /* CoreGraffitiChunk+CoreDataClass.swift */,
 				2B6DF78924EB0C4D00B94C21 /* CorePhotoChunk+CoreDataClass.swift */,
 				2B574CD224E850DA0071D97C /* CoreTextChunk+CoreDataClass.swift */,
@@ -514,6 +534,7 @@
 				2BFD473F25025AE700485231 /* MemoryTextChunkView.swift */,
 				2BFD474125025B5D00485231 /* MemoryPhotoChunkView.swift */,
 				2BFD474325025B9B00485231 /* MemoryGraffitiChunkView.swift */,
+				2B4B499025042E7E00210417 /* MemoryVoiceChunkView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -540,6 +561,7 @@
 		2B58A36D24F86C64002AD76E /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
+				2B4B498925042D7500210417 /* VoiceChunkViewModel */,
 				2BFD473A2502585400485231 /* TextChunkViewModel */,
 				2BFD47352502574F00485231 /* PhotoChunkViewModel */,
 				2BFD4730250256FB00485231 /* GraffitiChunkViewModel */,
@@ -699,6 +721,7 @@
 				2BFD46F724FE93D900485231 /* NMTableView.swift */,
 				2BFD46FF24FEA79B00485231 /* NMTextField.swift */,
 				2BFD470324FEE47700485231 /* NMTableViewCell.swift */,
+				2B4B499825043E8600210417 /* NMMainThemeView.swift */,
 			);
 			path = ThemeableViews;
 			sourceTree = "<group>";
@@ -1119,12 +1142,12 @@
 				2B58A35D24F85A0A002AD76E /* UnsplashCollectionCommonCell.swift in Sources */,
 				2BFD472F2502445D00485231 /* MemoryEditCoordinator.swift in Sources */,
 				2B44B5D624F48D4B00BC229A /* MemorySearchController.swift in Sources */,
+				2B4B49942504383A00210417 /* CoreMemory+CoreDataClass.swift in Sources */,
 				2BFD472925016E5A00485231 /* MemorySearchFilterDateCell.swift in Sources */,
 				2B402C0424F3118000B40319 /* PageTabBarController.swift in Sources */,
 				2B44B5CE24F4891E00BC229A /* UIImage+Extensions.swift in Sources */,
 				2B58A38C24FBB7FD002AD76E /* NMNavigationController.swift in Sources */,
 				2B44B5D824F48D7F00BC229A /* MemorySearchViewModel.swift in Sources */,
-				2BFD470824FF000C00485231 /* CoreMemory+CoreDataProperties.swift in Sources */,
 				2BFD47392502577A00485231 /* PhotoChunkViewModelType.swift in Sources */,
 				2BFD471424FF975300485231 /* MemorySearchFilterTagCell.swift in Sources */,
 				2BFD47222501641700485231 /* MemorySearchFilterMonthsViewModel.swift in Sources */,
@@ -1135,6 +1158,7 @@
 				2B5C578E24F6AF77009C2285 /* UnsplashPhotoCache.swift in Sources */,
 				2B574CBB24E842160071D97C /* MemoryCollectionViewCell.swift in Sources */,
 				2B574CC024E84A060071D97C /* Synchronizer.swift in Sources */,
+				2B4B498B25042D8600210417 /* VoiceChunkViewModelType.swift in Sources */,
 				2B58A38324FB17BC002AD76E /* NMCollectionViewCell.swift in Sources */,
 				2B58A37A24F9AA96002AD76E /* MemoryCollectionCoordinator.swift in Sources */,
 				2BD4CD9724EEFD4D00BCA0D5 /* ImageProposalSheetController.swift in Sources */,
@@ -1155,7 +1179,9 @@
 				2B58A35A24F8596D002AD76E /* UnsplashImageCollectionDataSource.swift in Sources */,
 				2B44B5CA24F488B900BC229A /* UIFont+Extensions.swift in Sources */,
 				2B5C578424F67334009C2285 /* UnsplashImageCollectionCoordinator.swift in Sources */,
+				2B4B4987250429F000210417 /* CoreVoiceChunk+CoreDataClass.swift in Sources */,
 				2B58A36224F866BB002AD76E /* MemoryEditViewController.swift in Sources */,
+				2B4B499925043E8600210417 /* NMMainThemeView.swift in Sources */,
 				2BFD474425025B9B00485231 /* MemoryGraffitiChunkView.swift in Sources */,
 				2BFD470424FEE47700485231 /* NMTableViewCell.swift in Sources */,
 				2BFD476E2502FD5E00485231 /* VoiceRecordViewModelType.swift in Sources */,
@@ -1164,8 +1190,10 @@
 				2BFD46F224FE806000485231 /* Tagging.swift in Sources */,
 				2BFD472D2502431B00485231 /* CurrentMemoryEditCoordinator.swift in Sources */,
 				2B574CB624E83B940071D97C /* Business.swift in Sources */,
+				2B4B499125042E7E00210417 /* MemoryVoiceChunkView.swift in Sources */,
 				2BFD47272501653700485231 /* MonthModel.swift in Sources */,
 				2B44B5D024F4893900BC229A /* UIView+Extensions.swift in Sources */,
+				2B4B49972504387200210417 /* CoreMemory+CoreDataProperties.swift in Sources */,
 				2BFD470024FEA79B00485231 /* NMTextField.swift in Sources */,
 				2BFD46D524FC14D100485231 /* Constants.swift in Sources */,
 				2B402C0E24F3B33600B40319 /* MapCreateCoordinator.swift in Sources */,
@@ -1177,6 +1205,7 @@
 				2BFD46CE24FBE22D00485231 /* NMTextView.swift in Sources */,
 				2BFD46E024FD78E200485231 /* UIColor+Extensions.swift in Sources */,
 				2BFD46D224FBF5E000485231 /* NMView.swift in Sources */,
+				2B4B498D25042D8F00210417 /* VoieChunkViewModel.swift in Sources */,
 				2B5C578924F67E87009C2285 /* UnsplashModels.swift in Sources */,
 				2BFD46EF24FE71DF00485231 /* NMCanvasView.swift in Sources */,
 				2BFD46EC24FDC86F00485231 /* NMLabel.swift in Sources */,
@@ -1209,7 +1238,6 @@
 				2BFD471B2500195700485231 /* MemorySearchFilterTagsViewModel.swift in Sources */,
 				2BFD46FC24FE954500485231 /* TagsListCoordinator.swift in Sources */,
 				2BFD471124FF1D9500485231 /* MemorySearchFilterViewModel.swift in Sources */,
-				2BFD470724FF000C00485231 /* CoreMemory+CoreDataClass.swift in Sources */,
 				2BFD47252501652100485231 /* TagModel.swift in Sources */,
 				2BFD471D2501186200485231 /* MemoryEditViewModelType.swift in Sources */,
 				2BFD47322502570900485231 /* GraffitiChunkViewModel.swift in Sources */,
