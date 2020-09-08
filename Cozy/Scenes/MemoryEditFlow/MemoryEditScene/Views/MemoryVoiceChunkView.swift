@@ -150,7 +150,11 @@ extension VoiceChunkMemoryView: UIContextMenuInteractionDelegate {
         
         let remove = UIAction(
             title: "Remove",
-            image: UIImage(systemName: "trash")?.withTintColor(.red),
+            image: UIImage(systemName: "trash"),
+            identifier: nil,
+            discoverabilityTitle: nil,
+            attributes: .destructive,
+            state: .off,
             handler: { [weak self] _ in self?.viewModel.inputs.removeButtonTap.accept(()) })
         
         return UIMenu(title: "", children: [remove])

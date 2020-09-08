@@ -81,7 +81,9 @@ class UnsplashImageCollectionCoordinator: ParentCoordinator {
             .outputs
             .moreRequestObservable
             .subscribe(onNext: {
+                
                 Alertift.actionSheet()
+                    .popover(anchorView: controller.moreButton)
                     .action(.default("Add")) {
                         viewModel.outputs.image
                         .subscribe(onNext: { [weak self] (data) in

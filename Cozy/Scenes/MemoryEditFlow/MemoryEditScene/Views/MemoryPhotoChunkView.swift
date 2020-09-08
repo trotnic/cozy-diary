@@ -112,11 +112,8 @@ class PhotoChunkMemoryView: UIView {
 
 extension PhotoChunkMemoryView: UIContextMenuInteractionDelegate {
     func contextMenuInteraction(_ interaction: UIContextMenuInteraction,
-                                configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
-        
-        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ -> UIMenu? in
-            return self.createContextMenu()
-        }
+                                configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {        
+        UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ -> UIMenu? in self.createContextMenu() }
     }
     
     func createContextMenu() -> UIMenu {
@@ -133,7 +130,11 @@ extension PhotoChunkMemoryView: UIContextMenuInteractionDelegate {
         
         let remove = UIAction(
             title: "Remove",
-            image: UIImage(systemName: "trash")?.withTintColor(.red),
+            image: UIImage(systemName: "trash"),
+            identifier: nil,
+            discoverabilityTitle: nil,
+            attributes: .destructive,
+            state: .off,
             handler: { [weak self] _ in self?.viewModel.inputs.removeButtonTap.accept(()) })
         
         return UIMenu(title: "", children: [shareAction, copy, remove])

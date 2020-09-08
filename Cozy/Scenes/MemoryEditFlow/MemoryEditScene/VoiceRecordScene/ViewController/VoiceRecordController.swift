@@ -50,16 +50,14 @@ class VoiceRecordController: NMViewController {
     
     lazy var buttonsStack: UIStackView = {
         let view = UIStackView()
-        view.translatesAutoresizingMaskIntoConstraints = false
         view.axis = .horizontal
         view.spacing = 35
-        view.distribution = .equalCentering
+        view.distribution = .equalSpacing
         return view
     }()
     
     lazy var durationLabel: NMLabel = {
         let view = NMLabel()
-        view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
@@ -68,6 +66,15 @@ class VoiceRecordController: NMViewController {
         view.setTitle("Save", for: .normal)
         view.isEnabled = false
         view.alpha = 0.6
+        return view
+    }()
+    
+    lazy var contentStackView: UIStackView = {
+        let view = UIStackView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.axis = .vertical
+        view.spacing = 40
+        view.alignment = .center
         return view
     }()
     
@@ -90,6 +97,7 @@ class VoiceRecordController: NMViewController {
         setupButtonsStack()
         setupCloseButton()
         setupSaveButton()
+        setupContentStackView()
         bindViewModel()
     }
     
@@ -161,14 +169,12 @@ class VoiceRecordController: NMViewController {
     
     private func setupRecordingButton() {
         view.addSubview(recordingButton)
-        
-        recordingButton.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -50).isActive = true
-        recordingButton.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        
+
         let congifuration = UIImage.SymbolConfiguration(pointSize: 80, weight: .regular, scale: .medium)
         recordingButton.setImage(UIImage(systemName: "mic.fill", withConfiguration: congifuration), for: .normal)
         
-        recordingButton.rx.tap
+        recordingButton
+            .rx.tap
             .bind(to: viewModel.inputs.recordButtonTap)
             .disposed(by: disposeBag)
     }
@@ -203,9 +209,6 @@ class VoiceRecordController: NMViewController {
     private func setupButtonsStack() {
         view.addSubview(buttonsStack)
         
-        buttonsStack.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        buttonsStack.topAnchor.constraint(equalTo: durationLabel.bottomAnchor, constant: 50).isActive = true
-        
         buttonsStack.addArrangedSubview(removeButton)
         buttonsStack.addArrangedSubview(playButton)
         buttonsStack.addArrangedSubview(commitButton)
@@ -213,9 +216,7 @@ class VoiceRecordController: NMViewController {
     
     private func setupDurationLabel() {
         view.addSubview(durationLabel)
-        
-        durationLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        durationLabel.topAnchor.constraint(equalTo: view.centerYAnchor, constant: 60).isActive = true
+    
         durationLabel.font = .systemFont(ofSize: 40, weight: .bold)
     }
     
@@ -258,6 +259,18 @@ class VoiceRecordController: NMViewController {
             .alert(title: title, message: message)
             .action(.default("Ok"))
             .show(on: self)
+    }
+    
+    private func setupContentStackView() {
+        view.addSubview(contentStackView)
+        
+        contentStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        contentStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        contentStackView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+        
+        contentStackView.addArrangedSubview(recordingButton)
+        contentStackView.addArrangedSubview(durationLabel)
+        contentStackView.addArrangedSubview(buttonsStack)
     }
     
 }

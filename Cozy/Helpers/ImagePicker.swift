@@ -26,15 +26,19 @@ class ImagePicker: NSObject, UIImagePickerControllerDelegate, UINavigationContro
     }()
     
     func prepareCamera(_ presenting: @escaping (UIImagePickerController) -> (), completion: @escaping (ImageMeta) -> ()) {
-        imagePickerController.sourceType = .camera
-        presenting(imagePickerController)
-        self.completion = completion
+        if UIImagePickerController.isSourceTypeAvailable(.camera) {
+            imagePickerController.sourceType = .camera
+            presenting(imagePickerController)
+            self.completion = completion
+        }
     }
     
     func prepareGallery(_ presenting: @escaping (UIImagePickerController) -> (), completion: @escaping (ImageMeta) -> ()) {
-        imagePickerController.sourceType = .photoLibrary
-        presenting(imagePickerController)
-        self.completion = completion
+        if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
+            imagePickerController.sourceType = .photoLibrary
+            presenting(imagePickerController)
+            self.completion = completion
+        }
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {

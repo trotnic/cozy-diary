@@ -34,7 +34,15 @@ class ImageProposalCoordinator: ParentCoordinator {
     }
     
     func start() {
+        let view = presentingController.view
+        let y = view?.bounds.maxY ?? 0 - 50
+        let x = view?.bounds.midX ?? 0 - 100
+        let width = view?.bounds.width ?? 0 / 2
+        let height = view?.bounds.height ?? 0 / 3
+        let rect = CGRect(x: x, y: y, width: width, height: height)
+        
         Alertift.actionSheet()
+            .popover(sourceView: presentingController.view, sourceRect: rect)
             .action(.default("Pick on Unsplash")) { [weak self] in
                 self?.presentUnsplashCollection()
             }

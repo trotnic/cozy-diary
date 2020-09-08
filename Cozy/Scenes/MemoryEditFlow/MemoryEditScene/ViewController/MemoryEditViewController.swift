@@ -161,6 +161,7 @@ class MemoryEditViewController: NMViewController {
             .subscribe(onNext: { [weak self] (_) in
                 guard let self = self else { return }
                 Alertift.actionSheet()
+                    .popover(anchorView: self.moreButton)
                     .action(.default("Delete"), handler: {
                         Alertift.alert(title: "Are you sure?", message: "The memory can't be restored later")
                             .action(.default("Delete")) {

@@ -68,6 +68,7 @@ extension MemoryEditCoordinator {
                         .moreRequestObservable
                         .subscribe(onNext: {
                             Alertift.actionSheet()
+                                .popover(anchorView: viewController.moreButton)
                                 .action(.default("Share")) {
                                     localViewModel.outputs.image
                                     .subscribe(onNext: { (data) in

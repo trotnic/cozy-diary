@@ -104,7 +104,7 @@ class MemorySearchFilterController: NMViewController {
     }
     
     fileprivate func getLayout() -> UICollectionViewCompositionalLayout {
-        let height = NSCollectionLayoutDimension.estimated(200)
+        let height = NSCollectionLayoutDimension.estimated(240)
         let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0))
         
         let item = NSCollectionLayoutItem(layoutSize: itemSize)

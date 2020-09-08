@@ -107,7 +107,7 @@ class MemoryCollectionViewCell: NMCollectionViewCell {
         bindGestures()
     }
     
-    func bindGestures() {
+    private func bindGestures() {
         let tapReco = UITapGestureRecognizer()
         addGestureRecognizer(tapReco)
         
@@ -137,6 +137,11 @@ class MemoryCollectionViewCell: NMCollectionViewCell {
             self.transform = .identity
             self.contentView.backgroundColor = self.contentView.backgroundColor?.withAlphaComponent(1)
         }
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        imageView.image = nil
     }
     
 }

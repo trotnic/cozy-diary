@@ -54,8 +54,6 @@ class MemorySearchFilterDateCell: NMCollectionViewCell {
         collectionView.contentInset = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
         
         contentView.heightAnchor.constraint(equalTo: collectionView.heightAnchor, multiplier: 1.2).isActive = true
-//        collectionView.heightAnchor.constraint(greaterThanOrEqualTo: contentView.heightAnchor).isActive = true
-//        collectionView.heightAnchor.constraint(equalTo: contentView.heightAnchor).isActive = true
         collectionView.widthAnchor.constraint(equalTo: contentView.widthAnchor).isActive = true
     }
 }
@@ -146,6 +144,5 @@ class FilterMonthCell: NMCollectionViewCell {
         value.isSelected.toggle()
         monthModel.accept(value)
     }
-    
     
 }
