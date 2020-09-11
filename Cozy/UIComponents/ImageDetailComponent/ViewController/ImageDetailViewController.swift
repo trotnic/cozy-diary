@@ -11,7 +11,16 @@ import RxSwift
 import RxCocoa
 
 
+private let kButtonSize: CGFloat = 50
+private let kButtonCornerRadius: CGFloat = 25
+private let kHeaderSize: CGFloat = 50
+private let kMinZoomScale: CGFloat = 1
+private let kMaxZoomScale: CGFloat = 3
+
 class ImageDetailViewController: NMViewController {
+    
+    private var initialTouchPoint: CGPoint = .zero
+    private let disposeBag = DisposeBag()
 
     let viewModel: ImageDetailViewModelType
     let transitionDelegate = ImageDetailTransitioningDelegate()
@@ -36,8 +45,8 @@ class ImageDetailViewController: NMViewController {
         let view = UIScrollView()
         view.isUserInteractionEnabled = true
         view.delegate = self
-        view.maximumZoomScale = 3
-        view.minimumZoomScale = 1
+        view.maximumZoomScale = kMaxZoomScale
+        view.minimumZoomScale = kMinZoomScale
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -50,19 +59,8 @@ class ImageDetailViewController: NMViewController {
         return view
     }()
     
-    lazy var closeButton: UIButton = {
-        let view = UIButton()
-        view.setImage(UIImage(systemName: "xmark"), for: .normal)
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
-    lazy var moreButton: UIButton = {
-        let view = UIButton()
-        view.setImage(UIImage(systemName: "ellipsis"), for: .normal)
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
+    lazy var closeButton: UIButton = { buttonFactory(name: "xmark") }()
+    lazy var moreButton: UIButton = { buttonFactory(name: "ellipsis") }()
     
     lazy var headerView: UIView = {
         let view = UIView()
@@ -70,41 +68,42 @@ class ImageDetailViewController: NMViewController {
         return view
     }()
     
-    private var initialTouchPoint: CGPoint = .zero
-    private let disposeBag = DisposeBag()
     
+    // MARK: Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setupScrollView()
         setupStackView()
         bindViewModel()
         setupHeaderView()
-        setupViewGestureSensitivity()
+        setupGestures()
         
         transitioningDelegate = transitionDelegate
-        view.isUserInteractionEnabled = true
     }
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
-        scrollView.setZoomScale(1, animated: false)
+        scrollView.setZoomScale(kMinZoomScale, animated: false)
     }
     
-    // MARK: Utility
     
-    func bindViewModel() {
+    // MARK: Utility
+    private func bindViewModel() {
         
-        viewModel
-            .outputs
+        let outputs = viewModel.outputs
+        let inputs = viewModel.inputs
+        
+        outputs
             .image
-            .subscribe(onNext: { [weak self] (image) in
+            .bind(onNext: { [weak self] (image) in
                 DispatchQueue.global(qos: .userInteractive).async {
                     if let image = UIImage(data: image) {
+                        let averageColor = image.averageColor
                         DispatchQueue.main.async {
                             self?.imageView.image = image
-                            self?.view.backgroundColor = image.averageColor
-                            self?.closeButton.backgroundColor = image.averageColor
-                            self?.moreButton.backgroundColor = image.averageColor
+                            self?.view.backgroundColor = averageColor
+                            self?.closeButton.backgroundColor = averageColor
+                            self?.moreButton.backgroundColor = averageColor
                         }
                     }
                 }
@@ -113,17 +112,16 @@ class ImageDetailViewController: NMViewController {
         
         closeButton
             .rx.tap
-            .subscribe(onNext: { [weak self] in
+            .bind(onNext: { [weak self] in
                 self?.transitionDelegate.shouldDoInteractive = false
-                self?.viewModel.inputs.closeButtonTap.accept(())
+                self?.dismiss(animated: true)
+                inputs.closeButtonTap.accept(())
             })
             .disposed(by: disposeBag)
         
         moreButton
             .rx.tap
-            .subscribe(onNext: { [weak self] in
-                self?.viewModel.inputs.moreButtonTap.accept(())
-            })
+            .bind(to: inputs.moreButtonTap)
             .disposed(by: disposeBag)
         
     }
@@ -136,15 +134,15 @@ class ImageDetailViewController: NMViewController {
         headerView.leadingAnchor.constraint(equalTo: safeGuide.leadingAnchor).isActive = true
         headerView.topAnchor.constraint(equalTo: safeGuide.topAnchor).isActive = true
         headerView.trailingAnchor.constraint(equalTo: safeGuide.trailingAnchor).isActive = true
-        headerView.heightAnchor.constraint(equalToConstant: 65).isActive = true
+        headerView.heightAnchor.constraint(equalToConstant: kHeaderSize).isActive = true
         
         
         headerView.addSubview(closeButton)
         closeButton.centerYAnchor.constraint(equalTo: headerView.centerYAnchor).isActive = true
         closeButton.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 20).isActive = true
-        closeButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        closeButton.widthAnchor.constraint(equalToConstant: 50).isActive = true
-        closeButton.layer.cornerRadius = 25
+        closeButton.heightAnchor.constraint(equalToConstant: kButtonSize).isActive = true
+        closeButton.widthAnchor.constraint(equalToConstant: kButtonSize).isActive = true
+        closeButton.layer.cornerRadius = kButtonCornerRadius
         closeButton.layer.masksToBounds = true
         closeButton.tintColor = .white
         
@@ -152,33 +150,63 @@ class ImageDetailViewController: NMViewController {
         headerView.addSubview(moreButton)
         moreButton.trailingAnchor.constraint(equalTo: headerView.trailingAnchor, constant: -20).isActive = true
         moreButton.centerYAnchor.constraint(equalTo: headerView.centerYAnchor).isActive = true
-        moreButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        moreButton.widthAnchor.constraint(equalToConstant: 50).isActive = true
-        moreButton.layer.cornerRadius = 25
+        moreButton.heightAnchor.constraint(equalToConstant: kButtonSize).isActive = true
+        moreButton.widthAnchor.constraint(equalToConstant: kButtonSize).isActive = true
+        moreButton.layer.cornerRadius = kButtonCornerRadius
         moreButton.layer.masksToBounds = true
         moreButton.tintColor = .white
     }
     
-    private func setupViewGestureSensitivity() {
+    private func setupScrollView() {
+        let safeGuide = view.safeAreaLayoutGuide
+        view.addSubview(scrollView)
+        scrollView.leadingAnchor.constraint(equalTo: safeGuide.leadingAnchor).isActive = true
+        scrollView.topAnchor.constraint(equalTo: safeGuide.topAnchor).isActive = true
+        scrollView.trailingAnchor.constraint(equalTo: safeGuide.trailingAnchor).isActive = true
+        scrollView.bottomAnchor.constraint(equalTo: safeGuide.bottomAnchor).isActive = true
+    }
+    
+    private func setupStackView() {
+        let safeGuide = view.safeAreaLayoutGuide
+        scrollView.addSubview(stackView)
+        stackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor).isActive = true
+        stackView.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
+        stackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor).isActive = true
+        stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor).isActive = true
+        stackView.widthAnchor.constraint(equalTo: safeGuide.widthAnchor).isActive = true
+        stackView.heightAnchor.constraint(equalTo: safeGuide.heightAnchor).isActive = true
+        stackView.addArrangedSubview(imageView)
+    }
+    
+    private func setupGestures() {
+        setupSwitchAppearanceRecognizer()
+        setupDragToDismissRecognizer()
+        setupZoomRecozniger()
+    }
+    
+    private func setupSwitchAppearanceRecognizer() {
         let tapReco = UITapGestureRecognizer()
+        tapReco.numberOfTapsRequired = 1
         
         tapReco
             .rx.event
-            .subscribe(onNext: { [unowned self] (_) in
-                
-                UIView.animate(withDuration: 0.3, animations: {
-                    self.headerView.alpha = self.headerView.alpha == 1.0 ? 0.0 : 1.0
-                })
+            .bind(onNext: { [weak self] (recognizer) in
+                if let alpha = self?.headerView.alpha {
+                    UIView.animate(withDuration: 0.3, animations: {
+                        self?.headerView.alpha = 1 - alpha
+                    })
+                }
             }).disposed(by: disposeBag)
         
         view.addGestureRecognizer(tapReco)
-        
-        
+    }
+    
+    private func setupDragToDismissRecognizer() {
         let panReco = UIPanGestureRecognizer()
         
         panReco
             .rx.event
-            .subscribe(onNext: { [unowned self] (recognizer) in
+            .bind(onNext: { [unowned self] (recognizer) in
 
                 if recognizer.state == .began {
                     self.initialTouchPoint = recognizer.location(in: self.view.window)
@@ -213,27 +241,41 @@ class ImageDetailViewController: NMViewController {
         view.addGestureRecognizer(panReco)
     }
     
-    private func setupScrollView() {
-        let safeGuide = view.safeAreaLayoutGuide
-        view.addSubview(scrollView)
-        scrollView.leadingAnchor.constraint(equalTo: safeGuide.leadingAnchor).isActive = true
-        scrollView.topAnchor.constraint(equalTo: safeGuide.topAnchor).isActive = true
-        scrollView.trailingAnchor.constraint(equalTo: safeGuide.trailingAnchor).isActive = true
-        scrollView.bottomAnchor.constraint(equalTo: safeGuide.bottomAnchor).isActive = true
+    private func setupZoomRecozniger() {
+        let tapReco = UITapGestureRecognizer()
+        tapReco.numberOfTapsRequired = 2
+        
+        tapReco
+            .rx.event
+            .bind { [unowned self] (recognizer) in
+                let center = recognizer.location(in: self.imageView)
+                let zoomRect = self.zoomRectForScale(scale: kMaxZoomScale, center: center)
+                self.scrollView.zoom(to: zoomRect, animated: true)
+            }
+            .disposed(by: disposeBag)
+        
+        view.addGestureRecognizer(tapReco)
     }
     
-    private func setupStackView() {
-        let safeGuide = view.safeAreaLayoutGuide
-        scrollView.addSubview(stackView)
-        stackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor).isActive = true
-        stackView.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
-        stackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor).isActive = true
-        stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor).isActive = true
-        stackView.widthAnchor.constraint(equalTo: safeGuide.widthAnchor).isActive = true
-        stackView.heightAnchor.constraint(equalTo: safeGuide.heightAnchor).isActive = true
-        stackView.addArrangedSubview(imageView)
+    private func zoomRectForScale(scale: CGFloat, center: CGPoint) -> CGRect {
+        var zoomRect: CGRect = .zero
+        zoomRect.size.height = imageView.frame.size.height / scale
+        zoomRect.size.width = imageView.frame.size.width / scale
+        
+        let newCenter = scrollView.convert(center, to: imageView)
+        zoomRect.origin.x = newCenter.x - zoomRect.size.width / 2
+        zoomRect.origin.y = newCenter.y - zoomRect.size.height / 2
+        return zoomRect
     }
-    
+}
+
+extension ImageDetailViewController {
+    private func buttonFactory(name: String) -> UIButton {
+        let view = UIButton()
+        view.setImage(UIImage(systemName: name), for: .normal)
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }
 }
 
 extension ImageDetailViewController: UIScrollViewDelegate {

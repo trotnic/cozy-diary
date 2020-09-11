@@ -90,9 +90,11 @@
 		2B5C578424F67334009C2285 /* UnsplashImageCollectionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B5C578324F67334009C2285 /* UnsplashImageCollectionCoordinator.swift */; };
 		2B5C578924F67E87009C2285 /* UnsplashModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B5C578824F67E87009C2285 /* UnsplashModels.swift */; };
 		2B5C578B24F67F62009C2285 /* UnsplashNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B5C578A24F67F62009C2285 /* UnsplashNetwork.swift */; };
-		2B5C579624F6CDFE009C2285 /* UnsplashImageDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B5C579524F6CDFE009C2285 /* UnsplashImageDetailViewModel.swift */; };
+		2B7D7A12250BA23500172685 /* ImageDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B7D7A11250BA23500172685 /* ImageDetailViewModel.swift */; };
+		2B7D7A17250BBAC800172685 /* RemoteImageDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B7D7A16250BBAC800172685 /* RemoteImageDataProvider.swift */; };
+		2B7D7A19250BC58400172685 /* LocalImageDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B7D7A18250BC58400172685 /* LocalImageDataProvider.swift */; };
+		2B7D7A1B250BC6A600172685 /* ImageDataProviderType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B7D7A1A250BC6A600172685 /* ImageDataProviderType.swift */; };
 		2BD4CD7C24ED702900BCA0D5 /* ImageDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BD4CD7B24ED702900BCA0D5 /* ImageDetailViewController.swift */; };
-		2BD4CD7E24ED703700BCA0D5 /* LocalImageDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BD4CD7D24ED703700BCA0D5 /* LocalImageDetailViewModel.swift */; };
 		2BD4CD8424EE85CC00BCA0D5 /* ButtonsPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BD4CD8324EE85CC00BCA0D5 /* ButtonsPanel.swift */; };
 		2BD4CD9424EEF17400BCA0D5 /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BD4CD9324EEF17400BCA0D5 /* AppCoordinator.swift */; };
 		2BD4CD9B24EF104600BCA0D5 /* ImagesProposalCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BD4CD9A24EF104600BCA0D5 /* ImagesProposalCoordinator.swift */; };
@@ -245,9 +247,11 @@
 		2B5C578324F67334009C2285 /* UnsplashImageCollectionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnsplashImageCollectionCoordinator.swift; sourceTree = "<group>"; };
 		2B5C578824F67E87009C2285 /* UnsplashModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnsplashModels.swift; sourceTree = "<group>"; };
 		2B5C578A24F67F62009C2285 /* UnsplashNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnsplashNetwork.swift; sourceTree = "<group>"; };
-		2B5C579524F6CDFE009C2285 /* UnsplashImageDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnsplashImageDetailViewModel.swift; sourceTree = "<group>"; };
+		2B7D7A11250BA23500172685 /* ImageDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageDetailViewModel.swift; sourceTree = "<group>"; };
+		2B7D7A16250BBAC800172685 /* RemoteImageDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteImageDataProvider.swift; sourceTree = "<group>"; };
+		2B7D7A18250BC58400172685 /* LocalImageDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalImageDataProvider.swift; sourceTree = "<group>"; };
+		2B7D7A1A250BC6A600172685 /* ImageDataProviderType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageDataProviderType.swift; sourceTree = "<group>"; };
 		2BD4CD7B24ED702900BCA0D5 /* ImageDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageDetailViewController.swift; sourceTree = "<group>"; };
-		2BD4CD7D24ED703700BCA0D5 /* LocalImageDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalImageDetailViewModel.swift; sourceTree = "<group>"; };
 		2BD4CD8324EE85CC00BCA0D5 /* ButtonsPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonsPanel.swift; sourceTree = "<group>"; };
 		2BD4CD9324EEF17400BCA0D5 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
 		2BD4CD9A24EF104600BCA0D5 /* ImagesProposalCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagesProposalCoordinator.swift; sourceTree = "<group>"; };
@@ -347,6 +351,7 @@
 		2B0748AA24E5E3FA0031D203 /* Cozy */ = {
 			isa = PBXGroup;
 			children = (
+				2B7D7A14250BB78C00172685 /* Providers */,
 				2BFD46F024FE805800485231 /* Helpers */,
 				2BFD46D624FC545E00485231 /* ThemeManager */,
 				2B58A38124FB179A002AD76E /* ThemeableViews */,
@@ -549,9 +554,9 @@
 		2B58A35124F856E7002AD76E /* ImageDetailComponent */ = {
 			isa = PBXGroup;
 			children = (
+				2B7D7A13250BB2BB00172685 /* ViewModel */,
 				2B58A35724F85933002AD76E /* Transitioning */,
 				2B58A35224F856F0002AD76E /* ViewController */,
-				2B4B49F2250564D500210417 /* ImageDetailViewModelType.swift */,
 			);
 			path = ImageDetailComponent;
 			sourceTree = "<group>";
@@ -673,7 +678,6 @@
 				2BFD47652502FC6E00485231 /* VoiceRecordScene */,
 				2BFD46F324FE8E7400485231 /* TagListScene */,
 				2BFD46ED24FE6C9C00485231 /* GraffitiCreateScene */,
-				2B58A37B24F9AC37002AD76E /* ImageDetailScene */,
 				2B58A36324F866F5002AD76E /* Views */,
 				2B58A36024F864C2002AD76E /* ViewController */,
 				2B58A36D24F86C64002AD76E /* ViewModel */,
@@ -688,14 +692,6 @@
 				2BD4CD9A24EF104600BCA0D5 /* ImagesProposalCoordinator.swift */,
 			);
 			path = Coordinator;
-			sourceTree = "<group>";
-		};
-		2B58A37624F9225F002AD76E /* ViewModel */ = {
-			isa = PBXGroup;
-			children = (
-				2B5C579524F6CDFE009C2285 /* UnsplashImageDetailViewModel.swift */,
-			);
-			path = ViewModel;
 			sourceTree = "<group>";
 		};
 		2B58A37724F9AA23002AD76E /* MemoryCollectionFlow */ = {
@@ -717,22 +713,6 @@
 				2B58A37924F9AA96002AD76E /* MemoryCollectionCoordinator.swift */,
 			);
 			path = Coordinator;
-			sourceTree = "<group>";
-		};
-		2B58A37B24F9AC37002AD76E /* ImageDetailScene */ = {
-			isa = PBXGroup;
-			children = (
-				2B58A37C24F9AC41002AD76E /* ViewModel */,
-			);
-			path = ImageDetailScene;
-			sourceTree = "<group>";
-		};
-		2B58A37C24F9AC41002AD76E /* ViewModel */ = {
-			isa = PBXGroup;
-			children = (
-				2BD4CD7D24ED703700BCA0D5 /* LocalImageDetailViewModel.swift */,
-			);
-			path = ViewModel;
 			sourceTree = "<group>";
 		};
 		2B58A37D24F9AC98002AD76E /* ViewController */ = {
@@ -801,7 +781,6 @@
 		2B5C577A24F671DA009C2285 /* UnsplashSourceScene */ = {
 			isa = PBXGroup;
 			children = (
-				2B5C579424F6CDEA009C2285 /* Detail */,
 				2B5C579324F6CDDF009C2285 /* Collection */,
 				2B5C577E24F671FE009C2285 /* Coordinator */,
 			);
@@ -862,12 +841,31 @@
 			path = Collection;
 			sourceTree = "<group>";
 		};
-		2B5C579424F6CDEA009C2285 /* Detail */ = {
+		2B7D7A13250BB2BB00172685 /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
-				2B58A37624F9225F002AD76E /* ViewModel */,
+				2B4B49F2250564D500210417 /* ImageDetailViewModelType.swift */,
+				2B7D7A11250BA23500172685 /* ImageDetailViewModel.swift */,
 			);
-			path = Detail;
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		2B7D7A14250BB78C00172685 /* Providers */ = {
+			isa = PBXGroup;
+			children = (
+				2B7D7A15250BB79200172685 /* ImageDataProvider */,
+			);
+			path = Providers;
+			sourceTree = "<group>";
+		};
+		2B7D7A15250BB79200172685 /* ImageDataProvider */ = {
+			isa = PBXGroup;
+			children = (
+				2B7D7A16250BBAC800172685 /* RemoteImageDataProvider.swift */,
+				2B7D7A18250BC58400172685 /* LocalImageDataProvider.swift */,
+				2B7D7A1A250BC6A600172685 /* ImageDataProviderType.swift */,
+			);
+			path = ImageDataProvider;
 			sourceTree = "<group>";
 		};
 		2BD4CD9224EEF16300BCA0D5 /* App */ = {
@@ -1305,6 +1303,7 @@
 				2B574CBD24E849180071D97C /* MemoryCollectionViewModel.swift in Sources */,
 				2BFD47342502571500485231 /* GraffitiChunkViewModelType.swift in Sources */,
 				2BFD47192500194E00485231 /* MemorySearchFilterTagsViewModelType.swift in Sources */,
+				2B7D7A19250BC58400172685 /* LocalImageDataProvider.swift in Sources */,
 				2BFD476A2502FD4000485231 /* VoiceRecordCoordinator.swift in Sources */,
 				2BFD47702502FD8100485231 /* VoiceRecordViewModel.swift in Sources */,
 				2B44B5CC24F488E900BC229A /* UIStackView+Extensions.swift in Sources */,
@@ -1315,6 +1314,7 @@
 				2BFD46F824FE93D900485231 /* NMTableView.swift in Sources */,
 				2B58A35A24F8596D002AD76E /* UnsplashImageCollectionDataSource.swift in Sources */,
 				2B4B49E32505493200210417 /* ImagePicker.swift in Sources */,
+				2B7D7A12250BA23500172685 /* ImageDetailViewModel.swift in Sources */,
 				2B44B5CA24F488B900BC229A /* UIFont+Extensions.swift in Sources */,
 				2B5C578424F67334009C2285 /* UnsplashImageCollectionCoordinator.swift in Sources */,
 				2B4B4987250429F000210417 /* CoreVoiceChunk+CoreDataClass.swift in Sources */,
@@ -1339,6 +1339,7 @@
 				2B402C1524F3D75200B40319 /* GraffitiCreateViewController.swift in Sources */,
 				2BFD470224FED34600485231 /* TagManager.swift in Sources */,
 				2BD4CD8424EE85CC00BCA0D5 /* ButtonsPanel.swift in Sources */,
+				2B7D7A17250BBAC800172685 /* RemoteImageDataProvider.swift in Sources */,
 				2BFD470F24FF1D7600485231 /* MemorySearchFilterController.swift in Sources */,
 				2BFD46CE24FBE22D00485231 /* NMTextView.swift in Sources */,
 				2BFD46E024FD78E200485231 /* UIColor+Extensions.swift in Sources */,
@@ -1351,13 +1352,13 @@
 				2BD4CD9B24EF104600BCA0D5 /* ImagesProposalCoordinator.swift in Sources */,
 				2B4B49ED2505637200210417 /* MemoryCollectionCommonItemViewModel.swift in Sources */,
 				2B58A36F24F86C74002AD76E /* MemoryEditViewModel.swift in Sources */,
+				2B7D7A1B250BC6A600172685 /* ImageDataProviderType.swift in Sources */,
 				2B4B49F52505698700210417 /* CoordinatorType.swift in Sources */,
 				2B4B49F3250564D500210417 /* ImageDetailViewModelType.swift in Sources */,
 				2B58A38A24FB933E002AD76E /* NMNavigationBar.swift in Sources */,
 				2BD4CD9424EEF17400BCA0D5 /* AppCoordinator.swift in Sources */,
 				2BFD46FE24FE95B300485231 /* TagsListViewModel.swift in Sources */,
 				2BFD473C2502586900485231 /* TextChunkViewModel.swift in Sources */,
-				2B5C579624F6CDFE009C2285 /* UnsplashImageDetailViewModel.swift in Sources */,
 				2B4B49D3250528F900210417 /* TagsListViewModelType.swift in Sources */,
 				2B0748B624E5E3FA0031D203 /* Cozy.xcdatamodeld in Sources */,
 				2B58A35424F857B1002AD76E /* ImageDetailTransition.swift in Sources */,
@@ -1369,7 +1370,6 @@
 				2BFD46FA24FE945900485231 /* TagsListController.swift in Sources */,
 				2B4B49CF2505269800210417 /* GraffitiCreateViewModelType.swift in Sources */,
 				2BFD47372502575C00485231 /* PhotoChunkViewModel.swift in Sources */,
-				2BD4CD7E24ED703700BCA0D5 /* LocalImageDetailViewModel.swift in Sources */,
 				2BFD46DA24FC610400485231 /* NMTabBarController.swift in Sources */,
 				2BFD473E250258A300485231 /* TextChunkViewModelType.swift in Sources */,
 				2B58A36C24F86A44002AD76E /* AnyMemoryEditCoordinator.swift in Sources */,

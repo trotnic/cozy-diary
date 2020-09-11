@@ -14,18 +14,14 @@ import Alertift
 
 class UnsplashImageCollectionCoordinator: ParentCoordinator {
     
-    var metaObservable: Observable<ImageMeta> {
-        metaObserver.asObservable()
-    }
-    
     var childCoordinators: [Coordinator] = []
     
-    var cancelObservable: Observable<Void> {
-        cancelObserver.asObservable()
-    }
+    var metaObservable: Observable<ImageMeta> { metaObserver.asObservable() }
+    var cancelObservable: Observable<Void> { cancelObserver.asObservable() }
+    
+    let presentingController: UIViewController
     
     var viewController: UnsplashImageCollectionController!
-    let presentingController: UIViewController
     var viewModel: UnsplashImageCollectionViewModel!
     
     private let disposeBag = DisposeBag()
@@ -45,9 +41,7 @@ class UnsplashImageCollectionCoordinator: ParentCoordinator {
             .outputs
             .detailImageRequest
             .asObservable()
-            .subscribe(onNext: { [weak self] (photo) in
-                self?.gotodetail(meta: photo)
-            })
+            .bind(onNext: { [weak self] (photo) in self?.gotodetail(meta: photo) })
             .disposed(by: disposeBag)
         
         viewModel
@@ -65,47 +59,34 @@ class UnsplashImageCollectionCoordinator: ParentCoordinator {
     }
     
     private func gotodetail(meta: UnsplashPhoto) {
-        let viewModel = UnsplashImageDetailViewModel(imageMeta: meta, imageDownloader: .default)
+        
+        let provider = RemoteImageDataProvider(url: URL(string: meta.urls.regular)!, downloader: .default)
+        let viewModel = ImageDetailViewModel(provider: provider)
+         
         let controller = ImageDetailViewController(viewModel)
         controller.modalPresentationStyle = .fullScreen
         
         viewModel
             .outputs
-            .closeRequestObservable
-            .subscribe(onNext: {
-                controller.dismiss(animated: true)
-            })
-            .disposed(by: disposeBag)
-        
-        viewModel
-            .outputs
             .moreRequestObservable
-            .subscribe(onNext: {
+            .bind(onNext: {
                 
                 Alertift.actionSheet()
                     .popover(anchorView: controller.moreButton)
                     .action(.default("Add")) {
                         viewModel.outputs.image
                         .subscribe(onNext: { [weak self] (data) in
-                            if let self = self {
-                                let imageMeta = ImageMeta(imageUrl: URL(string: meta.urls.regular), originalImage: data)
-                                self.metaObserver.onNext(imageMeta)
-                                self.cancelObserver.onNext(())
-                            }
+                            let imageMeta = ImageMeta(imageUrl: URL(string: meta.urls.regular), originalImage: data)
+                            self?.metaObserver.onNext(imageMeta)
+                            self?.cancelObserver.onNext(())
                         })
                         .disposed(by: self.disposeBag)
                     }
                     .action(.default("Share")) {
                         viewModel.outputs.image
                         .subscribe(onNext: { (data) in
-                            DispatchQueue.global(qos: .userInitiated).async {
-                                if let image = UIImage(data: data) {
-                                    let activityController = UIActivityViewController(activityItems: [image], applicationActivities: nil)
-                                    DispatchQueue.main.async {
-                                        controller.present(activityController, animated: true)
-                                    }
-                                }
-                            }
+                            let activityController = UIActivityViewController(activityItems: [data], applicationActivities: nil)
+                            DispatchQueue.main.async { controller.present(activityController, animated: true) }
                         })
                         .disposed(by: self.disposeBag)
                     }

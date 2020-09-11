@@ -12,8 +12,8 @@ import RxCocoa
 
 class UnsplashImageCollectionViewModel: UnsplashImageCollectionViewModelType, UnsplashImageCollectionViewModelOutput, UnsplashImageCollectionViewModelInput {
     
-    var outputs: UnsplashImageCollectionViewModelOutput { return self }
-    var inputs: UnsplashImageCollectionViewModelInput { return self }
+    var outputs: UnsplashImageCollectionViewModelOutput { self }
+    var inputs: UnsplashImageCollectionViewModelInput { self }
     
     // MARK: Outputs
     var items: Driver<[UnsplashCollectionSection]> {
@@ -21,21 +21,19 @@ class UnsplashImageCollectionViewModel: UnsplashImageCollectionViewModelType, Un
         .map { $0.map { [unowned self] (photo) -> UnsplashImageCollectionCommonItemViewModel in
             let viewModel = UnsplashImageCollectionCommonItemViewModel(item: photo)
         
-            viewModel.outputs.detailRequest
-            .asObservable()
-                .subscribe(onNext: {
+            viewModel
+                .outputs
+                .detailRequest
+                .asObservable()
+                .bind(onNext: {
                     self.detailObserver.accept(photo)
                 })
                 .disposed(by: self.disposeBag)
             
             return viewModel
         }}
-        .map { $0.map { viewModel -> UnsplashCollectionItem in
-            .common(viewModel: viewModel)
-            }}
-        .flatMapLatest { (items) -> Observable<[UnsplashCollectionSection]> in
-            .just([.init(items: items)])
-        }
+        .map { $0.map { viewModel -> UnsplashCollectionItem in .common(viewModel: viewModel) }}
+        .flatMapLatest { (items) -> Observable<[UnsplashCollectionSection]> in .just([.init(items: items)]) }
         .asDriver(onErrorJustReturn: [])
     }
     
@@ -50,6 +48,8 @@ class UnsplashImageCollectionViewModel: UnsplashImageCollectionViewModelType, Un
     let searchCancelObserver = PublishRelay<Void>()
     
     // MARK: Private
+    private let kPhotosLimit = 30
+    
     private var currentPage = 1
     private var maxPageCount = 0
     private var currentSearchTerm = ""
@@ -71,15 +71,16 @@ class UnsplashImageCollectionViewModel: UnsplashImageCollectionViewModelType, Un
     // MARK: Private methods
     private func loadData(term: String, page: Int) {
         
-        let result: Observable<UnsplashSearch> = service.fetch(request: .searchPhotos(term: term, page: page, limit: 30))
+        let result: Observable<UnsplashSearch> = service.fetch(request: .searchPhotos(term: term, page: page, limit: kPhotosLimit))
         result
             .flatMapLatest { (searchResults) -> Observable<[UnsplashPhoto]> in
                 .just(searchResults.results)
             }
-            .subscribe(onNext: { [unowned self] (photos) in
-                var existing = self.loadedPhotos.value
-                existing.append(contentsOf: photos)
-                self.loadedPhotos.accept(existing)
+            .bind(onNext: { [weak self] (photos) in
+                if var existing = self?.loadedPhotos.value {
+                    existing.append(contentsOf: photos)
+                    self?.loadedPhotos.accept(existing)
+                }
             })
             .disposed(by: disposeBag)
     }
@@ -92,10 +93,9 @@ class UnsplashImageCollectionViewModel: UnsplashImageCollectionViewModelType, Un
             .distinctUntilChanged()
             .throttle(.milliseconds(1000), scheduler: MainScheduler.instance)
             .flatMapLatest { [unowned self] (term) -> Observable<(UnsplashSearch, String)> in
-
-                let result: Observable<UnsplashSearch> = self.service.fetch(request: .searchPhotos(term: term, page: 1, limit: 30))
                 
-                return result.flatMapLatest { (results) -> Observable<(UnsplashSearch, String)> in
+                (self.service.fetch(request: .searchPhotos(term: term, page: 1, limit: self.kPhotosLimit)) as Observable<UnsplashSearch>)
+                    .flatMapLatest { (results) -> Observable<(UnsplashSearch, String)> in
                     .just((results, term))
                 }
             }

@@ -52,16 +52,9 @@ extension MemoryEditCoordinator {
         viewModel.outputs.photoDetailRequestObservable
             .subscribe(onNext: { [weak self] (image) in
                 if let self = self {
-                    let localViewModel = LocalImageDetailViewModel(image: image)
+                    let provider = LocalImageDataProvider(data: image)
+                    let localViewModel = ImageDetailViewModel(provider: provider)
                     let viewController = ImageDetailViewController(localViewModel)
-                    
-                    localViewModel
-                        .outputs
-                        .closeRequestObservable
-                        .subscribe(onNext: {
-                            viewController.dismiss(animated: true)
-                        })
-                        .disposed(by: self.disposeBag)
                     
                     localViewModel
                         .outputs

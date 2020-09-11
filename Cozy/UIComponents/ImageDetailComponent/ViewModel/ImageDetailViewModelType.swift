@@ -14,7 +14,6 @@ import RxCocoa
 protocol ImageDetailViewModelOutput {
     var image: Observable<Data> { get }
     
-    var closeRequestObservable: Observable<Void> { get }
     var moreRequestObservable: Observable<Void> { get }
 }
 
