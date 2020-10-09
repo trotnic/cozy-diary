@@ -16,10 +16,12 @@ protocol MemoryCollectionViewModelOutput {
     
     var detailRequestObservable: Observable<BehaviorRelay<Memory>> { get }
     var searchRequestObservable: Observable<Void> { get }
+    var addRequestObservable: Observable<Void> { get }
 }
 
 protocol MemoryCollectionViewModelInput {
     var searchButtonTap: PublishRelay<Void> { get }
+    var addButtonTap: PublishRelay<Void> { get }
     
     var viewWillAppear: PublishRelay<Void> { get }
 }

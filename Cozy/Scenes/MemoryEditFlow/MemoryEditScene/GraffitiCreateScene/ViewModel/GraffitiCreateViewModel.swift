@@ -15,8 +15,8 @@ import RxCocoa
 class GraffitiCreateViewModel: GraffitiCreateViewModelType, GraffitiCreateViewModelOutput, GraffitiCreateViewModelInput {
     
     // MARK: Outputs & Inputs
-    var outputs: GraffitiCreateViewModelOutput { return self }
-    var inputs: GraffitiCreateViewModelInput { return self }
+    var outputs: GraffitiCreateViewModelOutput { self }
+    var inputs: GraffitiCreateViewModelInput { self }
     
     // MARK: Outputs
     var saveRequestObservable: Observable<Data> { saveButtonTap.asObservable() }

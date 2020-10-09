@@ -24,6 +24,12 @@ struct UnsplashPhotoUrls: Decodable {
 
 struct UnsplashSearch: Decodable {
     let total: Int
-    let total_pages: Int
+    let totalPages: Int
     let results: [UnsplashPhoto]
+    
+    enum CodingKeys: String, CodingKey {
+        case total
+        case totalPages = "total_pages"
+        case results
+    }
 }

@@ -13,6 +13,9 @@
 		2B0748B624E5E3FA0031D203 /* Cozy.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 2B0748B424E5E3FA0031D203 /* Cozy.xcdatamodeld */; };
 		2B0748B824E5E3FA0031D203 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2B0748B724E5E3FA0031D203 /* Assets.xcassets */; };
 		2B0748BB24E5E3FA0031D203 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2B0748B924E5E3FA0031D203 /* LaunchScreen.storyboard */; };
+		2B226F282530913000B0475F /* MemoryFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B226F272530913000B0475F /* MemoryFactory.swift */; };
+		2B2403CC2515345400E3568B /* Repository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B2403CB2515345400E3568B /* Repository.swift */; };
+		2B2403CF2515E1B500E3568B /* CoreDataRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B2403CE2515E1B500E3568B /* CoreDataRepresentable.swift */; };
 		2B402C1524F3D75200B40319 /* GraffitiCreateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B402C1424F3D75200B40319 /* GraffitiCreateViewController.swift */; };
 		2B402C1724F3D75C00B40319 /* GraffitiCreateViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B402C1624F3D75C00B40319 /* GraffitiCreateViewModel.swift */; };
 		2B402C1924F3D88800B40319 /* GraffitiCreateCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B402C1824F3D88800B40319 /* GraffitiCreateCoordinator.swift */; };
@@ -94,10 +97,14 @@
 		2B7D7A17250BBAC800172685 /* RemoteImageDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B7D7A16250BBAC800172685 /* RemoteImageDataProvider.swift */; };
 		2B7D7A19250BC58400172685 /* LocalImageDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B7D7A18250BC58400172685 /* LocalImageDataProvider.swift */; };
 		2B7D7A1B250BC6A600172685 /* ImageDataProviderType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B7D7A1A250BC6A600172685 /* ImageDataProviderType.swift */; };
+		2B8A8B50252472E800F39446 /* MemoryAddController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B8A8B4F252472E800F39446 /* MemoryAddController.swift */; };
+		2B8A8B56252474E000F39446 /* MemoryAddViewModelType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B8A8B55252474E000F39446 /* MemoryAddViewModelType.swift */; };
+		2B8A8B5A252474E800F39446 /* MemoryAddViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B8A8B59252474E800F39446 /* MemoryAddViewModel.swift */; };
 		2BD4CD7C24ED702900BCA0D5 /* ImageDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BD4CD7B24ED702900BCA0D5 /* ImageDetailViewController.swift */; };
 		2BD4CD8424EE85CC00BCA0D5 /* ButtonsPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BD4CD8324EE85CC00BCA0D5 /* ButtonsPanel.swift */; };
 		2BD4CD9424EEF17400BCA0D5 /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BD4CD9324EEF17400BCA0D5 /* AppCoordinator.swift */; };
 		2BD4CD9B24EF104600BCA0D5 /* ImagesProposalCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BD4CD9A24EF104600BCA0D5 /* ImagesProposalCoordinator.swift */; };
+		2BD713F8253045FD0060BC8C /* DatePickTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BD713F7253045FD0060BC8C /* DatePickTableViewCell.swift */; };
 		2BFD46CE24FBE22D00485231 /* NMTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD46CD24FBE22D00485231 /* NMTextView.swift */; };
 		2BFD46D024FBF3C000485231 /* NMImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD46CF24FBF3C000485231 /* NMImageView.swift */; };
 		2BFD46D224FBF5E000485231 /* NMView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFD46D124FBF5E000485231 /* NMView.swift */; };
@@ -168,6 +175,9 @@
 		2B0748B724E5E3FA0031D203 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2B0748BA24E5E3FA0031D203 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		2B0748BC24E5E3FA0031D203 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		2B226F272530913000B0475F /* MemoryFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryFactory.swift; sourceTree = "<group>"; };
+		2B2403CB2515345400E3568B /* Repository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Repository.swift; sourceTree = "<group>"; };
+		2B2403CE2515E1B500E3568B /* CoreDataRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataRepresentable.swift; sourceTree = "<group>"; };
 		2B402C1424F3D75200B40319 /* GraffitiCreateViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraffitiCreateViewController.swift; sourceTree = "<group>"; };
 		2B402C1624F3D75C00B40319 /* GraffitiCreateViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraffitiCreateViewModel.swift; sourceTree = "<group>"; };
 		2B402C1824F3D88800B40319 /* GraffitiCreateCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraffitiCreateCoordinator.swift; sourceTree = "<group>"; };
@@ -251,10 +261,14 @@
 		2B7D7A16250BBAC800172685 /* RemoteImageDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteImageDataProvider.swift; sourceTree = "<group>"; };
 		2B7D7A18250BC58400172685 /* LocalImageDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalImageDataProvider.swift; sourceTree = "<group>"; };
 		2B7D7A1A250BC6A600172685 /* ImageDataProviderType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageDataProviderType.swift; sourceTree = "<group>"; };
+		2B8A8B4F252472E800F39446 /* MemoryAddController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryAddController.swift; sourceTree = "<group>"; };
+		2B8A8B55252474E000F39446 /* MemoryAddViewModelType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryAddViewModelType.swift; sourceTree = "<group>"; };
+		2B8A8B59252474E800F39446 /* MemoryAddViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryAddViewModel.swift; sourceTree = "<group>"; };
 		2BD4CD7B24ED702900BCA0D5 /* ImageDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageDetailViewController.swift; sourceTree = "<group>"; };
 		2BD4CD8324EE85CC00BCA0D5 /* ButtonsPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonsPanel.swift; sourceTree = "<group>"; };
 		2BD4CD9324EEF17400BCA0D5 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
 		2BD4CD9A24EF104600BCA0D5 /* ImagesProposalCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagesProposalCoordinator.swift; sourceTree = "<group>"; };
+		2BD713F7253045FD0060BC8C /* DatePickTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatePickTableViewCell.swift; sourceTree = "<group>"; };
 		2BFD46CD24FBE22D00485231 /* NMTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NMTextView.swift; sourceTree = "<group>"; };
 		2BFD46CF24FBF3C000485231 /* NMImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NMImageView.swift; sourceTree = "<group>"; };
 		2BFD46D124FBF5E000485231 /* NMView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NMView.swift; sourceTree = "<group>"; };
@@ -368,6 +382,14 @@
 				2B0748B424E5E3FA0031D203 /* Cozy.xcdatamodeld */,
 			);
 			path = Cozy;
+			sourceTree = "<group>";
+		};
+		2B2403CD2515E1A000E3568B /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				2B2403CE2515E1B500E3568B /* CoreDataRepresentable.swift */,
+			);
+			path = Protocols;
 			sourceTree = "<group>";
 		};
 		2B402C1124F3D73A00B40319 /* ViewController */ = {
@@ -512,6 +534,7 @@
 		2B574CB424E83B810071D97C /* ModelLayer */ = {
 			isa = PBXGroup;
 			children = (
+				2B2403CD2515E1A000E3568B /* Protocols */,
 				2B574CC124E84EB20071D97C /* CoreData */,
 				2B574CBE24E849F90071D97C /* DataMiner */,
 				2B574CB524E83B940071D97C /* Business.swift */,
@@ -526,6 +549,8 @@
 			isa = PBXGroup;
 			children = (
 				2B574CBF24E84A060071D97C /* Synchronizer.swift */,
+				2B2403CB2515345400E3568B /* Repository.swift */,
+				2B226F272530913000B0475F /* MemoryFactory.swift */,
 			);
 			path = DataMiner;
 			sourceTree = "<group>";
@@ -697,12 +722,13 @@
 		2B58A37724F9AA23002AD76E /* MemoryCollectionFlow */ = {
 			isa = PBXGroup;
 			children = (
-				2B4B49EE2505644E00210417 /* Datasource */,
-				2B58A38024FA5138002AD76E /* MemorySearchScene */,
-				2B58A37F24F9ACD9002AD76E /* ViewModel */,
 				2B58A37E24F9ACAA002AD76E /* Cells */,
-				2B58A37D24F9AC98002AD76E /* ViewController */,
 				2B58A37824F9AA32002AD76E /* Coordinator */,
+				2B4B49EE2505644E00210417 /* Datasource */,
+				2B8A8B4B252472A400F39446 /* MemoryAddScene */,
+				2B58A38024FA5138002AD76E /* MemorySearchScene */,
+				2B58A37D24F9AC98002AD76E /* ViewController */,
+				2B58A37F24F9ACD9002AD76E /* ViewModel */,
 			);
 			path = MemoryCollectionFlow;
 			sourceTree = "<group>";
@@ -868,6 +894,33 @@
 			path = ImageDataProvider;
 			sourceTree = "<group>";
 		};
+		2B8A8B4B252472A400F39446 /* MemoryAddScene */ = {
+			isa = PBXGroup;
+			children = (
+				2BD713F6253045C40060BC8C /* Cells */,
+				2B8A8B4D252472BC00F39446 /* ViewModel */,
+				2B8A8B4C252472B500F39446 /* ViewController */,
+			);
+			path = MemoryAddScene;
+			sourceTree = "<group>";
+		};
+		2B8A8B4C252472B500F39446 /* ViewController */ = {
+			isa = PBXGroup;
+			children = (
+				2B8A8B4F252472E800F39446 /* MemoryAddController.swift */,
+			);
+			path = ViewController;
+			sourceTree = "<group>";
+		};
+		2B8A8B4D252472BC00F39446 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				2B8A8B55252474E000F39446 /* MemoryAddViewModelType.swift */,
+				2B8A8B59252474E800F39446 /* MemoryAddViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
 		2BD4CD9224EEF16300BCA0D5 /* App */ = {
 			isa = PBXGroup;
 			children = (
@@ -875,6 +928,14 @@
 				2B4B49F42505698700210417 /* CoordinatorType.swift */,
 			);
 			path = App;
+			sourceTree = "<group>";
+		};
+		2BD713F6253045C40060BC8C /* Cells */ = {
+			isa = PBXGroup;
+			children = (
+				2BD713F7253045FD0060BC8C /* DatePickTableViewCell.swift */,
+			);
+			path = Cells;
 			sourceTree = "<group>";
 		};
 		2BFD46D624FC545E00485231 /* ThemeManager */ = {
@@ -1281,6 +1342,7 @@
 				2B4B49942504383A00210417 /* CoreMemory+CoreDataClass.swift in Sources */,
 				2BFD472925016E5A00485231 /* MemorySearchFilterDateCell.swift in Sources */,
 				2B44B5CE24F4891E00BC229A /* UIImage+Extensions.swift in Sources */,
+				2B2403CF2515E1B500E3568B /* CoreDataRepresentable.swift in Sources */,
 				2B58A38C24FBB7FD002AD76E /* NMNavigationController.swift in Sources */,
 				2B44B5D824F48D7F00BC229A /* MemorySearchViewModel.swift in Sources */,
 				2BFD47392502577A00485231 /* PhotoChunkViewModelType.swift in Sources */,
@@ -1305,6 +1367,7 @@
 				2BFD47192500194E00485231 /* MemorySearchFilterTagsViewModelType.swift in Sources */,
 				2B7D7A19250BC58400172685 /* LocalImageDataProvider.swift in Sources */,
 				2BFD476A2502FD4000485231 /* VoiceRecordCoordinator.swift in Sources */,
+				2B2403CC2515345400E3568B /* Repository.swift in Sources */,
 				2BFD47702502FD8100485231 /* VoiceRecordViewModel.swift in Sources */,
 				2B44B5CC24F488E900BC229A /* UIStackView+Extensions.swift in Sources */,
 				2B4B49C22505212600210417 /* UnsplashImageCollectionViewModelType.swift in Sources */,
@@ -1321,6 +1384,7 @@
 				2B4B49CB2505236F00210417 /* UnsplashImageCollectionCommonItemViewModel.swift in Sources */,
 				2B58A36224F866BB002AD76E /* MemoryEditViewController.swift in Sources */,
 				2B4B499925043E8600210417 /* NMMainThemeView.swift in Sources */,
+				2B8A8B5A252474E800F39446 /* MemoryAddViewModel.swift in Sources */,
 				2BFD474425025B9B00485231 /* MemoryGraffitiChunkView.swift in Sources */,
 				2BFD470424FEE47700485231 /* NMTableViewCell.swift in Sources */,
 				2BFD476E2502FD5E00485231 /* VoiceRecordViewModelType.swift in Sources */,
@@ -1335,6 +1399,7 @@
 				2BFD47272501653700485231 /* MonthModel.swift in Sources */,
 				2B44B5D024F4893900BC229A /* UIView+Extensions.swift in Sources */,
 				2B4B49972504387200210417 /* CoreMemory+CoreDataProperties.swift in Sources */,
+				2BD713F8253045FD0060BC8C /* DatePickTableViewCell.swift in Sources */,
 				2BFD470024FEA79B00485231 /* NMTextField.swift in Sources */,
 				2B402C1524F3D75200B40319 /* GraffitiCreateViewController.swift in Sources */,
 				2BFD470224FED34600485231 /* TagManager.swift in Sources */,
@@ -1351,6 +1416,7 @@
 				2BFD46EC24FDC86F00485231 /* NMLabel.swift in Sources */,
 				2BD4CD9B24EF104600BCA0D5 /* ImagesProposalCoordinator.swift in Sources */,
 				2B4B49ED2505637200210417 /* MemoryCollectionCommonItemViewModel.swift in Sources */,
+				2B8A8B56252474E000F39446 /* MemoryAddViewModelType.swift in Sources */,
 				2B58A36F24F86C74002AD76E /* MemoryEditViewModel.swift in Sources */,
 				2B7D7A1B250BC6A600172685 /* ImageDataProviderType.swift in Sources */,
 				2B4B49F52505698700210417 /* CoordinatorType.swift in Sources */,
@@ -1380,12 +1446,14 @@
 				2BFD46FC24FE954500485231 /* TagsListCoordinator.swift in Sources */,
 				2BFD471124FF1D9500485231 /* MemorySearchFilterViewModel.swift in Sources */,
 				2BFD47252501652100485231 /* TagModel.swift in Sources */,
+				2B226F282530913000B0475F /* MemoryFactory.swift in Sources */,
 				2B4B49EB2505636B00210417 /* MemoryCollectionCommonItemViewModelType.swift in Sources */,
 				2BFD471D2501186200485231 /* MemoryEditViewModelType.swift in Sources */,
 				2BFD47322502570900485231 /* GraffitiChunkViewModel.swift in Sources */,
 				2BFD46DE24FC6BE800485231 /* NMTabBarItem.swift in Sources */,
 				2BFD471624FFAE3500485231 /* FilterManager.swift in Sources */,
 				2B0748AE24E5E3FA0031D203 /* SceneDelegate.swift in Sources */,
+				2B8A8B50252472E800F39446 /* MemoryAddController.swift in Sources */,
 				2B4B49B1250504D500210417 /* MemoryCollectionViewModelType.swift in Sources */,
 				2BFD46EA24FDB45100485231 /* NMSearchController.swift in Sources */,
 				2BD4CD7C24ED702900BCA0D5 /* ImageDetailViewController.swift in Sources */,

@@ -53,6 +53,14 @@ class MemoryCollectionCoordinator: ParentCoordinator {
             })
             .disposed(by: disposeBag)
         
+        viewModel
+            .outputs
+            .addRequestObservable
+            .bind { [weak self] in
+                self?.gotoadd()
+            }
+            .disposed(by: disposeBag)
+        
         // REFACTOR
         viewModel
             .inputs
@@ -84,6 +92,13 @@ class MemoryCollectionCoordinator: ParentCoordinator {
         let coordinator = MemorySearchCoordinator(presentingController: viewController, memoryStore: memoryStore)
         childCoordinators.append(coordinator)
         coordinator.start()
+    }
+    
+    private func gotoadd() {
+        let viewModel = MemoryAddViewModel(factory: MemoryFactory(store: memoryStore))
+        let viewController = MemoryAddController(viewModel: viewModel)
+        let wrapper = NMNavigationController(rootViewController: viewController)
+        self.viewController.present(wrapper, animated: true)
     }
 }
 

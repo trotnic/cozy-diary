@@ -30,51 +30,32 @@ public class CoreMemory: NSManagedObject {
     }
     
     var textChunks: Array<TextChunk> {
-        get {
-            (texts?.allObjects as? Array<CoreTextChunk>)?.map { $0.selfChunk } ?? []
-        }
-        set {
-            texts = NSSet(array: newValue)
-        }
+        get { (texts?.allObjects as? Array<CoreTextChunk>)?.map { $0.selfChunk } ?? [] }
+        set { texts = NSSet(array: newValue) }
     }
     
     var photoChunks: Array<PhotoChunk> {
-        get {
-            (photos?.allObjects as? Array<CorePhotoChunk>)?.map { $0.selfChunk } ?? []
-        }
-        set {
-            photos = NSSet(array: newValue)
-        }
+        get { (photos?.allObjects as? Array<CorePhotoChunk>)?.map { $0.selfChunk } ?? [] }
+        set { photos = NSSet(array: newValue) }
     }
     
     var graffitiChunks: Array<GraffitiChunk> {
-        get {
-            (graffities?.allObjects as? Array<CoreGraffitiChunk>)?.map { $0.selfChunk } ?? []
-        }
-        set {
-            graffities = NSSet(array: newValue)
-        }
+        get { (graffities?.allObjects as? Array<CoreGraffitiChunk>)?.map { $0.selfChunk } ?? [] }
+        set { graffities = NSSet(array: newValue) }
     }
     
     var voiceChunks: Array<VoiceChunk> {
-        get {
-            (voices?.allObjects as? Array<CoreVoiceChunk>)?.map { $0.selfChunk } ?? []
-        }
-        set {
-            voices = NSSet(array: newValue)
-        }
+        get { (voices?.allObjects as? Array<CoreVoiceChunk>)?.map { $0.selfChunk } ?? [] }
+        set { voices = NSSet(array: newValue) }
     }
     
     var tagsRepresentation: Array<String> {
-        get {
-            tags?.map { String($0) } ?? []
-        }
-        set {
-            tags = newValue.map { NSString(string: $0) }
-        }
+        get { tags?.map { String($0) } ?? [] }
+        set { tags = newValue.map { NSString(string: $0) } }
     }
     
-    func updateSelfWith(_ memory: Memory, on context: NSManagedObjectContext) {
+    func updateSelfWith(_ memory: Memory, on context: NSManagedObjectContext) throws {
+        
         date = memory.date
         increment = Int64(memory.index)
         
@@ -107,6 +88,7 @@ public class CoreMemory: NSManagedObject {
         })
         
         tagsRepresentation = memory.tags.map { $0.rawValue }
+        try context.save()
     }
     
     static func update(_ memory: Memory) {

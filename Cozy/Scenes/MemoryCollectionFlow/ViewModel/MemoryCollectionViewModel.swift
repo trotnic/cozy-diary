@@ -41,9 +41,11 @@ class MemoryCollectionViewModel: MemoryCollectionViewModelType, MemoryCollection
     
     var detailRequestObservable: Observable<BehaviorRelay<Memory>> { detailRequestObserver.asObservable() }
     var searchRequestObservable: Observable<Void> { searchButtonTap.asObservable() }
+    var addRequestObservable: Observable<Void> { addButtonTap.asObservable() }
     
     // MARK: Inputs
     let searchButtonTap = PublishRelay<Void>()
+    let addButtonTap = PublishRelay<Void>()
     let viewWillAppear = PublishRelay<Void>()
         
     // MARK: Private
@@ -58,9 +60,14 @@ class MemoryCollectionViewModel: MemoryCollectionViewModelType, MemoryCollection
         self.memoryStore = memoryStore
         
         memoryStore
-            .fetchBeforeNow()
+            .allObjects
+            .flatMap({ (memories) -> Observable<[BehaviorRelay<Memory>]> in
+                .just(memories.filter({ (memory) -> Bool in
+                    memory.value.date < memoryStore.relevantMemory.value.date
+                }))
+            })
             .bind(to: itemsPublisher)
-            .disposed(by: disposeBag)
+            .disposed(by: disposeBag)  
     }
 }
 

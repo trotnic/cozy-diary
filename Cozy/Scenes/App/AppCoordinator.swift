@@ -47,7 +47,7 @@ class AppCoordinator: ParentCoordinator {
             memoryCollectionCoordinator.navigationController
         ]
         
-        tabBarController.selectedIndex = 0
+        tabBarController.selectedIndex = 1
         
         window.rootViewController = tabBarController
         window.makeKeyAndVisible()

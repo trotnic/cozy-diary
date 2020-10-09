@@ -52,6 +52,7 @@ class MemoryCollectionViewController: NMViewController {
         bindViewModel()
         
         setupSearchButton()
+        setupAddButton()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -77,17 +78,27 @@ class MemoryCollectionViewController: NMViewController {
     }
     
     private func setupSearchButton() {
-        let button = NMButton(frame: .init(x: 0, y: 0, width: 35, height: 35))
+        let button = NMButton()
         button.setImage(UIImage(systemName: "magnifyingglass"), for: .normal)
-        
         
         navigationItem.rightBarButtonItem = .init(customView: button)
         
         button
             .rx.tap
-            .subscribe(onNext: { [weak self] in
-                self?.viewModel.inputs.searchButtonTap.accept(())
-            }).disposed(by: disposeBag)
+            .bind(to: viewModel.inputs.searchButtonTap)
+            .disposed(by: disposeBag)
+    }
+    
+    private func setupAddButton() {
+        let button = NMButton()
+        button.setImage(UIImage(systemName: "plus"), for: .normal)
+        
+        navigationItem.leftBarButtonItem = .init(customView: button)
+        
+        button
+            .rx.tap
+            .bind(to: viewModel.inputs.addButtonTap)
+            .disposed(by: disposeBag)
     }
     
     fileprivate func getLayout() -> UICollectionViewCompositionalLayout {

@@ -100,7 +100,7 @@ class UnsplashImageCollectionViewModel: UnsplashImageCollectionViewModelType, Un
                 }
             }
             .flatMapLatest({ [weak self] (searchResults, term) -> Observable<[UnsplashPhoto]> in
-                self?.maxPageCount = searchResults.total_pages
+                self?.maxPageCount = searchResults.totalPages
                 self?.currentPage = 1
                 self?.currentSearchTerm = term
                 return .just(searchResults.results)

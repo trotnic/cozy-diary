@@ -65,10 +65,12 @@ class PerfectCalendar: CalendarType {
 
 // MARK: Synchronizer
 
+
 protocol MemoryStoreType {
     var relevantMemory: BehaviorRelay<Memory> { get }
-    func fetchAll() -> Observable<[BehaviorRelay<Memory>]>
-    func fetchBeforeNow() -> Observable<[BehaviorRelay<Memory>]>
+    var allObjects: Observable<[BehaviorRelay<Memory>]> { get }
+    var allObjectsBeforeNow: Observable<[BehaviorRelay<Memory>]> { get }
+    
     @discardableResult func addItem(_ memory: Memory) -> Bool
     @discardableResult func updateItem(_ memory: Memory) -> Bool
     @discardableResult func removeItem(_ memory: Memory) -> Bool
@@ -81,10 +83,16 @@ class Synchronizer: MemoryStoreType {
     
     private var blackDayBag: [Date: BehaviorRelay<Memory>] = [:]
     
-    private var coreDataModels = BehaviorRelay<[BehaviorRelay<Memory>]>(value: [])
+    private lazy var coreDataModels = BehaviorRelay<[BehaviorRelay<Memory>]>(value: fetchData().map { .init(value: $0.selfChunk) })
     private let coreDataManager: CoreDataManagerType = CoreDataManager()
     
-    var relevantMemory: BehaviorRelay<Memory> { get { fetchRelevantOrCreate() } }
+    var relevantMemory: BehaviorRelay<Memory> { get { fetchRelevantOrCreate() } }    
+    var allObjects: Observable<[BehaviorRelay<Memory>]> { coreDataModels.asObservable() }
+    var allObjectsBeforeNow: Observable<[BehaviorRelay<Memory>]> {
+        coreDataModels.flatMap { (memories) -> Observable<[BehaviorRelay<Memory>]> in
+            .just(memories.filter { $0.value.date < self.calendar.today })
+        }
+    }
     
     private let disposeBag = DisposeBag()
     
@@ -92,7 +100,6 @@ class Synchronizer: MemoryStoreType {
     
     init(calendar: CalendarType) {
         self.calendar = calendar
-        coreDataModels.accept(fetchData().map { .init(value: $0.selfChunk) })
         
         NotificationCenter
             .default.rx
@@ -111,42 +118,28 @@ class Synchronizer: MemoryStoreType {
     
     private func fetchData() -> [CoreMemory] { fetchData(context: self.coreDataManager.viewContext) }
     
-    private func fetchData(context: NSManagedObjectContext) -> [CoreMemory] {
-        fetchData(context: context, predicate: nil)
-    }
+    private func fetchData(context: NSManagedObjectContext) -> [CoreMemory] { fetchData(context: context, predicate: nil) }
     
     private func fetchData(context: NSManagedObjectContext, predicate: NSPredicate?) -> [CoreMemory] {
         let request = CoreMemory.memoryFetchRequest()
-        request.returnsDistinctResults = false
         request.predicate = predicate
+        request.sortDescriptors = [.init(key: "date", ascending: true)]
         
-        do {
-            return try context.fetch(request)
-        } catch {
-            print("BAD: Error message --- \(error.localizedDescription) ---")
-            return []
+        if let result = try? context.fetch(request) {
+            return result
         }
-    }
-    
-    func fetchAll() -> Observable<[BehaviorRelay<Memory>]> {
-        coreDataModels.asObservable()
-    }
-    
-    func fetchBeforeNow() -> Observable<[BehaviorRelay<Memory>]> {
-        coreDataModels.flatMap { (memories) -> Observable<[BehaviorRelay<Memory>]> in
-            .just(memories.filter { $0.value.date < self.calendar.today })
-        }
+        assert(false)
+        return []
     }
     
     @discardableResult
     func addItem(_ memory: Memory) -> Bool {
         let context = coreDataManager.backgroundContext
         let entity = CoreMemory(context: context)
-        entity.updateSelfWith(memory, on: context)
         
         do {
-            try context.save()
-            coreDataModels.accept(fetchData().map { .init(value: $0.selfChunk) })
+            try entity.updateSelfWith(memory, on: context)
+            coreDataModels.accept(fetchData(context: context).map { .init(value: $0.selfChunk) })
             return true
         } catch {
             print("BAD: Error message --- \(error.localizedDescription) ---")
@@ -164,9 +157,9 @@ class Synchronizer: MemoryStoreType {
         do {
             let fetchResult = try context.fetch(request)
             if fetchResult.count >= 1,
+                
                 let entity = fetchResult.last {
-                entity.updateSelfWith(memory, on: context)
-                try context.save()
+                try entity.updateSelfWith(memory, on: context)
                 coreDataModels.accept(fetchData(context: context).map { .init(value: $0.selfChunk) })
                 return true
             }

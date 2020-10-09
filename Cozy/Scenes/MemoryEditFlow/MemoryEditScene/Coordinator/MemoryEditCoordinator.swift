@@ -12,7 +12,9 @@ import RxCocoa
 import Alertift
 
 
+
 class MemoryEditCoordinator: ParentCoordinator {
+    
     
     var childCoordinators: [Coordinator] = []
     
@@ -28,6 +30,7 @@ class MemoryEditCoordinator: ParentCoordinator {
         self.memory = memory
         self.memoryStore = memoryStore
         self.navigationController = navigationController
+            
     }
     
     func start() {
