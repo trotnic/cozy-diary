@@ -119,7 +119,7 @@ class MemoryEditViewModel: MemoryEditViewModelType, MemoryEditViewModelOutput, M
         
         viewWillAppear
             .subscribe(onNext: { [weak self] (_) in
-                self?.memoryStore.seekFor(memory, key: memory.value.date)
+                self?.memoryStore.remember(memory, key: memory.value.date)
                 self?.shouldClearStackObserver.accept(())
             }).disposed(by: disposeBag)
         
@@ -128,7 +128,7 @@ class MemoryEditViewModel: MemoryEditViewModelType, MemoryEditViewModelOutput, M
                 self.memory.value.date
             }
             .subscribe(onNext: { [weak self] (date) in
-                self?.memoryStore.leaveAway(key: date)
+                self?.memoryStore.forget(key: date)
             }).disposed(by: disposeBag)
         
         deleteMemoryButtonTap
@@ -142,7 +142,7 @@ class MemoryEditViewModel: MemoryEditViewModelType, MemoryEditViewModelOutput, M
             .subscribe(onNext: { [weak self] (memory) in
                 self?.memory = memory
                 self?.bindMemory()
-                self?.memoryStore.seekFor(memory, key: memory.value.date)
+                self?.memoryStore.remember(memory, key: memory.value.date)
             })
             .disposed(by: disposeBag)
     }

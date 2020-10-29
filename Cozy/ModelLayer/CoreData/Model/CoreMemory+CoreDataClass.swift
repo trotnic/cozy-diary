@@ -12,7 +12,10 @@ import CoreData
 
 @objc(CoreMemory)
 public class CoreMemory: NSManagedObject {
+    typealias P = Memory
+    
 
+    
     @nonobjc public static func memoryFetchRequest() -> NSFetchRequest<CoreMemory> {
         return NSFetchRequest<CoreMemory>(entityName: "CoreMemory")
     }
@@ -54,41 +57,45 @@ public class CoreMemory: NSManagedObject {
         set { tags = newValue.map { NSString(string: $0) } }
     }
     
-    func updateSelfWith(_ memory: Memory, on context: NSManagedObjectContext) throws {
+    // MARK: Storable protocol
+    func converted() -> Memory { selfChunk }
+    func updateSelfWith(_ memory: Memory, on context: NSManagedObjectContext) {
         
-        date = memory.date
-        increment = Int64(memory.index)
-        
-        texts = NSSet(array: memory.texts.map {
-            let textEntity = CoreTextChunk(context: context)
-            textEntity.index = Int64($0.index)
-            textEntity.text = $0.text
-            return textEntity
-        })
-        
-        photos = NSSet(array: memory.photos.map {
-            let photoEntity = CorePhotoChunk(context: context)
-            photoEntity.index = Int64($0.index)
-            photoEntity.photo = $0.photo
-            return photoEntity
-        })
-        
-        graffities = NSSet(array: memory.graffities.map {
-            let graffitiEntity = CoreGraffitiChunk(context: context)
-            graffitiEntity.index = Int64($0.index)
-            graffitiEntity.graffiti = $0.graffiti
-            return graffitiEntity
-        })
-        
-        voices = NSSet(array: memory.voices.map {
-            let voiceEntity = CoreVoiceChunk(context: context)
-            voiceEntity.audioUrl = $0.voiceUrl
-            voiceEntity.index = Int64($0.index)
-            return voiceEntity
-        })
-        
-        tagsRepresentation = memory.tags.map { $0.rawValue }
-        try context.save()
+        context.performAndWait { [self] in
+            date = memory.date
+            increment = Int64(memory.index)
+            
+            texts = NSSet(array: memory.texts.map {
+                let textEntity = CoreTextChunk(context: context)
+                textEntity.index = Int64($0.index)
+                textEntity.text = $0.text
+                return textEntity
+            })
+            
+            photos = NSSet(array: memory.photos.map {
+                let photoEntity = CorePhotoChunk(context: context)
+                photoEntity.index = Int64($0.index)
+                photoEntity.photo = $0.photo
+                return photoEntity
+            })
+            
+            graffities = NSSet(array: memory.graffities.map {
+                let graffitiEntity = CoreGraffitiChunk(context: context)
+                graffitiEntity.index = Int64($0.index)
+                graffitiEntity.graffiti = $0.graffiti
+                return graffitiEntity
+            })
+            
+            voices = NSSet(array: memory.voices.map {
+                let voiceEntity = CoreVoiceChunk(context: context)
+                voiceEntity.audioUrl = $0.voiceUrl
+                voiceEntity.index = Int64($0.index)
+                return voiceEntity
+            })
+            
+            tagsRepresentation = memory.tags.map { $0.rawValue }
+            
+        }
     }
     
     static func update(_ memory: Memory) {

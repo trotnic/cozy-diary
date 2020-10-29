@@ -12,28 +12,6 @@ import RxSwift
 import RxCocoa
 
 
-protocol CoreDataManagerType {
-    var viewContext: NSManagedObjectContext { get }
-    var backgroundContext: NSManagedObjectContext { get }
-}
-
-class CoreDataManager: CoreDataManagerType {
-    
-    static let shared = CoreDataManager()
-    
-    let persistenceContainer: NSPersistentContainer = {
-        let container = NSPersistentContainer(name: "Cozy")
-        container.loadPersistentStores { (description, error) in
-            if let error = error { fatalError("FATAL: message --- \(error.localizedDescription) ---") }
-        }
-        return container
-    }()
-    
-    var viewContext: NSManagedObjectContext { persistenceContainer.viewContext }
-    var backgroundContext: NSManagedObjectContext { persistenceContainer.newBackgroundContext() }
-}
-
-
 // MARK: Calendar
 
 
@@ -66,19 +44,6 @@ class PerfectCalendar: CalendarType {
 // MARK: Synchronizer
 
 
-protocol MemoryStoreType {
-    var relevantMemory: BehaviorRelay<Memory> { get }
-    var allObjects: Observable<[BehaviorRelay<Memory>]> { get }
-    var allObjectsBeforeNow: Observable<[BehaviorRelay<Memory>]> { get }
-    
-    @discardableResult func addItem(_ memory: Memory) -> Bool
-    @discardableResult func updateItem(_ memory: Memory) -> Bool
-    @discardableResult func removeItem(_ memory: Memory) -> Bool
-    
-    func seekFor(_ memory: BehaviorRelay<Memory>, key: Date)
-    func leaveAway(key: Date)
-}
-
 class Synchronizer: MemoryStoreType {
     
     private var blackDayBag: [Date: BehaviorRelay<Memory>] = [:]
@@ -88,11 +53,11 @@ class Synchronizer: MemoryStoreType {
     
     var relevantMemory: BehaviorRelay<Memory> { get { fetchRelevantOrCreate() } }    
     var allObjects: Observable<[BehaviorRelay<Memory>]> { coreDataModels.asObservable() }
-    var allObjectsBeforeNow: Observable<[BehaviorRelay<Memory>]> {
-        coreDataModels.flatMap { (memories) -> Observable<[BehaviorRelay<Memory>]> in
-            .just(memories.filter { $0.value.date < self.calendar.today })
-        }
-    }
+//    var allObjectsBeforeNow: Observable<[BehaviorRelay<Memory>]> {
+//        coreDataModels.flatMap { (memories) -> Observable<[BehaviorRelay<Memory>]> in
+//            .just(memories.filter { $0.value.date < self.calendar.today })
+//        }
+//    }
     
     private let disposeBag = DisposeBag()
     
@@ -104,7 +69,7 @@ class Synchronizer: MemoryStoreType {
         NotificationCenter
             .default.rx
             .notification(UIApplication.willResignActiveNotification)
-            .subscribe(onNext: { [weak self] (notificaiton) in
+            .bind(onNext: { [weak self] (notificaiton) in
                 if let self = self {
                     let taskIdentifier = UIApplication.shared.beginBackgroundTask()
                     self.blackDayBag.values.forEach { (memory) in
@@ -132,24 +97,20 @@ class Synchronizer: MemoryStoreType {
         return []
     }
     
-    @discardableResult
-    func addItem(_ memory: Memory) -> Bool {
+    func addItem(_ memory: Memory) {
         let context = coreDataManager.backgroundContext
         let entity = CoreMemory(context: context)
         
         do {
             try entity.updateSelfWith(memory, on: context)
             coreDataModels.accept(fetchData(context: context).map { .init(value: $0.selfChunk) })
-            return true
         } catch {
             print("BAD: Error message --- \(error.localizedDescription) ---")
-            return false
         }
     }
     
     
-    @discardableResult
-    func updateItem(_ memory: Memory) -> Bool {
+    func updateItem(_ memory: Memory) {
         let context = coreDataManager.backgroundContext
         let request = CoreMemory.memoryFetchRequest()
         request.predicate = .init(format: "date == %@", memory.date as NSDate)
@@ -161,17 +122,14 @@ class Synchronizer: MemoryStoreType {
                 let entity = fetchResult.last {
                 try entity.updateSelfWith(memory, on: context)
                 coreDataModels.accept(fetchData(context: context).map { .init(value: $0.selfChunk) })
-                return true
             }
         } catch {
             assert(false, "fatal: shouldn't ever happen; Error: \(error.localizedDescription)")
         }
-        return false
     }
     
     
-    @discardableResult
-    func removeItem(_ memory: Memory) -> Bool {
+    func removeItem(_ memory: Memory) {
         let context = coreDataManager.backgroundContext
         if let request = CoreMemory.memoryFetchRequest() as? NSFetchRequest<NSFetchRequestResult> {
             request.predicate = .init(format: "date == %@", memory.date as NSDate)
@@ -180,19 +138,17 @@ class Synchronizer: MemoryStoreType {
             do {
                 try context.execute(batchRequest)
                 coreDataModels.accept(fetchData().map { .init(value: $0.selfChunk) })
-                return true
             } catch  {
                 assert(false, "fatal: shouldn't ever happen; Error: \(error.localizedDescription)")
             }
         }
-        return false
     }
     
-    func seekFor(_ memory: BehaviorRelay<Memory>, key: Date) {
+    func remember(_ memory: BehaviorRelay<Memory>, key: Date) {
         blackDayBag[key] = memory
     }
     
-    func leaveAway(key: Date) {
+    func forget(key: Date) {
         if let value = blackDayBag[key]?.value {
             updateItem(value)
         }

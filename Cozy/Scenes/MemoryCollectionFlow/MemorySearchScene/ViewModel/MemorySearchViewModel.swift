@@ -76,7 +76,7 @@ class MemorySearchViewModel: MemorySearchViewModelType, MemorySearchViewModelOut
     // MARK: Private methods
     private func bindMemoryStore() {
         memoryStore
-            .allObjectsBeforeNow
+            .allObjects
             .bind(onNext: { [weak self] (memories) in
                 self?.itemsPublisher.accept(memories)
                 self?.filterManager.refillInitialFiltersWith(
